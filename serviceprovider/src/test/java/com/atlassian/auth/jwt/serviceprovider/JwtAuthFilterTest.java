@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 
+import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -73,6 +74,12 @@ public class JwtAuthFilterTest
         verify(authenticationListener).authenticationSuccess(eq(success), isA(HttpServletRequest.class), isA(HttpServletResponse.class));
         verify(chain).doFilter(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
         verifyNoMoreInteractions(authenticationListener);
+    }
+
+    @Test
+    public void verifyThatOnSuccessfulAuthenticationTheJwtPayloadIsAttached()
+    {
+        fail("TODO");
     }
 
     @Test

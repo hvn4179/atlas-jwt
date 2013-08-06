@@ -13,4 +13,9 @@ public class JwtParseException extends Exception
     {
         super(cause);
     }
+
+    public JwtParseException(String reason)
+    {
+        super(reason);
+    }
 }

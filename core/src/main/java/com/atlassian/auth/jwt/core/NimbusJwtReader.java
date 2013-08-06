@@ -8,7 +8,9 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -86,5 +88,26 @@ public class NimbusJwtReader implements JwtReader
         }
 
         return jsonPayload.toString();
+    }
+
+    @Override
+    public String getIssuer(String json) throws JwtParseException
+    {
+        final Object jsonObject = JSONValue.parse(json);
+
+        if (!(jsonObject instanceof JSONObject))
+        {
+            throw new JwtParseException("Expecting JWT body to contain a JSON object but instead found " + (jsonObject == null ? "null" : jsonObject.getClass().getSimpleName()));
+        }
+
+        try
+        {
+            JWTClaimsSet claimsSet = JWTClaimsSet.parse((JSONObject)jsonObject);
+            return claimsSet.getIssuer();
+        }
+        catch (ParseException e)
+        {
+            throw new JwtParseException(e);
+        }
     }
 }

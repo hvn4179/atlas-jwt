@@ -1,11 +1,14 @@
 package com.atlassian.auth.jwt.serviceprovider;
 
 import com.atlassian.auth.jwt.core.*;
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.ExpiredJwtException;
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.JwtParseException;
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.JwtSignatureMismatchException;
+import com.atlassian.auth.jwt.core.except.ExpiredJwtException;
+import com.atlassian.auth.jwt.core.except.JwtParseException;
+import com.atlassian.auth.jwt.core.except.JwtSignatureMismatchException;
+import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +26,14 @@ public class JwtAuthenticator implements Authenticator
     public static final String JWT_PARAM_NAME = "jwt";
 
     private final JwtReader jwtReader;
+    private final JwtIssuerToAccountNameMapper issuerToAccountNameMapper;
+    private final AuthenticationController authenticationController;
 
-    public JwtAuthenticator(JwtReader jwtReader)
+    public JwtAuthenticator(JwtReader jwtReader, JwtIssuerToAccountNameMapper issuerToAccountNameMapper, AuthenticationController authenticationController)
     {
         this.jwtReader = jwtReader;
+        this.issuerToAccountNameMapper = issuerToAccountNameMapper;
+        this.authenticationController = authenticationController;
     }
 
     @Override
@@ -40,17 +47,65 @@ public class JwtAuthenticator implements Authenticator
         throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
     }
 
-    private Result authenticateJwt(HttpServletRequest request, HttpServletResponse response)
+    private Result authenticateJwt(final HttpServletRequest request, HttpServletResponse response)
     {
         try
         {
-            String jsonString = jwtReader.jwtToJson(request.getParameter(JWT_PARAM_NAME));
-            return new Result.Success(new Message()
+            final String jsonString = jwtReader.jwtToJson(request.getParameter(JWT_PARAM_NAME));
+            String jwtIssuer = jwtReader.getIssuer(jsonString);
+            final String username = issuerToAccountNameMapper.get(jwtIssuer);
+            final Principal userPrincipal = new Principal()
+            {
+                @Override
+                public String getName()
+                {
+                    return username;
+                }
+            };
+
+            if (authenticationController.canLogin(userPrincipal, request))
+            {
+                return new Result.Success(new Message()
+                {
+                    @Override
+                    public String getKey()
+                    {
+                        return jsonString;
+                    }
+
+                    @Override
+                    public Serializable[] getArguments()
+                    {
+                        return null;
+                    }
+                }, userPrincipal);
+            }
+            else
+            {
+                return new Result.Failure(new Message()
+                {
+                    @Override
+                    public String getKey()
+                    {
+                        return String.format("User [%s] and request [%s] are not a valid login combination", username, request);
+                    }
+
+                    @Override
+                    public Serializable[] getArguments()
+                    {
+                        return null;
+                    }
+                });
+            }
+        }
+        catch (final JwtParseException e)
+        {
+            return new Result.Error(new Message()
             {
                 @Override
                 public String getKey()
                 {
-                    return null;
+                    return e.getLocalizedMessage();
                 }
 
                 @Override
@@ -58,29 +113,42 @@ public class JwtAuthenticator implements Authenticator
                 {
                     return null;
                 }
-            }, new Principal()
+            });
+        }
+        catch (final JwtSignatureMismatchException e)
+        {
+            return new Result.Failure(new Message()
             {
                 @Override
-                public String getName()
+                public String getKey()
                 {
-                    return "foo";
+                    return e.getLocalizedMessage();
+                }
+
+                @Override
+                public Serializable[] getArguments()
+                {
+                    return null;
                 }
             });
         }
-        catch (JwtParseException e)
+        catch (final ExpiredJwtException e)
         {
-            e.printStackTrace();
-        }
-        catch (JwtSignatureMismatchException e)
-        {
-            e.printStackTrace();
-        }
-        catch (ExpiredJwtException e)
-        {
-            e.printStackTrace();
-        }
+            return new Result.Failure(new Message()
+            {
+                @Override
+                public String getKey()
+                {
+                    return e.getLocalizedMessage();
+                }
 
-        return null;
+                @Override
+                public Serializable[] getArguments()
+                {
+                    return null;
+                }
+            });
+        }
     }
 
     private boolean containsJwt(HttpServletRequest request)

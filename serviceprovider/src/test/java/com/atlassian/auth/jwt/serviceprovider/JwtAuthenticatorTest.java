@@ -1,7 +1,6 @@
 package com.atlassian.auth.jwt.serviceprovider;
 
-import com.atlassian.auth.jwt.core.JwtIssuerToServiceAccountMapper;
-import com.atlassian.auth.jwt.core.NimbusJwtReader;
+import com.atlassian.auth.jwt.core.JwtIssuerToAccountNameMapper;
 import com.atlassian.auth.jwt.core.NimbusMacJwtReader;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class JwtAuthenticatorTest
 {
     private static final String VALID_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-    private static final int JWT_ISSUE_TIME = 1300819380;
+    private static final long JWT_EXPIRY_TIME = 1300819380000L;
     private static final String ADD_ON_SERVICE_ACCOUNT = "add-on service account username";
     private static final Principal ADD_ON_PRINCIPAL = new Principal()
     {
@@ -39,26 +38,39 @@ public class JwtAuthenticatorTest
         {
             return ADD_ON_SERVICE_ACCOUNT;
         }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj instanceof Principal)
+            {
+                Principal otherPrincipal = (Principal) obj;
+                return getName().equals(otherPrincipal.getName());
+            }
+
+            return false;
+        }
     };
     private static final String SHARED_SECRET = "secret";
 
     private Authenticator authenticator;
 
     @Mock AuthenticationController authenticationController;
-    @Mock JwtIssuerToServiceAccountMapper addOnToServiceAccountMapper;
+    @Mock
+    JwtIssuerToAccountNameMapper issuerToAccountNameMapper;
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
 
     @Before
     public void setUp() throws IOException
     {
-        authenticator = new JwtAuthenticator(new NimbusMacJwtReader(SHARED_SECRET, new StaticClock(new Date(JWT_ISSUE_TIME - 1))));
+        authenticator = createAuthenticator(-1);
 
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://host/service"));
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
 
-        when(addOnToServiceAccountMapper.get("joe")).thenReturn(ADD_ON_SERVICE_ACCOUNT);
+        when(issuerToAccountNameMapper.get("joe")).thenReturn(ADD_ON_SERVICE_ACCOUNT);
 
         when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(true);
     }
@@ -83,16 +95,6 @@ public class JwtAuthenticatorTest
         when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
         when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
-    }
-
-    @Test
-    public void validJwtResultsInCorrectPayload()
-    {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
-        String expectedJson = "{\"exp\":1300819380,"
-                            + "\"http:\\/\\/example.com\\/is_root\":true,"
-                            + "\"iss\":\"joe\"}";
-        assertThat(authenticator.authenticate(request, response).getMessage(), is(expectedJson));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -127,8 +129,13 @@ public class JwtAuthenticatorTest
     @Test
     public void expiredJwtResultsInFailure()
     {
-        authenticator = new JwtAuthenticator(new NimbusMacJwtReader(SHARED_SECRET, new StaticClock(new Date(JWT_ISSUE_TIME - 1))));
+        authenticator = createAuthenticator(1);
         when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    private JwtAuthenticator createAuthenticator(long clockOffsetMillis)
+    {
+        return new JwtAuthenticator(new NimbusMacJwtReader(SHARED_SECRET, new StaticClock(new Date(JWT_EXPIRY_TIME + clockOffsetMillis))), issuerToAccountNameMapper, authenticationController);
     }
 }
