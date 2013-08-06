@@ -1,8 +1,8 @@
 package com.atlassian.auth.jwt.core;
 
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.ExpiredJwtException;
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.JwtParseException;
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.JwtSignatureMismatchException;
+import com.atlassian.auth.jwt.core.except.ExpiredJwtException;
+import com.atlassian.auth.jwt.core.except.JwtParseException;
+import com.atlassian.auth.jwt.core.except.JwtSignatureMismatchException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;

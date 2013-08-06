@@ -1,6 +1,6 @@
 package com.atlassian.auth.jwt.core;
 
-import com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except.JwtSigningException;
+import com.atlassian.auth.jwt.core.except.JwtSigningException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.crypto.MACSigner;
 import org.junit.Before;

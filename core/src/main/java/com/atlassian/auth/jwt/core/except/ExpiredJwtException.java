@@ -1,4 +1,4 @@
-package com.atlassian.auth.jwt.core.com.atlassian.auth.jwt.core.except;
+package com.atlassian.auth.jwt.core.except;
 
 import java.util.Date;
 
