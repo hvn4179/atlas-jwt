@@ -4,6 +4,7 @@ import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
 import com.atlassian.sal.api.auth.Authenticator;
+import com.atlassian.sal.api.message.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.Principal;
 
 import static junit.framework.Assert.fail;
@@ -54,11 +56,11 @@ public class JwtAuthFilterTest
     @Before
     public void setUp()
     {
-        filter = new JwtAuthFilter();
+        filter = new JwtAuthFilter(authenticationListener, authenticator, authenticationController);
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://host/service"));
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         when(request.getContextPath()).thenReturn("");
     }
 
@@ -66,7 +68,7 @@ public class JwtAuthFilterTest
     public void verifyThatAuthenticationControllerIsNotifiedAndFilterChainContinuesWhenAuthenticationIsSuccessful() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
-        Authenticator.Result.Success success = new Authenticator.Result.Success(null, ADD_ON_PRINCIPAL);
+        Authenticator.Result.Success success = new Authenticator.Result.Success(createMessage("success"), ADD_ON_PRINCIPAL);
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(success);
 
         filter.doFilter(request, response, chain);
@@ -86,7 +88,7 @@ public class JwtAuthFilterTest
     public void verifyThatWeStopTheFilterChainAndReportFailureIfAuthenticationFails() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
-        Authenticator.Result.Failure failure = new Authenticator.Result.Failure(null);
+        Authenticator.Result.Failure failure = new Authenticator.Result.Failure(createMessage("failure"));
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(failure);
         filter.doFilter(request, response, chain);
 
@@ -99,7 +101,7 @@ public class JwtAuthFilterTest
     public void verifyThatWeStopTheFilterChainAndReportFailureIfThereIsAnErrorDuringAuthentication() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
-        Authenticator.Result.Error error = new Authenticator.Result.Error(null);
+        Authenticator.Result.Error error = new Authenticator.Result.Error(createMessage("error"));
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(error);
         filter.doFilter(request, response, chain);
 
@@ -112,6 +114,7 @@ public class JwtAuthFilterTest
     public void verifyThatWhenOAuthParametersAreNotPresentWeLetTheRequestPassThru() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(null);
 
         filter.doFilter(request, response, chain);
 
@@ -202,5 +205,23 @@ public class JwtAuthFilterTest
         }
 
         protected abstract void chainInvoked(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    }
+
+    private static Message createMessage(final String message)
+    {
+        return new Message()
+        {
+            @Override
+            public String getKey()
+            {
+                return message;
+            }
+
+            @Override
+            public Serializable[] getArguments()
+            {
+                return null;
+            }
+        };
     }
 }

@@ -22,8 +22,6 @@ import java.security.Principal;
  */
 public class JwtAuthenticator implements Authenticator
 {
-    public static final String JWT_PARAM_NAME = "jwt";
-
     private final JwtReader jwtReader;
     private final JwtIssuerToAccountNameMapper issuerToAccountNameMapper;
     private final AuthenticationController authenticationController;
@@ -38,7 +36,7 @@ public class JwtAuthenticator implements Authenticator
     @Override
     public Result authenticate(HttpServletRequest request, HttpServletResponse response)
     {
-        if (containsJwt(request))
+        if (JwtUtils.requestContainsJwt(request))
         {
             return authenticateJwt(request, response);
         }
@@ -51,7 +49,7 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            String jsonString = jwtReader.jwtToJson(request.getParameter(JWT_PARAM_NAME));
+            String jsonString = jwtReader.jwtToJson(request.getParameter(JwtUtils.JWT_PARAM_NAME));
             String jwtIssuer = jwtReader.getIssuer(jsonString);
             final String username = issuerToAccountNameMapper.get(jwtIssuer);
             final Principal userPrincipal = createPrincipal(username);
@@ -78,11 +76,6 @@ public class JwtAuthenticator implements Authenticator
         {
             return createFailure(e);
         }
-    }
-
-    private boolean containsJwt(HttpServletRequest request)
-    {
-        return !StringUtils.isEmpty(request.getParameter(JWT_PARAM_NAME));
     }
 
     private static Principal createPrincipal(final String username)
