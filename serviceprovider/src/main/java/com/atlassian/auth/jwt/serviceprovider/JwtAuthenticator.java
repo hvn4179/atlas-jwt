@@ -1,14 +1,13 @@
 package com.atlassian.auth.jwt.serviceprovider;
 
-import com.atlassian.auth.jwt.core.*;
+import com.atlassian.auth.jwt.core.JwtIssuerToAccountNameMapper;
+import com.atlassian.auth.jwt.core.JwtReader;
 import com.atlassian.auth.jwt.core.except.ExpiredJwtException;
 import com.atlassian.auth.jwt.core.except.JwtParseException;
 import com.atlassian.auth.jwt.core.except.JwtSignatureMismatchException;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +43,7 @@ public class JwtAuthenticator implements Authenticator
             return authenticateJwt(request, response);
         }
 
+        // TODO: consider localising this error message
         throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
     }
 
@@ -51,108 +51,87 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            final String jsonString = jwtReader.jwtToJson(request.getParameter(JWT_PARAM_NAME));
+            String jsonString = jwtReader.jwtToJson(request.getParameter(JWT_PARAM_NAME));
             String jwtIssuer = jwtReader.getIssuer(jsonString);
             final String username = issuerToAccountNameMapper.get(jwtIssuer);
-            final Principal userPrincipal = new Principal()
-            {
-                @Override
-                public String getName()
-                {
-                    return username;
-                }
-            };
+            final Principal userPrincipal = createPrincipal(username);
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
-                return new Result.Success(new Message()
-                {
-                    @Override
-                    public String getKey()
-                    {
-                        return jsonString;
-                    }
-
-                    @Override
-                    public Serializable[] getArguments()
-                    {
-                        return null;
-                    }
-                }, userPrincipal);
+                return new Result.Success(createMessage("Authentication successful!"), userPrincipal);
             }
             else
             {
-                return new Result.Failure(new Message()
-                {
-                    @Override
-                    public String getKey()
-                    {
-                        return String.format("User [%s] and request [%s] are not a valid login combination", username, request);
-                    }
-
-                    @Override
-                    public Serializable[] getArguments()
-                    {
-                        return null;
-                    }
-                });
+                // TODO: consider localising this error message
+                return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", username, request)));
             }
         }
-        catch (final JwtParseException e)
+        catch (JwtParseException e)
         {
-            return new Result.Error(new Message()
-            {
-                @Override
-                public String getKey()
-                {
-                    return e.getLocalizedMessage();
-                }
-
-                @Override
-                public Serializable[] getArguments()
-                {
-                    return null;
-                }
-            });
+            return createError(e);
         }
-        catch (final JwtSignatureMismatchException e)
+        catch (JwtSignatureMismatchException e)
         {
-            return new Result.Failure(new Message()
-            {
-                @Override
-                public String getKey()
-                {
-                    return e.getLocalizedMessage();
-                }
-
-                @Override
-                public Serializable[] getArguments()
-                {
-                    return null;
-                }
-            });
+            return createFailure(e);
         }
-        catch (final ExpiredJwtException e)
+        catch (ExpiredJwtException e)
         {
-            return new Result.Failure(new Message()
-            {
-                @Override
-                public String getKey()
-                {
-                    return e.getLocalizedMessage();
-                }
-
-                @Override
-                public Serializable[] getArguments()
-                {
-                    return null;
-                }
-            });
+            return createFailure(e);
         }
     }
 
     private boolean containsJwt(HttpServletRequest request)
     {
         return !StringUtils.isEmpty(request.getParameter(JWT_PARAM_NAME));
+    }
+
+    private static Principal createPrincipal(final String username)
+    {
+        return new Principal()
+        {
+            @Override
+            public String getName()
+            {
+                return username;
+            }
+        };
+    }
+
+    private static Result.Error createError(Exception e)
+    {
+        return createError(e.getLocalizedMessage());
+    }
+
+    private static Result.Error createError(String message)
+    {
+        return new Result.Error(createMessage(message));
+    }
+
+    private static Result.Failure createFailure(Exception e)
+    {
+        return createFailure(e.getLocalizedMessage());
+    }
+
+    private static Result.Failure createFailure(String message)
+    {
+        return new Result.Failure(createMessage(message));
+    }
+
+    private static Message createMessage(final String message)
+    {
+        return new Message()
+        {
+            @Override
+            public String getKey()
+            {
+                return message;
+            }
+
+            @Override
+            public Serializable[] getArguments()
+            {
+                return null;
+            }
+        };
     }
 }

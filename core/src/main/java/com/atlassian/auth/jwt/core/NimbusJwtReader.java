@@ -10,7 +10,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 
