@@ -78,14 +78,14 @@ public class JwtAuthenticatorTest
     @Test
     public void validJwtResultsInSuccess()
     {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.SUCCESS));
     }
 
     @Test
     public void validJwtResultsInCorrectPrincipal()
     {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_SERVICE_ACCOUNT));
     }
 
@@ -93,28 +93,28 @@ public class JwtAuthenticatorTest
     public void validJwtWithPrincipalWhoCannotLogInResultsInFailure()
     {
         when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullJwtResultsInException()
     {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(null);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(null);
         authenticator.authenticate(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyStringJwtResultsInException()
     {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn("");
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn("");
         authenticator.authenticate(request, response);
     }
 
     @Test
     public void garbledJwtResultsInError()
     {
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn("abc.123.def");
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn("abc.123.def");
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR));
     }
 
@@ -122,7 +122,7 @@ public class JwtAuthenticatorTest
     public void badJwtSignatureResultsInFailure()
     {
         String badJwt = VALID_JWT.substring(0, VALID_JWT.lastIndexOf('.') + 1) + "bad_signature";
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(badJwt);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(badJwt);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
@@ -130,7 +130,7 @@ public class JwtAuthenticatorTest
     public void expiredJwtResultsInFailure()
     {
         authenticator = createAuthenticator(1);
-        when(request.getParameter(JwtAuthenticator.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
