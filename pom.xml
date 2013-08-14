@@ -3,10 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>core</module>
-        <module>serviceprovider</module>
-    </modules>
 
     <parent>
         <groupId>com.atlassian.pom</groupId>
@@ -14,8 +10,15 @@
         <version>29.4</version>
     </parent>
 
-    <groupId>com.atlassian.auth</groupId>
-    <artifactId>atlassian-auth-jwt</artifactId>
+    <modules>
+        <module>api</module>
+        <module>core</module>
+        <module>applinks</module>
+        <module>plugin</module>
+    </modules>
+
+    <groupId>com.atlassian.jwt</groupId>
+    <artifactId>jwt-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Atlassian Auth JWT</name>
     <description>Plugin to provide support for JWT authentication in our RESTful APIs</description>
@@ -43,14 +46,12 @@
 
     <build>
         <plugins>
-            <!-- IDE builds need to know about atlassian-plugin -->
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-amps-plugin</artifactId>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -73,101 +74,71 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.twdata.maven</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.0-beta-2-db2</version>
-                </plugin>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>com.atlassian.maven.plugins</groupId>
-                                        <artifactId>maven-amps-plugin</artifactId>
-                                        <versionRange>${amps.version}</versionRange>
-                                        <goals>
-                                            <goal>compress-resources</goal>
-                                            <goal>copy-bundled-dependencies</goal>
-                                            <goal>filter-plugin-descriptor</goal>
-                                            <goal>generate-manifest</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <excludePackageNames>*.internal:com.atlassian.gadgets.refimpl:com.atlassian.gadgets.test:com.atlassian.gadgets.util</excludePackageNames>
-                    <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-                    </links>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-applinks</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>2.16</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.sal</groupId>
                 <artifactId>sal-api</artifactId>
                 <version>2.7.0</version>
-                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.applinks</groupId>
+                <artifactId>applinks-api</artifactId>
+                <version>4.0.0</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>2.5</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-core</artifactId>
                 <version>1.3</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>1.9.5</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

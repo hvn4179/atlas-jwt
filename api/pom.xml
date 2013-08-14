@@ -11,22 +11,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jwt-core</artifactId>
-    <name>Atlassian Auth JWT Core</name>
+    <artifactId>jwt-api</artifactId>
+    <name>Atlassian JWT API</name>
     <description>
-        Core JWT reading and writing functionality.
-        Encapsulates the 3rd party JWT lib that we use.
+        Atlassian JWT API classes.
+        This may be bundled in a host application's WEB-INF/lib with implementations looked up via OSGi.
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.atlassian.jwt</groupId>
-            <artifactId>jwt-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

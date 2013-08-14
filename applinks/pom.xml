@@ -11,21 +11,18 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jwt-core</artifactId>
-    <name>Atlassian Auth JWT Core</name>
+    <artifactId>jwt-applinks</artifactId>
+    <name>Atlassian JWT Applinks</name>
     <description>
-        Core JWT reading and writing functionality.
-        Encapsulates the 3rd party JWT lib that we use.
+        Provides services for making JWT authenticated requests to "applinked" applications.
+        This may be bundled in a host application's WEB-INF/lib with implementations looked up via OSGi.
     </description>
 
     <dependencies>
         <dependency>
-            <groupId>com.atlassian.jwt</groupId>
-            <artifactId>jwt-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
