@@ -1,15 +1,20 @@
-package com.atlassian.jwt.core;
+package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwtReader;
+import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.core.Clock;
+import com.atlassian.jwt.core.NimbusUtil;
+import com.atlassian.jwt.core.SimpleJwt;
+import com.atlassian.jwt.core.SystemClock;
 import com.atlassian.jwt.exception.ExpiredJwtException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtSignatureMismatchException;
+import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -18,20 +23,22 @@ public class NimbusJwtReader implements JwtReader
 {
     private final JWSVerifier verifier;
     private final Clock clock;
+    private final JwsAlgorithm algorithm;
 
-    public NimbusJwtReader(JWSVerifier verifier)
+    public NimbusJwtReader(JwsAlgorithm algorithm, JWSVerifier verifier)
     {
-        this(verifier, SystemClock.getInstance());
+        this(algorithm, verifier, SystemClock.getInstance());
     }
 
-    public NimbusJwtReader(JWSVerifier verifier, Clock clock)
+    public NimbusJwtReader(JwsAlgorithm algorithm, JWSVerifier verifier, Clock clock)
     {
+        this.algorithm = algorithm;
         this.verifier = verifier;
         this.clock = clock;
     }
 
     @Override
-    public String jwtToJson(String jwt) throws JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
+    public VerifiedJwt verify(String jwt) throws JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
     {
         JWSObject jwsObject;
 
@@ -82,27 +89,10 @@ public class NimbusJwtReader implements JwtReader
             throw new ExpiredJwtException(claims.getExpirationTime(), now);
         }
 
-        return jsonPayload.toString();
+        String prn = NimbusUtil.getStringClaimValue(claims, "prn");
+
+        return new SimpleJwt(claims.getIssuer(), prn, algorithm, jsonPayload.toString());
     }
 
-    @Override
-    public String getIssuer(String json) throws JwtParseException
-    {
-        final Object jsonObject = JSONValue.parse(json);
 
-        if (!(jsonObject instanceof JSONObject))
-        {
-            throw new JwtParseException("Expecting JWT body to contain a JSON object but instead found " + (jsonObject == null ? "null" : jsonObject.getClass().getSimpleName()));
-        }
-
-        try
-        {
-            JWTClaimsSet claimsSet = JWTClaimsSet.parse((JSONObject)jsonObject);
-            return claimsSet.getIssuer();
-        }
-        catch (ParseException e)
-        {
-            throw new JwtParseException(e);
-        }
-    }
 }

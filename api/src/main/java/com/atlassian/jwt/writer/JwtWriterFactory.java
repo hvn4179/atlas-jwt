@@ -1,4 +1,6 @@
-package com.atlassian.jwt;
+package com.atlassian.jwt.writer;
+
+import com.atlassian.jwt.JwsAlgorithm;
 
 public interface JwtWriterFactory
 {

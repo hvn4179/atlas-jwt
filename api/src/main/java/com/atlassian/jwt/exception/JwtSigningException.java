@@ -1,6 +1,11 @@
 package com.atlassian.jwt.exception;
 
-public class JwtSigningException extends Throwable
+/**
+ * Thrown if a problem was encountered while signing a JWT.
+ *
+ * @since 1.0
+ */
+public class JwtSigningException extends Exception
 {
     public JwtSigningException(Exception cause)
     {

@@ -1,5 +1,6 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.plugin.servlet;
 
+import com.atlassian.jwt.plugin.JwtUtil;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -11,7 +12,6 @@ import java.io.IOException;
 
 public class JwtAuthFilter implements Filter
 {
-    public static final String TRUE_STRING = "true";
     private final Authenticator authenticator;
     private final AuthenticationListener authenticationListener;
     private final AuthenticationController authenticationController;
@@ -34,12 +34,12 @@ public class JwtAuthFilter implements Filter
 
     private HttpServletResponse getHttpServletResponse(ServletResponse response)
     {
-        return (HttpServletResponse)response;
+        return (HttpServletResponse) response;
     }
 
     private HttpServletRequest getHttpServletRequest(ServletRequest request)
     {
-        return (HttpServletRequest)request;
+        return (HttpServletRequest) request;
     }
 
     private boolean mayProceed(HttpServletRequest request, HttpServletResponse response)
@@ -53,7 +53,7 @@ public class JwtAuthFilter implements Filter
 
         // if it does NOT involve JWT then we allow the filter chain to continue being processed,
         // TODO: but we want to add the WWW-Authenticate header
-        if (!JwtUtils.requestContainsJwt(request))
+        if (!JwtUtil.requestContainsJwt(request))
         {
             authenticationListener.authenticationNotAttempted(request, response);
             return true;
@@ -81,7 +81,7 @@ public class JwtAuthFilter implements Filter
 
     private void markAsJwtRequest(HttpServletRequest request)
     {
-        request.setAttribute(JwtUtils.JWT_REQUEST_FLAG, TRUE_STRING);
+        request.setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
     }
 
     @Override

@@ -1,5 +1,6 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.plugin.servlet;
 
+import com.atlassian.jwt.plugin.JwtUtil;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
@@ -40,13 +41,20 @@ public class JwtAuthFilterTest
 
     Filter filter;
 
-    @Mock Authenticator authenticator;
-    @Mock AuthenticationListener authenticationListener;
-    @Mock AuthenticationController authenticationController;
-    @Mock ApplicationProperties applicationProperties;
-    @Mock HttpServletRequest request;
-    @Mock HttpServletResponse response;
-    @Mock FilterChain chain;
+    @Mock
+    Authenticator authenticator;
+    @Mock
+    AuthenticationListener authenticationListener;
+    @Mock
+    AuthenticationController authenticationController;
+    @Mock
+    ApplicationProperties applicationProperties;
+    @Mock
+    HttpServletRequest request;
+    @Mock
+    HttpServletResponse response;
+    @Mock
+    FilterChain chain;
 
     @Before
     public void setUp()
@@ -55,7 +63,7 @@ public class JwtAuthFilterTest
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://host/service"));
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         when(request.getContextPath()).thenReturn("");
     }
 
@@ -109,7 +117,7 @@ public class JwtAuthFilterTest
     public void verifyThatWhenOAuthParametersAreNotPresentWeLetTheRequestPassThru() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(null);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(null);
 
         filter.doFilter(request, response, chain);
 

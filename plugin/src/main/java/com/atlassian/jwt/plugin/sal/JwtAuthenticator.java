@@ -1,9 +1,11 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.plugin.sal;
 
-import com.atlassian.jwt.JwtReader;
+import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.exception.ExpiredJwtException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtSignatureMismatchException;
+import com.atlassian.jwt.plugin.JwtUtil;
+import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
@@ -16,20 +18,18 @@ import java.security.Principal;
 public class JwtAuthenticator implements Authenticator
 {
     private final JwtReader jwtReader;
-    private final JwtIssuerToAccountNameMapper issuerToAccountNameMapper;
     private final AuthenticationController authenticationController;
 
-    public JwtAuthenticator(JwtReader jwtReader, JwtIssuerToAccountNameMapper issuerToAccountNameMapper, AuthenticationController authenticationController)
+    public JwtAuthenticator(JwtReader jwtReader, AuthenticationController authenticationController)
     {
         this.jwtReader = jwtReader;
-        this.issuerToAccountNameMapper = issuerToAccountNameMapper;
         this.authenticationController = authenticationController;
     }
 
     @Override
     public Result authenticate(HttpServletRequest request, HttpServletResponse response)
     {
-        if (JwtUtils.requestContainsJwt(request))
+        if (JwtUtil.requestContainsJwt(request))
         {
             return authenticateJwt(request, response);
         }
@@ -42,10 +42,8 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            String jsonString = jwtReader.jwtToJson(request.getParameter(JwtUtils.JWT_PARAM_NAME));
-            String jwtIssuer = jwtReader.getIssuer(jsonString);
-            final String username = issuerToAccountNameMapper.get(jwtIssuer);
-            final Principal userPrincipal = createPrincipal(username);
+            VerifiedJwt jwt = jwtReader.verify(request.getParameter(JwtUtil.JWT_PARAM_NAME));
+            Principal userPrincipal = new SimplePrincipal(jwt.getPrincipal());
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
@@ -54,7 +52,7 @@ public class JwtAuthenticator implements Authenticator
             else
             {
                 // TODO: consider localising this error message
-                return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", username, request)));
+                return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request)));
             }
         }
         catch (JwtParseException e)
@@ -69,18 +67,6 @@ public class JwtAuthenticator implements Authenticator
         {
             return createFailure(e);
         }
-    }
-
-    private static Principal createPrincipal(final String username)
-    {
-        return new Principal()
-        {
-            @Override
-            public String getName()
-            {
-                return username;
-            }
-        };
     }
 
     private static Result.Error createError(Exception e)

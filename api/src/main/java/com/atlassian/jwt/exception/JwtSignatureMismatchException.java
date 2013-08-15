@@ -1,6 +1,11 @@
 package com.atlassian.jwt.exception;
 
-public class JwtSignatureMismatchException extends Exception
+/**
+ * Indicates that the JWT's signature does not match its contents or the shared secret for the specified issuer.
+ *
+ * @since 1.0
+ */
+public class JwtSignatureMismatchException extends JwtVerificationException
 {
     public JwtSignatureMismatchException(Exception cause)
     {

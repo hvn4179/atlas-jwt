@@ -1,11 +1,17 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.plugin.sal;
 
-import com.atlassian.jwt.core.NimbusMacJwtReader;
+import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
+import com.atlassian.jwt.plugin.JwtUtil;
+import com.atlassian.jwt.plugin.StaticClock;
+import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
+import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -47,13 +53,17 @@ public class JwtAuthenticatorTest
     };
     private static final String SHARED_SECRET = "secret";
 
-    private Authenticator authenticator;
+    @InjectMocks
+    private JwtAuthenticator authenticator;
 
-    @Mock AuthenticationController authenticationController;
     @Mock
-    JwtIssuerToAccountNameMapper issuerToAccountNameMapper;
-    @Mock HttpServletRequest request;
-    @Mock HttpServletResponse response;
+    AuthenticationController authenticationController;
+    @Mock
+    JwtReader jwtReader;
+    @Mock
+    HttpServletRequest request;
+    @Mock
+    HttpServletResponse response;
 
     @Before
     public void setUp() throws IOException
@@ -64,22 +74,20 @@ public class JwtAuthenticatorTest
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
 
-        when(issuerToAccountNameMapper.get("joe")).thenReturn(ADD_ON_SERVICE_ACCOUNT);
-
         when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(true);
     }
 
     @Test
     public void validJwtResultsInSuccess()
     {
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.SUCCESS));
     }
 
     @Test
     public void validJwtResultsInCorrectPrincipal()
     {
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_SERVICE_ACCOUNT));
     }
 
@@ -87,28 +95,28 @@ public class JwtAuthenticatorTest
     public void validJwtWithPrincipalWhoCannotLogInResultsInFailure()
     {
         when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullJwtResultsInException()
     {
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(null);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(null);
         authenticator.authenticate(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyStringJwtResultsInException()
     {
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn("");
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn("");
         authenticator.authenticate(request, response);
     }
 
     @Test
     public void garbledJwtResultsInError()
     {
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn("abc.123.def");
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn("abc.123.def");
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR));
     }
 
@@ -116,7 +124,7 @@ public class JwtAuthenticatorTest
     public void badJwtSignatureResultsInFailure()
     {
         String badJwt = VALID_JWT.substring(0, VALID_JWT.lastIndexOf('.') + 1) + "bad_signature";
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(badJwt);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(badJwt);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
@@ -124,12 +132,12 @@ public class JwtAuthenticatorTest
     public void expiredJwtResultsInFailure()
     {
         authenticator = createAuthenticator(1);
-        when(request.getParameter(JwtUtils.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     private JwtAuthenticator createAuthenticator(long clockOffsetMillis)
     {
-        return new JwtAuthenticator(new NimbusMacJwtReader(SHARED_SECRET, new StaticClock(new Date(JWT_EXPIRY_TIME + clockOffsetMillis))), issuerToAccountNameMapper, authenticationController);
+        return new JwtAuthenticator(new NimbusMacJwtReader(JwsAlgorithm.HS256, SHARED_SECRET, new StaticClock(new Date(JWT_EXPIRY_TIME + clockOffsetMillis))), authenticationController);
     }
 }

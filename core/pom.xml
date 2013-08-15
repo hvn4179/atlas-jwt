@@ -14,8 +14,7 @@
     <artifactId>jwt-core</artifactId>
     <name>Atlassian Auth JWT Core</name>
     <description>
-        Core JWT reading and writing functionality.
-        Encapsulates the 3rd party JWT lib that we use.
+        Encapsulates the 3rd party JWT lib that we use and provides core JWT reading and writing functionality.
     </description>
 
     <dependencies>

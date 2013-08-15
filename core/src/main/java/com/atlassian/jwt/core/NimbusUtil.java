@@ -1,0 +1,27 @@
+package com.atlassian.jwt.core;
+
+import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.exception.JwtParseException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jwt.JWTClaimsSet;
+
+public class NimbusUtil
+{
+    public static String getStringClaimValue(JWTClaimsSet claims, String claimName) throws JwtParseException
+    {
+        try {
+            return (String) claims.getClaim(claimName);
+        } catch (ClassCastException e) {
+            throw new JwtParseException("'" + claimName + "' claim value should be a string", e);
+        }
+    }
+
+    public static JWSAlgorithm asNimbusJWSAlgorithm(JwsAlgorithm atlassian) {
+        switch (atlassian) {
+            case HS256:
+                return JWSAlgorithm.HS256;
+            default:
+                throw new IllegalArgumentException("Unrecognised " + JwsAlgorithm.class.getSimpleName() + ": " + atlassian);
+        }
+    }
+}

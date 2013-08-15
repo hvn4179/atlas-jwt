@@ -1,9 +1,11 @@
-package com.atlassian.jwt.core;
+package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwtReader;
+import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.ExpiredJwtException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtSignatureMismatchException;
+import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -29,7 +31,7 @@ public class NimbusJwtReaderTest
     @Before
     public void before()
     {
-        reader = new NimbusJwtReader(new MACVerifier(PASSWORD));
+        reader = new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier(PASSWORD));
     }
 
     // manually verified by running the generated JWT through Google jsontoken
@@ -37,10 +39,10 @@ public class NimbusJwtReaderTest
     public void canReadCorrectly() throws JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
     {
         String json = "{\"exp\":1300819380,"
-                    + "\"http:\\/\\/example.com\\/is_root\":true,"
-                    + "\"iss\":\"joe\"}";
+                + "\"http:\\/\\/example.com\\/is_root\":true,"
+                + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(new MACVerifier(PASSWORD), new StaticClock(new Date(1300819380 - 1))).jwtToJson(jwt), is(json));
+        assertThat(new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier(PASSWORD), new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = JwtSignatureMismatchException.class)
@@ -50,13 +52,13 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(new MACVerifier("wrong password")).jwtToJson(jwt), is(json));
+        assertThat(new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier("wrong password")).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = ExpiredJwtException.class)
     public void expiredJwtIsRejected() throws JOSEException, InterruptedException, JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
     {
-        reader.jwtToJson(createExpiredJwt().serialize());
+        reader.verify(createExpiredJwt().serialize());
     }
 
     // replace the payload with a slightly different payload
@@ -75,13 +77,13 @@ public class NimbusJwtReaderTest
         String originalSignature = original.substring(original.lastIndexOf('.') + 1);
         String newEncodedPayload = newSerializedJwt.substring(newSerializedJwt.indexOf('.') + 1, newSerializedJwt.lastIndexOf('.'));
         String composite = originalHeader + '.' + newEncodedPayload + '.' + originalSignature;
-        reader.jwtToJson(composite);
+        reader.verify(composite);
     }
 
     @Test(expected = JwtParseException.class)
     public void garbledJwtIsRejected() throws JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
     {
-        reader.jwtToJson("abc.123.def");
+        reader.verify("abc.123.def");
     }
 
     private JWSObject createExpiredJwt() throws InterruptedException, JOSEException

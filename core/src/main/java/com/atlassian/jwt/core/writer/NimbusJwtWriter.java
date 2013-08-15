@@ -1,7 +1,9 @@
-package com.atlassian.jwt.core;
+package com.atlassian.jwt.core.writer;
 
-import com.atlassian.jwt.JwtWriter;
+import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.core.NimbusUtil;
 import com.atlassian.jwt.exception.JwtSigningException;
+import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.*;
 
 public class NimbusJwtWriter implements JwtWriter
@@ -11,9 +13,9 @@ public class NimbusJwtWriter implements JwtWriter
 
     private final static String JWT = "JWT";
 
-    public NimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
+    public NimbusJwtWriter(JwsAlgorithm algorithm, JWSSigner signer)
     {
-        this.algorithm = algorithm;
+        this.algorithm = NimbusUtil.asNimbusJWSAlgorithm(algorithm);
         this.signer = signer;
     }
 
