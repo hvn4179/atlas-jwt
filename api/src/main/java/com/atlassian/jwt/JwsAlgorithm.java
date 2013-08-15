@@ -1,7 +1,7 @@
 package com.atlassian.jwt;
 
 import com.atlassian.jwt.exception.JwsUnsupportedAlgorithmException;
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
 

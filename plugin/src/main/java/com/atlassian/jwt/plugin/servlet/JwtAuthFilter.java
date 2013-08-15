@@ -1,6 +1,7 @@
 package com.atlassian.jwt.plugin.servlet;
 
 import com.atlassian.jwt.plugin.JwtUtil;
+import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -16,7 +17,7 @@ public class JwtAuthFilter implements Filter
     private final AuthenticationListener authenticationListener;
     private final AuthenticationController authenticationController;
 
-    public JwtAuthFilter(AuthenticationListener authenticationListener, Authenticator authenticator, AuthenticationController authenticationController)
+    public JwtAuthFilter(AuthenticationListener authenticationListener, JwtAuthenticator authenticator, AuthenticationController authenticationController)
     {
         this.authenticationListener = authenticationListener;
         this.authenticator = authenticator;

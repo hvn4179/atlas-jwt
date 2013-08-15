@@ -1,11 +1,11 @@
 package com.atlassian.jwt.plugin.sal;
 
-import com.atlassian.jwt.VerifiedJwt;
-import com.atlassian.jwt.exception.ExpiredJwtException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
+import com.atlassian.jwt.applinks.ApplinkJwt;
+import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtSignatureMismatchException;
+import com.atlassian.jwt.exception.JwtVerificationException;
 import com.atlassian.jwt.plugin.JwtUtil;
-import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
@@ -17,12 +17,12 @@ import java.security.Principal;
 
 public class JwtAuthenticator implements Authenticator
 {
-    private final JwtReader jwtReader;
+    private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
-    public JwtAuthenticator(JwtReader jwtReader, AuthenticationController authenticationController)
+    public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
-        this.jwtReader = jwtReader;
+        this.jwtService = jwtService;
         this.authenticationController = authenticationController;
     }
 
@@ -42,8 +42,8 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            VerifiedJwt jwt = jwtReader.verify(request.getParameter(JwtUtil.JWT_PARAM_NAME));
-            Principal userPrincipal = new SimplePrincipal(jwt.getPrincipal());
+            ApplinkJwt jwt = jwtService.verifyJwt(request.getParameter(JwtUtil.JWT_PARAM_NAME));
+            Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getPrincipal());
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
@@ -55,15 +55,15 @@ public class JwtAuthenticator implements Authenticator
                 return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request)));
             }
         }
+        catch (TypeNotInstalledException e)
+        {
+            return createError(e);
+        }
         catch (JwtParseException e)
         {
             return createError(e);
         }
-        catch (JwtSignatureMismatchException e)
-        {
-            return createFailure(e);
-        }
-        catch (ExpiredJwtException e)
+        catch (JwtVerificationException e)
         {
             return createFailure(e);
         }

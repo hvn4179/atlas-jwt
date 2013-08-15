@@ -1,0 +1,44 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+    </plugin-info>
+
+    <!-- imported components -->
+
+    <component-import key="application-link-service" interface="com.atlassian.applinks.api.ApplicationLinkService" />
+    <component-import key="authentication-controller" interface="com.atlassian.sal.api.auth.AuthenticationController" />
+    <component-import key="authentication-listener" interface="com.atlassian.sal.api.auth.AuthenticationListener" />
+
+    <!-- exported components -->
+    
+    <component key="jwt-reader-factory" class="com.atlassian.jwt.core.reader.NimbusJwtReaderFactory" public="true">
+        <interface>com.atlassian.jwt.reader.JwtReaderFactory</interface>
+    </component>
+    
+    <component key="jwt-writer-factory" class="com.atlassian.jwt.core.writer.NimbusJwtWriterFactory" public="true">
+        <interface>com.atlassian.jwt.writer.JwtWriterFactory</interface>
+    </component>
+
+    <component key="jwt-peer-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService" public="true">
+        <interface>com.atlassian.jwt.applinks.JwtPeerService</interface>
+    </component>
+
+    <component key="jwt-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtService" public="true">
+        <interface>com.atlassian.jwt.applinks.JwtService</interface>
+    </component>   
+
+    <!-- internal components -->
+
+    <component key="jwt-authenticator" class="com.atlassian.jwt.plugin.sal.JwtAuthenticator" />
+                      
+    <!-- servlets and filters -->
+
+    <servlet-filter key="jwt-auth-filter" class="com.atlassian.jwt.plugin.servlet.JwtAuthFilter"
+                    location="after-encoding">
+        <url-pattern>/*</url-pattern>
+    </servlet-filter>
+
+
+</atlassian-plugin>

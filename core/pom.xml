@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>jwt-core</artifactId>
-    <name>Atlassian Auth JWT Core</name>
+    <name>Atlassian JWT Core</name>
     <description>
         Encapsulates the 3rd party JWT lib that we use and provides core JWT reading and writing functionality.
     </description>
