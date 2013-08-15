@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.ExpiredJwtException;
 import com.atlassian.jwt.exception.JwtParseException;
@@ -31,7 +31,7 @@ public class NimbusJwtReaderTest
     @Before
     public void before()
     {
-        reader = new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier(PASSWORD));
+        reader = new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier(PASSWORD));
     }
 
     // manually verified by running the generated JWT through Google jsontoken
@@ -42,7 +42,7 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier(PASSWORD), new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
+        assertThat(new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier(PASSWORD), new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = JwtSignatureMismatchException.class)
@@ -52,7 +52,7 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(JwsAlgorithm.HS256, new MACVerifier("wrong password")).verify(jwt).getJsonPayload(), is(json));
+        assertThat(new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier("wrong password")).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = ExpiredJwtException.class)

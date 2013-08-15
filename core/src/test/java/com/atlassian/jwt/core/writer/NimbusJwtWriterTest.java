@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.writer;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NimbusJwtWriterTest
 {
-    public static final JwsAlgorithm ALGORITHM = JwsAlgorithm.HS256;
+    public static final SigningAlgorithm ALGORITHM = SigningAlgorithm.HS256;
     public static final String PASSWORD = "secret";
 
     private JwtWriter writer;

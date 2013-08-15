@@ -9,7 +9,7 @@ public interface Jwt
 
     String getPrincipal();
 
-    JwsAlgorithm getJwsAlgorithm();
+    SigningAlgorithm getSigningAlgorithm();
 
     String getJsonPayload();
 }

@@ -4,7 +4,7 @@ import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
@@ -44,7 +44,7 @@ public class ApplinksJwtService implements JwtService
         UnverifiedJwt unverifiedJwt = jwtReaderFactory.unverified().parse(jwt);
         String applicationId = unverifiedJwt.getIssuer();
         ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
-        JwtReader jwtReader = jwtReaderFactory.forSharedSecret(unverifiedJwt.getJwsAlgorithm(), requireSharedSecret(applicationLink));
+        JwtReader jwtReader = jwtReaderFactory.forSharedSecret(unverifiedJwt.getSigningAlgorithm(), requireSharedSecret(applicationLink));
         return new SimpleApplinkJwt(jwtReader.verify(jwt), applicationLink);
     }
 
@@ -62,7 +62,7 @@ public class ApplinksJwtService implements JwtService
     public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
     {
         return jwtWriterFactory
-                .forSharedSecret(JwsAlgorithm.HS256, requireSharedSecret(applicationLink))
+                .forSharedSecret(SigningAlgorithm.HS256, requireSharedSecret(applicationLink))
                 .jsonToJwt(jsonPayload);
     }
 

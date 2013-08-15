@@ -1,8 +1,8 @@
 package com.atlassian.jwt.writer;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 
 public interface JwtWriterFactory
 {
-    JwtWriter forSharedSecret(JwsAlgorithm algorithm, String secret);
+    JwtWriter forSharedSecret(SigningAlgorithm algorithm, String secret);
 }

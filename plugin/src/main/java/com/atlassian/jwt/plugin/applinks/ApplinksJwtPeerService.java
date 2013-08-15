@@ -3,7 +3,7 @@ package com.atlassian.jwt.plugin.applinks;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.JwtRegistrationFailed;
 import com.atlassian.jwt.plugin.security.SecretGenerator;
@@ -22,7 +22,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
     public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailed
     {
         // generate secure shared secret
-        String sharedSecret = SecretGenerator.generateSharedSecret(JwsAlgorithm.HS256);
+        String sharedSecret = SecretGenerator.generateSharedSecret(SigningAlgorithm.HS256);
 
         // pass shared secret to peer
         try

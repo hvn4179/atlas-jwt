@@ -1,10 +1,10 @@
 package com.atlassian.jwt.reader;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 
 public interface JwtReaderFactory
 {
-    JwtReader forSharedSecret(JwsAlgorithm algorithm, String secret);
+    JwtReader forSharedSecret(SigningAlgorithm algorithm, String secret);
 
     UnverifiedJwtReader unverified();
 }

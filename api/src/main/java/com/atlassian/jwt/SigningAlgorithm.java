@@ -9,20 +9,20 @@ import java.util.Arrays;
  * An enumeration of supported JWS algorithms. Values must match the names used in the JWT 'alg' claim. Valid values
  * are specified by <a href="http://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-14">JSON Web Algorithms</a>.
  */
-public enum JwsAlgorithm
+public enum SigningAlgorithm
 {
     HS256; // HMAC SHA-256
 
-    public JwsAlgorithm forName(String alg) throws JwsUnsupportedAlgorithmException
+    public static SigningAlgorithm forName(String alg) throws JwsUnsupportedAlgorithmException
     {
         try
         {
-            return JwsAlgorithm.valueOf(alg.toUpperCase());
+            return SigningAlgorithm.valueOf(alg.toUpperCase());
         }
         catch (IllegalArgumentException e)
         {
             throw new JwsUnsupportedAlgorithmException(alg + " is not a supported JWS algorithm. Please try one of: [" +
-                    StringUtils.join(Arrays.asList(JwsAlgorithm.values()), ",") + "]");
+                    StringUtils.join(Arrays.asList(SigningAlgorithm.values()), ",") + "]");
         }
     }
 

@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.reader.UnverifiedJwtReader;
@@ -9,7 +9,7 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
 {
 
     @Override
-    public JwtReader forSharedSecret(JwsAlgorithm algorithm, String secret)
+    public JwtReader forSharedSecret(SigningAlgorithm algorithm, String secret)
     {
         switch (algorithm)
         {

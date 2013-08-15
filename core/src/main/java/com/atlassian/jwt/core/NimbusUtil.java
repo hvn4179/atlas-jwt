@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -16,12 +16,12 @@ public class NimbusUtil
         }
     }
 
-    public static JWSAlgorithm asNimbusJWSAlgorithm(JwsAlgorithm atlassian) {
-        switch (atlassian) {
+    public static JWSAlgorithm asNimbusJWSAlgorithm(SigningAlgorithm algorithm) {
+        switch (algorithm) {
             case HS256:
                 return JWSAlgorithm.HS256;
             default:
-                throw new IllegalArgumentException("Unrecognised " + JwsAlgorithm.class.getSimpleName() + ": " + atlassian);
+                throw new IllegalArgumentException("Unrecognised " + SigningAlgorithm.class.getSimpleName() + ": " + algorithm);
         }
     }
 }

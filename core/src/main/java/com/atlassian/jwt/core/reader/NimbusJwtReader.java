@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.NimbusUtil;
@@ -23,14 +23,14 @@ public class NimbusJwtReader implements JwtReader
 {
     private final JWSVerifier verifier;
     private final Clock clock;
-    private final JwsAlgorithm algorithm;
+    private final SigningAlgorithm algorithm;
 
-    public NimbusJwtReader(JwsAlgorithm algorithm, JWSVerifier verifier)
+    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier)
     {
         this(algorithm, verifier, SystemClock.getInstance());
     }
 
-    public NimbusJwtReader(JwsAlgorithm algorithm, JWSVerifier verifier, Clock clock)
+    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier, Clock clock)
     {
         this.algorithm = algorithm;
         this.verifier = verifier;

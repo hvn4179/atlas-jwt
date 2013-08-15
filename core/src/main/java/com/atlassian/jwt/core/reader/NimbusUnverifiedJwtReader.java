@@ -1,9 +1,10 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwsAlgorithm;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.core.NimbusUtil;
 import com.atlassian.jwt.core.SimpleJwt;
+import com.atlassian.jwt.exception.JwsUnsupportedAlgorithmException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.reader.UnverifiedJwtReader;
 import com.nimbusds.jose.JWSObject;
@@ -29,9 +30,13 @@ public class NimbusUnverifiedJwtReader implements UnverifiedJwtReader
                 throw new JwtParseException("The 'alg' claim is required.");
             }
 
-            return new SimpleJwt(claims.getIssuer(), prn, JwsAlgorithm.valueOf(alg), jwsObject.getPayload().toString());
+            return new SimpleJwt(claims.getIssuer(), prn, SigningAlgorithm.forName(alg), jwsObject.getPayload().toString());
         }
         catch (ParseException e)
+        {
+            throw new JwtParseException(e);
+        }
+        catch (JwsUnsupportedAlgorithmException e)
         {
             throw new JwtParseException(e);
         }
