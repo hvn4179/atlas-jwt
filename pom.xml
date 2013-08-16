@@ -207,6 +207,7 @@
         <atlassian.httpclient.version>0.16.0</atlassian.httpclient.version>
         <atlassian.rest.version>2.7.0</atlassian.rest.version>
         <applinks.version>4.0.0</applinks.version>
+        <atlassian.jira.version>6.0.2</atlassian.jira.version>
     </properties>
 
 </project>

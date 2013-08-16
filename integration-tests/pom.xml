@@ -164,7 +164,7 @@
     </build>
 
     <properties>
-        <atlassian.jira.version>6.0.2</atlassian.jira.version>
         <xvfb.enable>false</xvfb.enable>
     </properties>
+
 </project>

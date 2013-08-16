@@ -68,6 +68,41 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <configuration>
+                    <skipManifestValidation>true</skipManifestValidation>
+                    <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
+
+                    <systemPropertyVariables>
+                        <atlassian.mail.senddisabled>false</atlassian.mail.senddisabled>
+                        <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
+                    </systemPropertyVariables>
+
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <version>${atlassian.jira.version}</version>
+                            <systemPropertyVariables>
+                                <product>jira</product>
+                            </systemPropertyVariables>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>jwt-test-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>
+                        </product>
+                    </products>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
         <profile>
             <id>ide</id>
