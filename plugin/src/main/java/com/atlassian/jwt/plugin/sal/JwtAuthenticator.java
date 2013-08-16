@@ -29,20 +29,21 @@ public class JwtAuthenticator implements Authenticator
     @Override
     public Result authenticate(HttpServletRequest request, HttpServletResponse response)
     {
-        if (JwtUtil.requestContainsJwt(request))
+        String jwt = JwtUtil.extractJwt(request);
+        if (jwt != null)
         {
-            return authenticateJwt(request, response);
+            return authenticate(request, jwt);
         }
 
         // TODO: consider localising this error message
         throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
     }
 
-    private Result authenticateJwt(final HttpServletRequest request, HttpServletResponse response)
+    private Result authenticate(final HttpServletRequest request, String jwtString)
     {
         try
         {
-            ApplinkJwt jwt = jwtService.verifyJwt(request.getParameter(JwtUtil.JWT_PARAM_NAME));
+            ApplinkJwt jwt = jwtService.verifyJwt(jwtString);
             Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getPrincipal());
 
             if (authenticationController.canLogin(userPrincipal, request))

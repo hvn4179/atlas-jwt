@@ -14,6 +14,10 @@ public class TestJwtSigning extends AbstractPeerTest
     @Rule
     public JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);
 
+    @Test
+    public void testRequestSignedWithJwtHs256() throws Exception
+    {
 
+    }
 
 }

@@ -53,6 +53,15 @@ public class HttpUtil
         execute(new HttpGet(url), consumer);
     }
 
+    public static <E extends Exception> void get(String url, Map<String, String> headers, Consumer<HttpResponse, E> consumer) throws IOException, E
+    {
+        HttpGet get = new HttpGet(url);
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            get.addHeader(entry.getKey(), entry.getValue());
+        }
+        execute(get, consumer);
+    }
+
     private static <E extends Exception> void execute(HttpUriRequest request, Consumer<HttpResponse, E> consumer) throws IOException, E
     {
         HttpResponse response = null;

@@ -10,9 +10,7 @@ import com.atlassian.applinks.spi.util.TypeAccessor;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
@@ -26,9 +24,6 @@ public class RegistrationResource
     private final MutatingApplicationLinkService applicationLinkService;
     private final TypeAccessor typeAccessor;
     private final JwtPeerService peerService;
-
-    @Context
-    HttpServletRequest req; // debugging
 
     public RegistrationResource(MutatingApplicationLinkService applicationLinkService, TypeAccessor typeAccessor,  JwtPeerService peerService)
     {

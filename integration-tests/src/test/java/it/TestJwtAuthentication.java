@@ -36,7 +36,14 @@ public class TestJwtAuthentication extends AbstractPeerTest
             "exp", TimeUtil.currentTimePlusNSeconds(60)
         ));
         String jwt = jwtWriter.jsonToJwt(json.toString());
+        HttpUtil.get(whoAmIResource(), expectBody("anonymous")); // sanity check
+        testWhoAmIWithJwtInHeaderAndQueryString(jwt);
+    }
+
+    private void testWhoAmIWithJwtInHeaderAndQueryString(String jwt) throws Exception
+    {
         HttpUtil.get(whoAmIResource() + "?jwt=" + jwt, expectBody("admin"));
+        HttpUtil.get(whoAmIResource(), ImmutableMap.of("Authorization", "JWT " + jwt), expectBody("admin"));
     }
 
 }
