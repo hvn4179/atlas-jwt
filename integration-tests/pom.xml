@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.atlassian.jwt</groupId>
+        <artifactId>jwt-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>jwt-integration-tests</artifactId>
+    <name>Atlassian JWT Integration Tests</name>
+    <description>
+        Integration tests. Creates a lightweight Jetty app that makes JWT-authenticated calls to an Atlassian app. The
+        Jetty app uses jwt-api and jwt-core as proof of concept that atlassian-jwt can be embedded outside of an
+        atlassian-plugins environment.
+    </description>    
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jwt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jwt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.httpclient</groupId>
+            <artifactId>atlassian-httpclient-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.httpclient</groupId>
+            <artifactId>atlassian-httpclient-apache-httpcomponents</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>atlassian-jira-pageobjects</artifactId>
+            <version>${atlassian.jira.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpmime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>cc.plural</groupId>
+            <artifactId>jsonij</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <configuration>
+                    <skipManifestValidation>true</skipManifestValidation>
+                    <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
+                    <installPlugin>false</installPlugin>
+                    
+                    <systemPropertyVariables>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <atlassian.mail.senddisabled>false</atlassian.mail.senddisabled>
+                        <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
+                        <webdriver.browser>chrome</webdriver.browser>
+                    </systemPropertyVariables>
+                    
+                    <functionalTestPattern>it/**/Test*.java</functionalTestPattern>
+                    
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <version>${atlassian.jira.version}</version>
+                            <systemPropertyVariables>
+                                <product>jira</product>
+                            </systemPropertyVariables>
+                            <pluginArtifacts>                                
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.jwt</groupId>
+                                    <artifactId>jwt-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>                            
+                        </product>
+                    </products>
+                    <testGroups>
+                        <testGroup>
+                            <id>jira</id>
+                            <productIds>
+                                <productId>jira</productId>
+                            </productIds>
+                            <systemProperties>
+                                <testedProductClass>
+                                    com.atlassian.jira.pageobjects.JiraTestedProduct
+                                </testedProductClass>
+                            </systemProperties>
+                        </testGroup>
+                    </testGroups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <atlassian.jira.version>6.0.2</atlassian.jira.version>
+        <xvfb.enable>false</xvfb.enable>
+    </properties>
+</project>

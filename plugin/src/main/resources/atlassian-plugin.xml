@@ -40,5 +40,4 @@
         <url-pattern>/*</url-pattern>
     </servlet-filter>
 
-
 </atlassian-plugin>

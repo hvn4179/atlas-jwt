@@ -9,6 +9,8 @@
         <module>core</module>
         <module>applinks</module>
         <module>plugin</module>
+        <module>test-plugin</module>
+        <module>integration-tests</module>
     </modules>
 
     <groupId>com.atlassian.jwt</groupId>
@@ -17,6 +19,11 @@
     <name>Atlassian JWT Parent</name>
     <description>Plugin to provide support for JWT authentication in our RESTful APIs</description>
     <packaging>pom</packaging>
+
+    <organization>
+        <name>Atlassian</name>
+        <url>http://www.atlassian.com</url>
+    </organization>
 
     <scm>
         <connection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-auth-jwt.git</connection>
@@ -114,12 +121,37 @@
             <dependency>
                 <groupId>com.atlassian.applinks</groupId>
                 <artifactId>applinks-api</artifactId>
-                <version>4.0.0</version>
+                <version>${applinks.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.applinks</groupId>
+                <artifactId>applinks-spi</artifactId>
+                <version>${applinks.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.security</groupId>
                 <artifactId>atlassian-secure-random</artifactId>
                 <version>3.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.httpclient</groupId>
+                <artifactId>atlassian-httpclient-api</artifactId>
+                <version>${atlassian.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.httpclient</groupId>
+                <artifactId>atlassian-httpclient-apache-httpcomponents</artifactId>
+                <version>${atlassian.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins.rest</groupId>
+                <artifactId>atlassian-rest-common</artifactId>
+                <version>${atlassian.rest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins.rest</groupId>
+                <artifactId>atlassian-rest-module</artifactId>
+                <version>${atlassian.rest.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -135,6 +167,21 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cc.plural</groupId>
+                <artifactId>jsonij</artifactId>
+                <version>0.2.11</version>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
@@ -156,6 +203,10 @@
 
     <properties>
         <amps.version>4.2.3</amps.version>
+        <jetty.version>8.1.7.v20120910</jetty.version>
+        <atlassian.httpclient.version>0.16.0</atlassian.httpclient.version>
+        <atlassian.rest.version>2.7.0</atlassian.rest.version>
+        <applinks.version>4.0.0</applinks.version>
     </properties>
 
 </project>
