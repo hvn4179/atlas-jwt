@@ -1,44 +1,28 @@
 package it;
 
 import com.atlassian.jwt.server.JwtPeer;
-import com.atlassian.jwt.server.servlet.JwtRegistrationServlet;
-import com.google.common.collect.ImmutableMap;
-import com.atlassian.jwt.util.HttpUtil;
-import org.junit.After;
-import org.junit.Before;
+import it.rule.JwtPeerLifecycle;
+import org.junit.Rule;
 import org.junit.Test;
 
-import static it.util.HttpResponseConsumers.expectStatus;
-import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 /**
- *
+ * Tests that an Atlassian app can issue JWT credentials to a third party.
+ * <p/>
+ * Note that if this test fails, the rest probably will too.
  */
-public class TestJwtRegistration extends AbstractBrowserlessTest
+public class TestJwtRegistration extends AbstractPeerTest
 {
-    private JwtPeer peer;
+    private JwtPeer peer = new JwtPeer();
 
-    @Before
-    public void setUp() throws Exception {
-        peer = new JwtPeer();
-        peer.start();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-        peer.stop();
-    }
+    @Rule
+    public JwtPeerLifecycle peerRule = new JwtPeerLifecycle(peer);
 
     @Test
     public void testRegistration() throws Exception {
-        HttpUtil.post(registrationResource(), ImmutableMap.of(
-            "baseUrl", peer.getBaseUrl(),
-            "path", JwtRegistrationServlet.PATH
-        ), expectStatus(SC_OK));
+        registerPeer(peer);
 
         String id = peer.getSecretStore().getId();
         assertNotNull(id);
@@ -50,7 +34,7 @@ public class TestJwtRegistration extends AbstractBrowserlessTest
         // this is just a smoke test, it doesn't verify key strength
         assertTrue(secret.getBytes().length >= 32);
 
-        HttpUtil.delete(registrationResource() + "/" + id, expectStatus(SC_NO_CONTENT));
+        unregisterPeer(peer);
     }
 
 }
