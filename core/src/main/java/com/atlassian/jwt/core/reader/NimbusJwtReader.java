@@ -82,6 +82,10 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtParseException(e);
         }
 
+        if (claims.getExpirationTime() == null) {
+            throw new JwtParseException("'exp' is a required claim. Atlassian JWT does not allow JWTs with unlimited lifetimes.");
+        }
+
         Date now = clock.now();
 
         if (claims.getExpirationTime().before(now))

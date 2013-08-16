@@ -29,10 +29,10 @@ public class JwtPeerRegistration extends JwtPeerLifecycle
     {
         try {
             test.unregisterPeer(peer);
-            peer.stop();
         } catch (Exception e) {
             // oh well. let the original test failure bubble up
         }
+        super.after();
     }
 
 }

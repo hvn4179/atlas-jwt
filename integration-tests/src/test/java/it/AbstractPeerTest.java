@@ -40,9 +40,19 @@ public abstract class AbstractPeerTest
         }
     }
 
+    protected String jwtTestBasePath()
+    {
+        return baseUrl + "/rest/jwt-test/latest";
+    }
+
     protected String registrationResource()
     {
-        return baseUrl + "/rest/jwt-test/latest/register";
+        return jwtTestBasePath() + "/register";
+    }
+
+    protected String whoAmIResource()
+    {
+        return jwtTestBasePath() + "/whoami";
     }
 
     public void registerPeer(JwtPeer peer) throws IOException
