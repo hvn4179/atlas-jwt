@@ -11,7 +11,6 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
-import org.apache.commons.codec.binary.Base64;
 
 public class ApplinksJwtPeerService implements JwtPeerService
 {
@@ -22,7 +21,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
     public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailed
     {
         // generate secure shared secret
-        String sharedSecret = SecretGenerator.generateSharedSecret(SigningAlgorithm.HS256);
+        String sharedSecret = SecretGenerator.generateUrlSafeSharedSecret(SigningAlgorithm.HS256);
 
         // pass shared secret to peer
         try
@@ -31,7 +30,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
                     .createRequest(Request.MethodType.POST, path)
                     .addRequestParameters(
                             "id", applicationLink.getId().toString(),
-                            "secret", Base64.encodeBase64String(sharedSecret.getBytes()))
+                            "secret", sharedSecret)
                     .execute(new ResponseHandler<Response>()
                     {
                         @Override

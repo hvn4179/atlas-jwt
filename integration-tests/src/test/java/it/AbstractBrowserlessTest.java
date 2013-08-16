@@ -29,4 +29,9 @@ public abstract class AbstractBrowserlessTest
             baseUrl = TestedProductHolder.INSTANCE.getProductInstance().getBaseUrl();
         }
     }
+
+    protected String registrationResource() {
+        return baseUrl + "/rest/jwt-test/latest/register";
+    }
+
 }

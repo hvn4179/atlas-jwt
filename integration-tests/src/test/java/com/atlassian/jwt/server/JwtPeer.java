@@ -1,11 +1,15 @@
 package com.atlassian.jwt.server;
 
 import com.atlassian.jwt.server.servlet.JwtRegistrationServlet;
+import com.atlassian.jwt.util.ServerUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+/**
+ * A lightweight Jetty app for testing an Atlassian product's JWT capabilities.
+ */
 public class JwtPeer
 {
 
@@ -15,7 +19,7 @@ public class JwtPeer
 
     public void start() throws Exception
     {
-        port = ServerUtils.pickFreePort();
+        port = ServerUtil.pickFreePort();
         server = new Server(port);
         secretStore = new SecretStore();
 

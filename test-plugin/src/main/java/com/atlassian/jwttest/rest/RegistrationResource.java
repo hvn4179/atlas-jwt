@@ -1,5 +1,6 @@
 package com.atlassian.jwttest.rest;
 
+import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationType;
 import com.atlassian.applinks.api.application.generic.GenericApplicationType;
@@ -10,9 +11,7 @@ import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -49,6 +48,17 @@ public class RegistrationResource
         peerService.issueSharedSecret(applink, path);
 
         return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response delete(@PathParam("id") String id) throws Exception {
+        ApplicationLink applink = applicationLinkService.getApplicationLink(new ApplicationId(id));
+        if (applink == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No applink with id " + id).build();
+        }
+        applicationLinkService.deleteApplicationLink(applink);
+        return Response.noContent().build();
     }
 
 }

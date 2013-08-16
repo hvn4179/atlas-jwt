@@ -1,9 +1,9 @@
-package com.atlassian.jwt.server;
+package com.atlassian.jwt.util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class ServerUtils
+public class ServerUtil
 {
     public static int pickFreePort()
     {
