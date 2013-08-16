@@ -14,7 +14,7 @@ public class JwtUtil
 
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
-        return getJwtParameter(request) != null || getJwtHeaderValue(request) != null;
+        return extractJwt(request) != null;
     }
 
     public static String extractJwt(HttpServletRequest request)
