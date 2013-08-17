@@ -5,7 +5,7 @@ import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtVerificationException;
-import com.atlassian.jwt.plugin.JwtUtil;
+import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;

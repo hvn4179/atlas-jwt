@@ -1,6 +1,6 @@
 package com.atlassian.jwt.plugin.servlet;
 
-import com.atlassian.jwt.plugin.JwtUtil;
+import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;

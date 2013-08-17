@@ -55,6 +55,11 @@ public abstract class AbstractPeerTest
         return jwtTestBasePath() + "/whoami";
     }
 
+    protected String relayResource(String id)
+    {
+        return jwtTestBasePath() + "/relay/" + id;
+    }
+
     public void registerPeer(JwtPeer peer) throws IOException
     {
         HttpUtil.post(registrationResource(), ImmutableMap.of(

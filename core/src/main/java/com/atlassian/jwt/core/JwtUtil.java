@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.core;
 
 import org.apache.commons.lang.StringUtils;
 

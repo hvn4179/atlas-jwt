@@ -18,6 +18,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 public class JwtRegistrationServlet extends HttpServlet
 {
     public static final String PATH = "/register";
+
     private final SecretStore secretStore;
 
     public JwtRegistrationServlet(SecretStore secretStore)
