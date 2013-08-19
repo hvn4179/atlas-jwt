@@ -12,7 +12,7 @@ public class SystemPropertyJwtConfiguration implements JwtConfiguration
 {
     private static final Logger log = LoggerFactory.getLogger(NimbusJwtReaderFactory.class);
 
-    private static final String JWT_MAX_LIFETIME_PROPERTY = "atlassian.jwt.token.lifetime";
+    private static final String JWT_MAX_LIFETIME_PROPERTY = "atlassian.jwt.token.lifetime.max";
     private static final int JWT_MAX_LIFETIME_DEFAULT = 60 * 60 * 1000; // one hour
 
     private final long maxJwtLifetime;

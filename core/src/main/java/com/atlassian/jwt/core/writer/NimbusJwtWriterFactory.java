@@ -11,7 +11,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 public class NimbusJwtWriterFactory implements JwtWriterFactory
 {
     @Override
-    public JwtWriter forSharedSecret(SigningAlgorithm algorithm, String secret)
+    public JwtWriter macSigningWriter(SigningAlgorithm algorithm, String secret)
     {
         return new NimbusJwtWriter(algorithm, new MACSigner(secret));
     }

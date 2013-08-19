@@ -44,7 +44,7 @@ public class ApplinksJwtService implements JwtService
         UnverifiedJwt unverifiedJwt = jwtReaderFactory.unverified().parse(jwt);
         String applicationId = unverifiedJwt.getIssuer();
         ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
-        JwtReader jwtReader = jwtReaderFactory.forSharedSecret(unverifiedJwt.getSigningAlgorithm(), requireSharedSecret(applicationLink));
+        JwtReader jwtReader = jwtReaderFactory.macVerifyingReader(requireSharedSecret(applicationLink));
         return new SimpleApplinkJwt(jwtReader.verify(jwt), applicationLink);
     }
 
@@ -62,7 +62,7 @@ public class ApplinksJwtService implements JwtService
     public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
     {
         return jwtWriterFactory
-                .forSharedSecret(SigningAlgorithm.HS256, requireSharedSecret(applicationLink))
+                .macSigningWriter(SigningAlgorithm.HS256, requireSharedSecret(applicationLink))
                 .jsonToJwt(jsonPayload);
     }
 

@@ -21,6 +21,11 @@
         <interface>com.atlassian.jwt.writer.JwtWriterFactory</interface>
     </component>
 
+    <component key="jwt-json-builder-factory" class="com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory"
+               public="true">
+        <interface>com.atlassian.jwt.writer.JwtJsonBuilderFactory</interface>
+    </component>
+
     <component key="jwt-peer-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService" public="true">
         <interface>com.atlassian.jwt.applinks.JwtPeerService</interface>
     </component>

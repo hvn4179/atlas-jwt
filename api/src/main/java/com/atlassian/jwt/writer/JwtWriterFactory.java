@@ -4,5 +4,5 @@ import com.atlassian.jwt.SigningAlgorithm;
 
 public interface JwtWriterFactory
 {
-    JwtWriter forSharedSecret(SigningAlgorithm algorithm, String secret);
+    JwtWriter macSigningWriter(SigningAlgorithm algorithm, String secret);
 }

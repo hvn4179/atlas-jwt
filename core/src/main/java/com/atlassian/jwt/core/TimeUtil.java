@@ -1,4 +1,4 @@
-package com.atlassian.jwt.util;
+package com.atlassian.jwt.core;
 
 /**
  *

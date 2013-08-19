@@ -1,6 +1,5 @@
 package com.atlassian.jwt.server.servlet;
 
-import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
@@ -55,7 +54,7 @@ public class JwtVerificationServlet extends HttpServlet
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
-        JwtReader reader = readerFactory.forSharedSecret(SigningAlgorithm.HS256, secretStore.getSecret());
+        JwtReader reader = readerFactory.macVerifyingReader(secretStore.getSecret());
 
         VerifiedJwt jwt;
         try

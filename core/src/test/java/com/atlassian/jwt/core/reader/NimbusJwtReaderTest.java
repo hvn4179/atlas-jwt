@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.JwtConfiguration;
-import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
@@ -41,7 +40,7 @@ public class NimbusJwtReaderTest
     {
         when(jwtConfiguration.getMaxJwtLifetime()).thenReturn(60 * 60 * 1000L);
 
-        reader = new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier(PASSWORD), jwtConfiguration);
+        reader = new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration);
     }
 
     // manually verified by running the generated JWT through Google jsontoken
@@ -53,7 +52,7 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
+        assertThat(new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
     }
 
     // manually verified by running the generated JWT through Google jsontoken
@@ -64,7 +63,7 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
+        assertThat(new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = JwtSignatureMismatchException.class)
@@ -74,7 +73,7 @@ public class NimbusJwtReaderTest
                 + "\"http:\\/\\/example.com\\/is_root\":true,"
                 + "\"iss\":\"joe\"}";
         String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(SigningAlgorithm.HS256, new MACVerifier("wrong password"), jwtConfiguration).verify(jwt).getJsonPayload(), is(json));
+        assertThat(new NimbusJwtReader(new MACVerifier("wrong password"), jwtConfiguration).verify(jwt).getJsonPayload(), is(json));
     }
 
     @Test(expected = JwtExpiredException.class)

@@ -1,13 +1,13 @@
 package it;
 
+import com.atlassian.jwt.core.TimeUtil;
+import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
 import com.atlassian.jwt.core.writer.NimbusJwtWriterFactory;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
-import com.atlassian.jwt.util.TimeUtil;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.google.common.collect.ImmutableMap;
 import it.rule.JwtPeerRegistration;
-import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,16 +27,14 @@ public class TestJwtAuthentication extends AbstractPeerTest
     @Test
     public void testRequestSignedWithJwtHs256() throws Exception
     {
-        JwtWriter jwtWriter = new NimbusJwtWriterFactory().forSharedSecret(HS256, peer.getSecretStore().getSecret());
-        JSONObject json = new JSONObject(ImmutableMap.builder()
-                .put("iss", peer.getSecretStore().getId())
-                .put("prn", "admin")
-                .put("alg", HS256.name())
-                .put("typ", "JWT")
-                .put("iat", TimeUtil.currentTimeSeconds())
-                .put("exp", TimeUtil.currentTimePlusNSeconds(60))
-                .build());
-        String jwt = jwtWriter.jsonToJwt(json.toString());
+        JwtWriter jwtWriter = new NimbusJwtWriterFactory().macSigningWriter(HS256, peer.getSecretStore().getSecret());
+        String json = new JsonSmartJwtJsonBuilder()
+                .issuer(peer.getSecretStore().getId())
+                .principal("admin")
+                .issuedAt(TimeUtil.currentTimeSeconds())
+                .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
+                .build();
+        String jwt = jwtWriter.jsonToJwt(json);
         HttpUtil.get(whoAmIResource(), expectBody("anonymous")); // sanity check
         testWhoAmIWithJwtInHeaderAndQueryString(jwt);
     }

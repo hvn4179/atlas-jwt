@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.JwtConfiguration;
-import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
@@ -22,15 +21,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
     }
 
     @Override
-    public JwtReader forSharedSecret(SigningAlgorithm algorithm, String secret)
+    public JwtReader macVerifyingReader(String sharedSecret)
     {
-        switch (algorithm)
-        {
-            case HS256:
-                return new NimbusMacJwtReader(algorithm, secret, jwtConfiguration);
-            default:
-                throw new IllegalArgumentException("Unrecognised JWS algorithm: " + algorithm);
-        }
+        return new NimbusMacJwtReader(sharedSecret, jwtConfiguration);
     }
 
     @Override
