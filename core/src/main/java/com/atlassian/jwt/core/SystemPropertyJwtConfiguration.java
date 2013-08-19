@@ -1,6 +1,5 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.JwtConfiguration;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

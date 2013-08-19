@@ -6,8 +6,10 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Arrays;
 
 /**
- * An enumeration of supported JWS algorithms. Values must match the names used in the JWT 'alg' claim. Valid values
+ * An enumeration of supported JWS algorithms. Values must match the names used in the JWT 'alg' header. Valid values
  * are specified by <a href="http://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-14">JSON Web Algorithms</a>.
+ *
+ * @since 1.0
  */
 public enum SigningAlgorithm
 {

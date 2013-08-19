@@ -1,7 +1,7 @@
-package com.atlassian.jwt;
+package com.atlassian.jwt.core;
 
 /**
- *
+ * @since 1.0
  */
 public interface JwtConfiguration
 {

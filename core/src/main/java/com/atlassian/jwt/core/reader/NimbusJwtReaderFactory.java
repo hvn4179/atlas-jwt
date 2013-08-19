@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.JwtConfiguration;
+import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
