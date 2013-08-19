@@ -35,5 +35,20 @@ public class HttpResponseConsumers
         };
     }
 
+    public static Consumer<HttpResponse, ? extends Exception> and(final Consumer<HttpResponse, ? extends Exception>... consumers)
+    {
+        return new Consumer<HttpResponse, Exception>()
+        {
+            @Override
+            public void consume(HttpResponse httpResponse) throws Exception
+            {
+                for (Consumer<HttpResponse, ? extends Exception> consumer : consumers)
+                {
+                    consumer.consume(httpResponse);
+                }
+            }
+        };
+    }
+
 
 }

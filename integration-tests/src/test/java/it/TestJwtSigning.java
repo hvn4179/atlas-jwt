@@ -5,10 +5,12 @@ import com.atlassian.jwt.util.HttpUtil;
 import com.atlassian.jwt.util.TimeUtil;
 import com.google.common.collect.ImmutableMap;
 import it.rule.JwtPeerRegistration;
-import it.util.HttpResponseConsumers;
 import org.json.JSONObject;
 import org.junit.*;
 
+import static it.util.HttpResponseConsumers.and;
+import static it.util.HttpResponseConsumers.expectBody;
+import static it.util.HttpResponseConsumers.expectStatus;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 /**
@@ -32,7 +34,7 @@ public class TestJwtSigning extends AbstractPeerTest
             "path", "verify",
             "method", "POST",
             "payload", payLoad
-        ), HttpResponseConsumers.expectStatus(SC_OK));
+        ), and(expectStatus(SC_OK), expectBody("OK")));
     }
 
 }
