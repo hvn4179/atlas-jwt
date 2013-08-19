@@ -24,9 +24,12 @@ public class JwtPeerLifecycle extends ExternalResource
     @Override
     protected void after()
     {
-        try {
+        try
+        {
             peer.stop();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // oh well. let the original test failure bubble up
         }
     }

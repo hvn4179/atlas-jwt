@@ -44,21 +44,26 @@ public class JwtVerificationServlet extends HttpServlet
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         String jwtString = JwtUtil.extractJwt(req);
-        if (jwtString == null) {
+        if (jwtString == null)
+        {
             resp.sendError(SC_BAD_REQUEST, "No JWT found in request.");
             return;
         }
 
-        if (secretStore.getSecret() == null) {
+        if (secretStore.getSecret() == null)
+        {
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
         JwtReader reader = readerFactory.forSharedSecret(SigningAlgorithm.HS256, secretStore.getSecret());
 
         VerifiedJwt jwt;
-        try {
+        try
+        {
             jwt = reader.verify(jwtString);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             String message = "Failed to verify JWT.";
             resp.sendError(SC_BAD_REQUEST, message);
             log.error(message, e);

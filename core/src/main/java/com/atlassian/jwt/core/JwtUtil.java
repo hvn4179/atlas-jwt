@@ -20,7 +20,8 @@ public class JwtUtil
     public static String extractJwt(HttpServletRequest request)
     {
         String jwt = getJwtParameter(request);
-        if (jwt == null) {
+        if (jwt == null)
+        {
             jwt = getJwtHeaderValue(request);
         }
         return jwt;

@@ -40,5 +40,4 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
     }
 
 
-
 }

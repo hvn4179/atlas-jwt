@@ -21,7 +21,8 @@ public class TestJwtRegistration extends AbstractPeerTest
     public JwtPeerLifecycle peerRule = new JwtPeerLifecycle(peer);
 
     @Test
-    public void testRegistration() throws Exception {
+    public void testRegistration() throws Exception
+    {
         registerPeer(peer);
 
         String id = peer.getSecretStore().getId();

@@ -19,7 +19,8 @@ public class WhoAmIResource
     }
 
     @GET
-    public Response whoAmI() {
+    public Response whoAmI()
+    {
         String username = userManager.getRemoteUsername();
         if (username == null)
         {

@@ -9,15 +9,20 @@ public class NimbusUtil
 {
     public static String getStringClaimValue(JWTClaimsSet claims, String claimName) throws JwtParseException
     {
-        try {
+        try
+        {
             return (String) claims.getClaim(claimName);
-        } catch (ClassCastException e) {
+        }
+        catch (ClassCastException e)
+        {
             throw new JwtParseException("'" + claimName + "' claim value should be a string", e);
         }
     }
 
-    public static JWSAlgorithm asNimbusJWSAlgorithm(SigningAlgorithm algorithm) {
-        switch (algorithm) {
+    public static JWSAlgorithm asNimbusJWSAlgorithm(SigningAlgorithm algorithm)
+    {
+        switch (algorithm)
+        {
             case HS256:
                 return JWSAlgorithm.HS256;
             default:

@@ -2,16 +2,17 @@
     <plugin-info>
         <description>JWT Test Plugin</description>
         <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
     <!-- imported components -->
 
-    <component-import key="application-link-service" interface="com.atlassian.applinks.spi.link.MutatingApplicationLinkService" />
-    <component-import key="application-link-type-accessor" interface="com.atlassian.applinks.spi.util.TypeAccessor" />
-    <component-import key="jwt-peer-service" interface="com.atlassian.jwt.applinks.JwtPeerService" />
-    <component-import key="jwt-service" interface="com.atlassian.jwt.applinks.JwtService" />
-    <component-import key="user-manager" interface="com.atlassian.sal.api.user.UserManager" />
+    <component-import key="application-link-service"
+                      interface="com.atlassian.applinks.spi.link.MutatingApplicationLinkService"/>
+    <component-import key="application-link-type-accessor" interface="com.atlassian.applinks.spi.util.TypeAccessor"/>
+    <component-import key="jwt-peer-service" interface="com.atlassian.jwt.applinks.JwtPeerService"/>
+    <component-import key="jwt-service" interface="com.atlassian.jwt.applinks.JwtService"/>
+    <component-import key="user-manager" interface="com.atlassian.sal.api.user.UserManager"/>
 
     <!-- REST -->
 

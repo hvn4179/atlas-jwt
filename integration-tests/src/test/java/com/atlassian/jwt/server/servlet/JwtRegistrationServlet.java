@@ -35,9 +35,12 @@ public class JwtRegistrationServlet extends HttpServlet
         System.out.println("id: " + id);
         System.out.println("secret: " + secret);
 
-        if (StringUtils.isBlank(id) || StringUtils.isBlank(secret)) {
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(secret))
+        {
             resp.sendError(SC_BAD_REQUEST, "id and secret are required");
-        } else {
+        }
+        else
+        {
             secretStore.update(id, secret);
             resp.setStatus(SC_OK);
             resp.getWriter().println("OK");

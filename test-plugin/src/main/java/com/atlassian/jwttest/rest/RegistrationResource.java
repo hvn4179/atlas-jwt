@@ -25,7 +25,7 @@ public class RegistrationResource
     private final TypeAccessor typeAccessor;
     private final JwtPeerService peerService;
 
-    public RegistrationResource(MutatingApplicationLinkService applicationLinkService, TypeAccessor typeAccessor,  JwtPeerService peerService)
+    public RegistrationResource(MutatingApplicationLinkService applicationLinkService, TypeAccessor typeAccessor, JwtPeerService peerService)
     {
         this.applicationLinkService = applicationLinkService;
         this.typeAccessor = typeAccessor;
@@ -33,7 +33,8 @@ public class RegistrationResource
     }
 
     @POST
-    public Response register(@FormParam("baseUrl") String baseUrl, @FormParam("path") String path) throws Exception {
+    public Response register(@FormParam("baseUrl") String baseUrl, @FormParam("path") String path) throws Exception
+    {
         URI uri = URI.create(baseUrl);
 
         ApplicationLinkDetails applinkDetails = ApplicationLinkDetails.builder().rpcUrl(uri).name("Test JWT Peer").build();
@@ -47,9 +48,11 @@ public class RegistrationResource
 
     @DELETE
     @Path("{id}")
-    public Response delete(@PathParam("id") String id) throws Exception {
+    public Response delete(@PathParam("id") String id) throws Exception
+    {
         ApplicationLink applink = applicationLinkService.getApplicationLink(new ApplicationId(id));
-        if (applink == null) {
+        if (applink == null)
+        {
             return Response.status(Response.Status.NOT_FOUND).entity("No applink with id " + id).build();
         }
         applicationLinkService.deleteApplicationLink(applink);

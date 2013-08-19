@@ -26,15 +26,21 @@ public class SystemPropertyJwtConfiguration implements JwtConfiguration
     {
         long jwtMax;
         String maxJwtLifetimeProperty = System.getProperty(propertyName);
-        if (maxJwtLifetimeProperty != null) {
-            try {
+        if (maxJwtLifetimeProperty != null)
+        {
+            try
+            {
                 jwtMax = Long.valueOf(maxJwtLifetimeProperty);
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e)
+            {
                 log.error("Failed to parse system property " + maxJwtLifetimeProperty + " value '" +
                         maxJwtLifetimeProperty + "'. Must be a number.", e);
                 jwtMax = defaultValue;
             }
-        } else {
+        }
+        else
+        {
             jwtMax = defaultValue;
         }
         return jwtMax;

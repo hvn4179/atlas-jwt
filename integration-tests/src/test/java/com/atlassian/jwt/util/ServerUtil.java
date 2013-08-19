@@ -19,7 +19,8 @@ public class ServerUtil
         }
         finally
         {
-            if (socket != null) {
+            if (socket != null)
+            {
                 try
                 {
                     socket.close();

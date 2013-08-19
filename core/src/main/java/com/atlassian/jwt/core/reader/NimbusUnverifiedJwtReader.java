@@ -26,7 +26,8 @@ public class NimbusUnverifiedJwtReader implements UnverifiedJwtReader
             String prn = NimbusUtil.getStringClaimValue(claims, "prn");
             String alg = NimbusUtil.getStringClaimValue(claims, "alg");
 
-            if (alg == null) {
+            if (alg == null)
+            {
                 throw new JwtParseException("The 'alg' claim is required.");
             }
 

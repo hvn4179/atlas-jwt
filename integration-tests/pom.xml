@@ -17,7 +17,7 @@
         Integration tests. Creates a lightweight Jetty app that makes JWT-authenticated calls to an Atlassian app. The
         Jetty app uses jwt-api and jwt-core as proof of concept that atlassian-jwt can be embedded outside of an
         atlassian-plugins environment.
-    </description>    
+    </description>
 
     <dependencies>
         <dependency>
@@ -108,7 +108,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -118,16 +118,16 @@
                     <skipManifestValidation>true</skipManifestValidation>
                     <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
                     <installPlugin>false</installPlugin>
-                    
+
                     <systemPropertyVariables>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <atlassian.mail.senddisabled>false</atlassian.mail.senddisabled>
                         <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
                         <webdriver.browser>chrome</webdriver.browser>
                     </systemPropertyVariables>
-                    
+
                     <functionalTestPattern>it/**/Test*.java</functionalTestPattern>
-                    
+
                     <products>
                         <product>
                             <id>jira</id>
@@ -135,13 +135,13 @@
                             <systemPropertyVariables>
                                 <product>jira</product>
                             </systemPropertyVariables>
-                            <pluginArtifacts>                                
+                            <pluginArtifacts>
                                 <pluginArtifact>
                                     <groupId>com.atlassian.jwt</groupId>
                                     <artifactId>jwt-plugin</artifactId>
                                     <version>${project.version}</version>
                                 </pluginArtifact>
-                            </pluginArtifacts>                            
+                            </pluginArtifacts>
                         </product>
                     </products>
                     <testGroups>

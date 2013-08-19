@@ -2,7 +2,6 @@ package it.rule;
 
 import com.atlassian.jwt.server.JwtPeer;
 import it.AbstractPeerTest;
-import org.junit.rules.ExternalResource;
 
 /**
  *
@@ -27,9 +26,12 @@ public class JwtPeerRegistration extends JwtPeerLifecycle
     @Override
     protected void after()
     {
-        try {
+        try
+        {
             test.unregisterPeer(peer);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // oh well. let the original test failure bubble up
         }
         super.after();

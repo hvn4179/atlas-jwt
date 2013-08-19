@@ -5,20 +5,24 @@ public class SecretStore
     private String id;
     private String secret;
 
-    public void update(String id, String secret) {
+    public void update(String id, String secret)
+    {
         this.id = id;
         this.secret = secret;
     }
 
-    public void clear() {
+    public void clear()
+    {
         update(null, null);
     }
 
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
-    public String getSecret() {
+    public String getSecret()
+    {
         return secret;
     }
 }
