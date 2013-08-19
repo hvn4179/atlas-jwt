@@ -8,7 +8,7 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
-import com.atlassian.jwt.applinks.NotAJwtPeerException;
+import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.exception.JwtVerificationException;

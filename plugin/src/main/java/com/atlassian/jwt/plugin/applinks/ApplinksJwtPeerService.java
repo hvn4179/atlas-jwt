@@ -5,7 +5,7 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
-import com.atlassian.jwt.applinks.JwtRegistrationFailed;
+import com.atlassian.jwt.applinks.exception.JwtRegistrationFailed;
 import com.atlassian.jwt.plugin.security.SecretGenerator;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;

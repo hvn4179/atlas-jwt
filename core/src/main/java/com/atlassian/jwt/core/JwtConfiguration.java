@@ -1,6 +1,8 @@
 package com.atlassian.jwt.core;
 
 /**
+ * Provides configuration details for JWT signature generation and verification.
+ *
  * @since 1.0
  */
 public interface JwtConfiguration

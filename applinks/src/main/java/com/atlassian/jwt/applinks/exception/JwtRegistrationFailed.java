@@ -1,5 +1,12 @@
-package com.atlassian.jwt.applinks;
+package com.atlassian.jwt.applinks.exception;
 
+import com.atlassian.applinks.api.ApplicationLink;
+
+/**
+ * Thrown if issuing credentials to a {@link ApplicationLink linked application} failed.
+ *
+ * @since 1.0
+ */
 public class JwtRegistrationFailed extends Exception
 {
     public JwtRegistrationFailed(String message)
