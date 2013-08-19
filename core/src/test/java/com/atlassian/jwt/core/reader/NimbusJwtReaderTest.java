@@ -1,36 +1,39 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.JwtConfiguration;
+import com.atlassian.jwt.core.Clock;
+import com.atlassian.jwt.core.HmacJwtSigner;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.*;
-import com.atlassian.jwt.reader.JwtReader;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest
 {
-    public static final String PASSWORD = "secret";
+    private static final String SECRET_KEY = StringUtils.repeat("secret", 10);
+    private static final int TIMESTAMP = 1300819380;
+    private static final int TEN_MINS_EARLIER = TIMESTAMP - 60 * 10;
+    private static final int ONE_HOUR_EARLIER = TIMESTAMP - 60 * 60;
 
-    private JwtReader reader;
+    private static final long TIMESTAMP_MS = TIMESTAMP * 1000L;
+    private static final Clock CLOCK = new StaticClock(new Date(TIMESTAMP_MS));
+
+    private final HmacJwtSigner signer = new HmacJwtSigner(SECRET_KEY);
 
     @Mock
     private JwtConfiguration jwtConfiguration;
@@ -39,111 +42,158 @@ public class NimbusJwtReaderTest
     public void before()
     {
         when(jwtConfiguration.getMaxJwtLifetime()).thenReturn(60 * 60 * 1000L);
-
-        reader = new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration);
     }
 
-    // manually verified by running the generated JWT through Google jsontoken
     @Test
-    @Ignore // need to regenerate token with iad & exp
-    public void canReadCorrectly() throws JwtParseException, JwtVerificationException
+    public void canReadCorrectly() throws Exception
     {
-        String json = "{\"exp\":1300819380,"
-                + "\"http:\\/\\/example.com\\/is_root\":true,"
-                + "\"iss\":\"joe\"}";
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
+        String jwt = signer.jsonToHmacSha256Jwt(
+            "exp", TIMESTAMP,
+            "iat", TEN_MINS_EARLIER,
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "joe"
+        );
+        String payload = new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt).getJsonPayload();
+        assertJsonContainsOnly(payload,
+            "exp", TIMESTAMP,
+            "iat", TEN_MINS_EARLIER,
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "joe"
+        );
     }
 
-    // manually verified by running the generated JWT through Google jsontoken
     @Test(expected = JwtInvalidClaimException.class)
-    public void iadAndExpAreRequired() throws JwtParseException, JwtVerificationException
+    public void iatIsRequired() throws Exception
     {
-        String json = "{\"exp\":1300819380,"
-                + "\"http:\\/\\/example.com\\/is_root\":true,"
-                + "\"iss\":\"joe\"}";
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(new MACVerifier(PASSWORD), jwtConfiguration, new StaticClock(new Date(1300819380 - 1))).verify(jwt).getJsonPayload(), is(json));
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", TIMESTAMP,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt);
+    }
+
+    @Test(expected = JwtInvalidClaimException.class)
+    public void expIsRequired() throws Exception
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt);
+    }
+
+    @Test(expected = JwtInvalidClaimException.class)
+    public void maxLifetimeExceeded() throws Exception
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", TIMESTAMP,
+                "iat", ONE_HOUR_EARLIER - 1, // max lifetime defaults to one hour
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt);
+    }
+
+    @Test
+    public void exactlyMaxLifetime() throws Exception
+    {
+        int oneHourEarlier = TIMESTAMP - 60 * 60;
+        String jwt = signer.jsonToHmacSha256Jwt(
+            "exp", TIMESTAMP,
+            "iat", oneHourEarlier, // max lifetime defaults to one hour
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "joe"
+        );
+        String payload = new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt).getJsonPayload();
+        assertJsonContainsOnly(payload,
+            "exp", TIMESTAMP,
+            "iat", oneHourEarlier,
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "joe"
+        );
     }
 
     @Test(expected = JwtSignatureMismatchException.class)
-    public void wrongPasswordIsDetected() throws JwtParseException, JwtVerificationException
+    public void incorrectSharedSecret() throws Exception
     {
-        String json = "{\"exp\":1300819380,"
-                + "\"http:\\/\\/example.com\\/is_root\":true,"
-                + "\"iss\":\"joe\"}";
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-        assertThat(new NimbusJwtReader(new MACVerifier("wrong password"), jwtConfiguration).verify(jwt).getJsonPayload(), is(json));
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        new NimbusJwtReader(new MACVerifier("wrong secret"), jwtConfiguration, CLOCK).verify(jwt);
     }
 
     @Test(expected = JwtExpiredException.class)
-    public void expiredJwtIsRejected() throws JOSEException, InterruptedException, JwtParseException, JwtVerificationException
+    public void expiredJwtIsRejected() throws Exception
     {
-        reader.verify(createExpiredJwt().serialize());
-    }
-
-    // replace the payload with a slightly different payload
-    // while leaving the header and signature untouched
-    @Test(expected = JwtSignatureMismatchException.class)
-    public void tamperedJwtIsRejected() throws InterruptedException, JOSEException, JwtParseException, JwtVerificationException
-    {
-        JWSObject jwt = createJwt(1000l * 60 * 60, 0);
-        String original = jwt.serialize();
-        JSONObject payloadJson = jwt.getPayload().toJSONObject();
-        payloadJson.put("claim", "fraudulent");
-        jwt = new JWSObject((JWSHeader) jwt.getHeader(), new Payload(payloadJson));
-        jwt.sign(new MACSigner("irrelevant"));
-        String newSerializedJwt = jwt.serialize();
-        String originalHeader = original.substring(0, original.indexOf('.'));
-        String originalSignature = original.substring(original.lastIndexOf('.') + 1);
-        String newEncodedPayload = newSerializedJwt.substring(newSerializedJwt.indexOf('.') + 1, newSerializedJwt.lastIndexOf('.'));
-        String composite = originalHeader + '.' + newEncodedPayload + '.' + originalSignature;
-        reader.verify(composite);
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, new StaticClock(new Date(TIMESTAMP_MS + 1))).verify(jwt);
     }
 
     @Test(expected = JwtParseException.class)
     public void garbledJwtIsRejected() throws JwtParseException, JwtVerificationException
     {
-        reader.verify("abc.123.def");
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify("easy.as.abc");
     }
 
-    private JWSObject createExpiredJwt() throws InterruptedException, JOSEException
+    // replace the payload with a slightly different payload, leaving the header and signature untouched
+    @Test(expected = JwtSignatureMismatchException.class)
+    public void tamperedJwtIsRejected() throws InterruptedException, JOSEException, JwtParseException, JwtVerificationException
     {
-        return createJwt(1, -1000);
+        String jwt = signer.jsonToHmacSha256Jwt(
+            "exp", TIMESTAMP,
+            "iat", TEN_MINS_EARLIER,
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "joe"
+        );
+        String altJwt = signer.jsonToHmacSha256Jwt(
+            "exp", TIMESTAMP,
+            "iat", TEN_MINS_EARLIER,
+            "\"http:\\/\\/example.com\\/is_root\"", true,
+            "iss", "adminjoe" // spoof username
+        );
+
+        String[] jwtSegments = jwt.split("\\.");
+        String[] altJwtSegments = altJwt.split("\\.");
+
+        String forgedJwt = StringUtils.join(new String[] {jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
+
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(forgedJwt);
     }
 
-    private JWSObject createJwt(long expiryDuration, long clockOffset) throws JOSEException, InterruptedException
+    private void assertJsonContains(String payload, Object... claims) throws ParseException
     {
-        // Compose the JWT claims set
-        JWTClaimsSet jwtClaims = new JWTClaimsSet();
-        jwtClaims.setIssuer("https://openid.net");
-        jwtClaims.setSubject("alice");
-        List<String> aud = new ArrayList<String>();
-        aud.add("https://app-one.com");
-        aud.add("https://app-two.com");
-        jwtClaims.setAudience(aud);
-        Date now = new Date(System.currentTimeMillis() + clockOffset);
-        jwtClaims.setExpirationTime(new Date(now.getTime() + expiryDuration));
-        jwtClaims.setNotBeforeTime(now);
-        jwtClaims.setIssueTime(now);
-        jwtClaims.setJWTID(UUID.randomUUID().toString());
-
-        jwtClaims.setClaim("claim", "genuine");
-
-        // Create payload
-        Payload payload = new Payload(jwtClaims.toJSONObject());
-
-        // Create JWS header with HS256 algorithm
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-        header.setType(new JOSEObjectType("JWT"));
-
-        // Create JWS object
-        JWSObject jwsObject = new JWSObject(header, payload);
-
-        // Create HMAC signer
-        JWSSigner signer = new MACSigner(PASSWORD);
-        jwsObject.sign(signer);
-
-        return jwsObject;
+        assertJsonContains(payload, false, claims);
     }
+
+    private void assertJsonContainsOnly(String payload, Object... claims) throws ParseException
+    {
+        assertJsonContains(payload, true, claims);
+    }
+
+    private void assertJsonContains(String payload, boolean onlyThese, Object... claims) throws ParseException
+    {
+        JSONObject obj = (JSONObject) new JSONParser(JSONParser.MODE_RFC4627).parse(payload);
+        for (int i = 0; i < claims.length; i += 2)
+        {
+            String key = (String) claims[i];
+            Object expected = claims[i + 1];
+            Object val = obj.get(key);
+            assertEquals(expected, val);
+        }
+        if (onlyThese)
+        {
+            assertEquals("Incorrect number of payload values", claims.length / 2, obj.keySet().size());
+        }
+    }
+
 }
