@@ -2,6 +2,8 @@ package com.atlassian.jwt.exception;
 
 /**
  * Thrown if an incoming JWT is signed using an unsupported algorithm.
+ *
+ * @since 1.0
  */
 public class JwsUnsupportedAlgorithmException extends JwtVerificationException
 {

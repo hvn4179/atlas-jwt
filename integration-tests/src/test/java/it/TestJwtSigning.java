@@ -8,6 +8,7 @@ import it.rule.JwtPeerRegistration;
 import org.json.JSONObject;
 import org.junit.*;
 
+import static com.atlassian.jwt.SigningAlgorithm.HS256;
 import static it.util.HttpResponseConsumers.and;
 import static it.util.HttpResponseConsumers.expectBody;
 import static it.util.HttpResponseConsumers.expectStatus;
@@ -26,14 +27,16 @@ public class TestJwtSigning extends AbstractPeerTest
     @Test
     public void testRequestSignedWithJwtHs256() throws Exception
     {
-        String payLoad = new JSONObject(ImmutableMap.of(
-            "testKey", "testValue",
-            "exp", TimeUtil.currentTimePlusNSeconds(60)
-        )).toString();
+        JSONObject json = new JSONObject(ImmutableMap.builder()
+            .put("alg", HS256.name())
+            .put("typ", "JWT")
+            .put("iat", TimeUtil.currentTimeSeconds())
+            .put("exp", TimeUtil.currentTimePlusNSeconds(60))
+        .build());
         HttpUtil.post(relayResource(peer.getSecretStore().getId()), ImmutableMap.of(
             "path", "verify",
             "method", "POST",
-            "payload", payLoad
+            "payload", json.toString()
         ), and(expectStatus(SC_OK), expectBody("OK")));
     }
 

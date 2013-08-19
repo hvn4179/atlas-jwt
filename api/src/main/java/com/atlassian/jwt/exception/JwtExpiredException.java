@@ -7,9 +7,9 @@ import java.util.Date;
  *
  * @since 1.0
  */
-public class ExpiredJwtException extends JwtVerificationException
+public class JwtExpiredException extends JwtVerificationException
 {
-    public ExpiredJwtException(Date expiredAt, Date now)
+    public JwtExpiredException(Date expiredAt, Date now)
     {
         super(String.format("Expired at %s and time is now %s", expiredAt, now));
     }

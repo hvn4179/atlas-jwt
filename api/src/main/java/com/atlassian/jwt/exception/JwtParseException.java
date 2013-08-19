@@ -1,8 +1,7 @@
 package com.atlassian.jwt.exception;
 
 /**
- * Indicates that the JWT was not well-formed. For example: the JWT is not valid JSON, an expected claim is missing, or
- * the value of a reserved claim did not match its expected format.
+ * Indicates that the JWT was not well-formed, e.g. the JWT JSON is invalid.
  *
  * @since 1.0
  */

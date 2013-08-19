@@ -68,7 +68,6 @@ public class HttpUtil
         try {
             response = client().execute(request);
             consumer.consume(response);
-            EntityUtils.consume(response.getEntity());
         } catch (AssertionError e) {
             // dump req/resp info in the event of failure
             logRequest(request);
@@ -76,6 +75,10 @@ public class HttpUtil
                 logResponse(response);
             }
             throw e;
+        } finally {
+            if (response != null) {
+                EntityUtils.consume(response.getEntity());
+            }
         }
     }
 

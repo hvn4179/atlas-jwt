@@ -1,14 +1,13 @@
 package com.atlassian.jwt.core.reader;
 
+import com.atlassian.jwt.JwtConfiguration;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.NimbusUtil;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.SystemClock;
-import com.atlassian.jwt.exception.ExpiredJwtException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtSignatureMismatchException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
@@ -24,21 +23,23 @@ public class NimbusJwtReader implements JwtReader
     private final JWSVerifier verifier;
     private final Clock clock;
     private final SigningAlgorithm algorithm;
+    private final JwtConfiguration jwtConfiguration;
 
-    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier)
+    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier, JwtConfiguration jwtConfiguration)
     {
-        this(algorithm, verifier, SystemClock.getInstance());
+        this(algorithm, verifier, jwtConfiguration, SystemClock.getInstance());
     }
 
-    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier, Clock clock)
+    public NimbusJwtReader(SigningAlgorithm algorithm, JWSVerifier verifier, JwtConfiguration jwtConfiguration, Clock clock)
     {
         this.algorithm = algorithm;
         this.verifier = verifier;
+        this.jwtConfiguration = jwtConfiguration;
         this.clock = clock;
     }
 
     @Override
-    public VerifiedJwt verify(String jwt) throws JwtParseException, JwtSignatureMismatchException, ExpiredJwtException
+    public VerifiedJwt verify(String jwt) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
@@ -82,15 +83,23 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtParseException(e);
         }
 
-        if (claims.getExpirationTime() == null) {
-            throw new JwtParseException("'exp' is a required claim. Atlassian JWT does not allow JWTs with unlimited lifetimes.");
+        if (claims.getIssueTime() == null || claims.getExpirationTime() == null)
+        {
+            throw new JwtInvalidClaimException("'exp' and 'iat' are required claims. Atlassian JWT does not allow JWTs with " +
+                    "unlimited lifetimes.");
+        }
+
+        if (claims.getExpirationTime().getTime() - claims.getIssueTime().getTime() > jwtConfiguration.getMaxJwtLifetime())
+        {
+            throw new JwtInvalidClaimException("The difference between 'exp' and 'iat' must be less than " +
+                    jwtConfiguration.getMaxJwtLifetime() + ".");
         }
 
         Date now = clock.now();
 
         if (claims.getExpirationTime().before(now))
         {
-            throw new ExpiredJwtException(claims.getExpirationTime(), now);
+            throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
         String prn = NimbusUtil.getStringClaimValue(claims, "prn");
