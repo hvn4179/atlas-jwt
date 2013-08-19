@@ -14,7 +14,7 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     public JsonSmartJwtJsonBuilder()
     {
         issuedAt(TimeUtil.currentTimeSeconds());
-        expirationTime(TimeUtil.currentTimePlusNSeconds(180)); // 3 minutes
+        expirationTime(TimeUtil.currentTimePlusNSeconds(180)); // default JWT lifetime is 3 minutes
     }
 
     @Override

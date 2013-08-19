@@ -7,9 +7,6 @@ import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.MACVerifier;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
 
-import static junit.framework.Assert.assertEquals;
+import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -168,32 +165,6 @@ public class NimbusJwtReaderTest
         String forgedJwt = StringUtils.join(new String[] {jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
 
         new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(forgedJwt);
-    }
-
-    private void assertJsonContains(String payload, Object... claims) throws ParseException
-    {
-        assertJsonContains(payload, false, claims);
-    }
-
-    private void assertJsonContainsOnly(String payload, Object... claims) throws ParseException
-    {
-        assertJsonContains(payload, true, claims);
-    }
-
-    private void assertJsonContains(String payload, boolean onlyThese, Object... claims) throws ParseException
-    {
-        JSONObject obj = (JSONObject) new JSONParser(JSONParser.MODE_RFC4627).parse(payload);
-        for (int i = 0; i < claims.length; i += 2)
-        {
-            String key = (String) claims[i];
-            Object expected = claims[i + 1];
-            Object val = obj.get(key);
-            assertEquals(expected, val);
-        }
-        if (onlyThese)
-        {
-            assertEquals("Incorrect number of payload values", claims.length / 2, obj.keySet().size());
-        }
     }
 
 }
