@@ -1,9 +1,8 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.core.Clock;
-import com.atlassian.jwt.core.NimbusUtil;
+import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.SystemClock;
 import com.atlassian.jwt.exception.*;
@@ -99,9 +98,7 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
-        String prn = NimbusUtil.getStringClaimValue(claims, "prn");
-
-        return new SimpleJwt(claims.getIssuer(), prn, jsonPayload.toString());
+        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
     }
 
 

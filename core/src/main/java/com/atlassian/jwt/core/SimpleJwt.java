@@ -9,13 +9,13 @@ import com.atlassian.jwt.VerifiedJwt;
 public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
 {
     private final String iss;
-    private final String prn;
+    private final String sub;
     private final String payload;
 
-    public SimpleJwt(String iss, String prn, String payload)
+    public SimpleJwt(String iss, String sub, String payload)
     {
         this.iss = iss;
-        this.prn = prn;
+        this.sub = sub;
         this.payload = payload;
     }
 
@@ -26,9 +26,9 @@ public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
     }
 
     @Override
-    public String getPrincipal()
+    public String getSubject()
     {
-        return prn;
+        return sub;
     }
 
     @Override

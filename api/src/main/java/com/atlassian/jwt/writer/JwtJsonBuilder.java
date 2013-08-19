@@ -40,11 +40,6 @@ public interface JwtJsonBuilder
     JwtJsonBuilder notBefore(long nbf);
 
     /**
-     * Sets the 'prn' parameter.
-     */
-    JwtJsonBuilder principal(String prn);
-
-    /**
      * Sets the 'sub' parameter.
      */
     JwtJsonBuilder subject(String sub);

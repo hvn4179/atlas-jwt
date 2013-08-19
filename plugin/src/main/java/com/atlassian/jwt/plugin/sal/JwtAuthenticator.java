@@ -44,7 +44,7 @@ public class JwtAuthenticator implements Authenticator
         try
         {
             ApplinkJwt jwt = jwtService.verifyJwt(jwtString);
-            Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getPrincipal());
+            Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getSubject());
 
             if (authenticationController.canLogin(userPrincipal, request))
             {

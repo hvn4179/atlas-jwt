@@ -11,7 +11,6 @@ public class JsonSmartJwtJsonBuilderTest
     private static final int EXP = 1300819380;
     public static final int NBF = EXP - 30 * 60;
     private static final int IAT = EXP - 60 * 60;
-    private static final String PRN = "tim";
     private static final String ISS = "Atlassian Software";
     private static final String AUD = "world";
     private static final String SUB = "sports law";
@@ -32,7 +31,6 @@ public class JsonSmartJwtJsonBuilderTest
             .issuer(ISS)
             .jwtId(JTI)
             .notBefore(NBF)
-            .principal(PRN)
             .subject(SUB)
             .type(TYP)
             .build();
@@ -45,7 +43,6 @@ public class JsonSmartJwtJsonBuilderTest
             "iss", ISS,
             "jti", JTI,
             "nbf", NBF,
-            "prn", PRN,
             "sub", SUB,
             "typ", TYP
         );

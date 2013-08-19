@@ -13,9 +13,9 @@ public interface Jwt
     String getIssuer();
 
     /**
-     * @return the value of the 'prn' claim. That is, the principal that a request is being executed on the behalf of.
+     * @return the value of the 'sub' claim. That is, the principal that a request is being executed on the behalf of.
      */
-    String getPrincipal();
+    String getSubject();
 
     /**
      * @return a JSON representation of the claims contained in this JWT.

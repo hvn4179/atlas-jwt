@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.UnverifiedJwt;
-import com.atlassian.jwt.core.NimbusUtil;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.reader.UnverifiedJwtReader;
@@ -20,8 +19,7 @@ public class NimbusUnverifiedJwtReader implements UnverifiedJwtReader
         try
         {
             JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-            String prn = NimbusUtil.getStringClaimValue(claims, "prn");
-            return new SimpleJwt(claims.getIssuer(), prn, jwsObject.getPayload().toString());
+            return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jwsObject.getPayload().toString());
         }
         catch (ParseException e)
         {

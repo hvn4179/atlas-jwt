@@ -60,13 +60,6 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     }
 
     @Override
-    public JwtJsonBuilder principal(String prn)
-    {
-        json.put("prn", prn);
-        return this;
-    }
-
-    @Override
     public JwtJsonBuilder subject(String sub)
     {
         json.put("sub", sub);
