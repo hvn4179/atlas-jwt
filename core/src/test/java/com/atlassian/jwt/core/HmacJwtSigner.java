@@ -35,10 +35,11 @@ public class HmacJwtSigner
         JSONObject obj = new JSONObject();
         for (int i = 0; i < claims.length; i += 2)
         {
-            if (!(claims[i] instanceof String)) {
+            if (!(claims[i] instanceof String))
+            {
                 throw new IllegalArgumentException("Expected object of type String at index " + i);
             }
-            obj.put((String) claims[i], claims[i+1]);
+            obj.put((String) claims[i], claims[i + 1]);
         }
 
         return jsonToHmacSha256Jwt(obj.toJSONString());

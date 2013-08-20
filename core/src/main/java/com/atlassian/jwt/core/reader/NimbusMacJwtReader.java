@@ -1,7 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.Clock;
+import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SystemClock;
 import com.nimbusds.jose.crypto.MACVerifier;
 

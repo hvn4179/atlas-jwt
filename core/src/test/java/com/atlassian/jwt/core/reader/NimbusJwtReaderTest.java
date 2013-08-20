@@ -1,8 +1,8 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.HmacJwtSigner;
+import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.exception.*;
 import com.nimbusds.jose.JOSEException;
@@ -45,17 +45,17 @@ public class NimbusJwtReaderTest
     public void canReadCorrectly() throws Exception
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-            "exp", TIMESTAMP,
-            "iat", TEN_MINS_EARLIER,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "joe"
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
         String payload = new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt).getJsonPayload();
         assertJsonContainsOnly(payload,
-            "exp", TIMESTAMP,
-            "iat", TEN_MINS_EARLIER,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "joe"
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
     }
 
@@ -98,17 +98,17 @@ public class NimbusJwtReaderTest
     {
         int oneHourEarlier = TIMESTAMP - 60 * 60;
         String jwt = signer.jsonToHmacSha256Jwt(
-            "exp", TIMESTAMP,
-            "iat", oneHourEarlier, // max lifetime defaults to one hour
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "joe"
+                "exp", TIMESTAMP,
+                "iat", oneHourEarlier, // max lifetime defaults to one hour
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
         String payload = new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(jwt).getJsonPayload();
         assertJsonContainsOnly(payload,
-            "exp", TIMESTAMP,
-            "iat", oneHourEarlier,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "joe"
+                "exp", TIMESTAMP,
+                "iat", oneHourEarlier,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
     }
 
@@ -147,22 +147,22 @@ public class NimbusJwtReaderTest
     public void tamperedJwtIsRejected() throws InterruptedException, JOSEException, JwtParseException, JwtVerificationException
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-            "exp", TIMESTAMP,
-            "iat", TEN_MINS_EARLIER,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "joe"
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
         String altJwt = signer.jsonToHmacSha256Jwt(
-            "exp", TIMESTAMP,
-            "iat", TEN_MINS_EARLIER,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "adminjoe" // spoof username
+                "exp", TIMESTAMP,
+                "iat", TEN_MINS_EARLIER,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "adminjoe" // spoof username
         );
 
         String[] jwtSegments = jwt.split("\\.");
         String[] altJwtSegments = altJwt.split("\\.");
 
-        String forgedJwt = StringUtils.join(new String[] {jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
+        String forgedJwt = StringUtils.join(new String[]{jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
 
         new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, CLOCK).verify(forgedJwt);
     }

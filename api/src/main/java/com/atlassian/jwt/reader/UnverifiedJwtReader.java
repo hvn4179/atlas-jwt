@@ -17,7 +17,7 @@ public interface UnverifiedJwtReader
     /**
      * @param jwt an JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
      * @return an <strong>unverified</strong> {@link UnverifiedJwt JWT}. <strong>DO NOT</strong> trust
-     * values associated with this JWT. Use a {@link JwtReader verifying JwtReader} instead.
+     *         values associated with this JWT. Use a {@link JwtReader verifying JwtReader} instead.
      * @throws JwtParseException if the JWT string was malformed
      */
     UnverifiedJwt parse(String jwt) throws JwtParseException;

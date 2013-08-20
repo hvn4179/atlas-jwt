@@ -19,17 +19,17 @@ public class NimbusUnverifiedJwtReaderTest
     public void readWithoutVerification() throws Exception
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-            "exp", 100000,
-            "iat", 500,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "the_king_of_france"
+                "exp", 100000,
+                "iat", 500,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "the_king_of_france"
         );
         String payload = new NimbusUnverifiedJwtReader().parse(jwt).getJsonPayload();
         assertJsonContainsOnly(payload,
-            "exp", 100000,
-            "iat", 500,
-            "\"http:\\/\\/example.com\\/is_root\"", true,
-            "iss", "the_king_of_france"
+                "exp", 100000,
+                "iat", 500,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "the_king_of_france"
         );
     }
 

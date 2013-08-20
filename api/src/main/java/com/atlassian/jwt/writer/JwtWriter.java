@@ -12,7 +12,7 @@ public interface JwtWriter
     /**
      * @param json a JSON payload.
      * @return a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
-     * containing the supplied payload and an appropriate signature.
+     *         containing the supplied payload and an appropriate signature.
      * @throws JwtSigningException if there was a problem signing the payload
      */
     String jsonToJwt(String json) throws JwtSigningException;

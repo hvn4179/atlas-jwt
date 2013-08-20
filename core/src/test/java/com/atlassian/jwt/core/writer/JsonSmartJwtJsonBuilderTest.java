@@ -24,27 +24,27 @@ public class JsonSmartJwtJsonBuilderTest
     public void claimGeneration() throws Exception
     {
         String json = new JsonSmartJwtJsonBuilderFactory().jsonBuilder()
-            .audience(AUD)
-            .claim(CUSTOM_KEY, CUSTOM_VALUE)
-            .expirationTime(EXP)
-            .issuedAt(IAT)
-            .issuer(ISS)
-            .jwtId(JTI)
-            .notBefore(NBF)
-            .subject(SUB)
-            .type(TYP)
-            .build();
+                .audience(AUD)
+                .claim(CUSTOM_KEY, CUSTOM_VALUE)
+                .expirationTime(EXP)
+                .issuedAt(IAT)
+                .issuer(ISS)
+                .jwtId(JTI)
+                .notBefore(NBF)
+                .subject(SUB)
+                .type(TYP)
+                .build();
 
         JsonUtils.assertJsonContainsOnly(json,
-            "aud", AUD,
-            CUSTOM_KEY, CUSTOM_VALUE,
-            "exp", EXP,
-            "iat", IAT,
-            "iss", ISS,
-            "jti", JTI,
-            "nbf", NBF,
-            "sub", SUB,
-            "typ", TYP
+                "aud", AUD,
+                CUSTOM_KEY, CUSTOM_VALUE,
+                "exp", EXP,
+                "iat", IAT,
+                "iss", ISS,
+                "jti", JTI,
+                "nbf", NBF,
+                "sub", SUB,
+                "typ", TYP
         );
     }
 

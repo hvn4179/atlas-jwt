@@ -53,14 +53,14 @@ public interface JwtJsonBuilder
      * Adds an arbitrary claim.
      *
      * @param name the claim's name.
-     * @param obj the claim's value. Allowed types are:
-     *            <ul>
-     *              <li>{@link String}</li>
-     *              <li>{@link Boolean}</li>
-     *              <li>{@link Number}</li>
-     *              <li>a {@link Map} of {@link String} to any of the above</li>
-     *              <li>an array of any of the above</li>
-     *            </ul>
+     * @param obj  the claim's value. Allowed types are:
+     *             <ul>
+     *             <li>{@link String}</li>
+     *             <li>{@link Boolean}</li>
+     *             <li>{@link Number}</li>
+     *             <li>a {@link Map} of {@link String} to any of the above</li>
+     *             <li>an array of any of the above</li>
+     *             </ul>
      */
     JwtJsonBuilder claim(String name, Object obj);
 
