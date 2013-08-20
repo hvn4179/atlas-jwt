@@ -18,6 +18,7 @@
         Jetty app uses jwt-api and jwt-core as proof of concept that atlassian-jwt can be embedded outside of an
         atlassian-plugins environment.
     </description>
+    <packaging>atlassian-plugin</packaging>
 
     <dependencies>
         <dependency>
@@ -139,6 +140,11 @@
                                 <pluginArtifact>
                                     <groupId>com.atlassian.jwt</groupId>
                                     <artifactId>jwt-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.jwt</groupId>
+                                    <artifactId>jwt-test-plugin</artifactId>
                                     <version>${project.version}</version>
                                 </pluginArtifact>
                             </pluginArtifacts>
