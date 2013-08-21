@@ -7,19 +7,19 @@ import com.atlassian.applinks.api.ApplicationLink;
  *
  * @since 1.0
  */
-public class JwtRegistrationFailed extends Exception
+public class JwtRegistrationFailedException extends Exception
 {
-    public JwtRegistrationFailed(String message)
+    public JwtRegistrationFailedException(String message)
     {
         super(message);
     }
 
-    public JwtRegistrationFailed(String message, Throwable cause)
+    public JwtRegistrationFailedException(String message, Throwable cause)
     {
         super(message, cause);
     }
 
-    public JwtRegistrationFailed(Throwable cause)
+    public JwtRegistrationFailedException(Throwable cause)
     {
         super(cause);
     }

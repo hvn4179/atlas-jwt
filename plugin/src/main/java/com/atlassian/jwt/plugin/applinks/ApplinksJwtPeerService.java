@@ -5,7 +5,7 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
-import com.atlassian.jwt.applinks.exception.JwtRegistrationFailed;
+import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
 import com.atlassian.jwt.plugin.security.SecretGenerator;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
@@ -18,7 +18,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
     public static final String ATLASSIAN_JWT_SHARED_SECRET = "atlassian.jwt.shared.secret";
 
     @Override
-    public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailed
+    public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailedException
     {
         // generate secure shared secret
         String sharedSecret = SecretGenerator.generateUrlSafeSharedSecret(SigningAlgorithm.HS256);
@@ -47,7 +47,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
         }
         catch (ResponseException e)
         {
-            throw new JwtRegistrationFailed(e);
+            throw new JwtRegistrationFailedException(e);
         }
         catch (CredentialsRequiredException e)
         {

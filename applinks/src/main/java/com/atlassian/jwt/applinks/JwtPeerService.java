@@ -1,7 +1,7 @@
 package com.atlassian.jwt.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.jwt.applinks.exception.JwtRegistrationFailed;
+import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
 
 /**
  * Manages registration and revocation of JWT relationships with remote applications linked to this server via
@@ -24,10 +24,10 @@ public interface JwtPeerService
      *
      * @param applicationLink the {@link ApplicationLink linked application} to register an JWT relationship with.
      * @param path            the URI (relative to the {@link ApplicationLink}'s base URL) to POST the credentials to.
-     * @throws JwtRegistrationFailed if there was a problem executing the request, or the linked application responded
+     * @throws com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException if there was a problem executing the request, or the linked application responded
      *                               with an HTTP code not in the 2xx range.
      */
-    void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailed;
+    void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailedException;
 
     /**
      * Delete the JWT credentials associated with the {@link ApplicationLink linked application}. The linked application
