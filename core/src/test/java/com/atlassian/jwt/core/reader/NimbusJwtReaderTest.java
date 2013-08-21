@@ -14,8 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Date;
-
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +26,7 @@ public class NimbusJwtReaderTest
     private static final int ONE_HOUR_EARLIER = TIMESTAMP - 60 * 60;
 
     private static final long TIMESTAMP_MS = TIMESTAMP * 1000L;
-    private static final Clock CLOCK = new StaticClock(new Date(TIMESTAMP_MS));
+    private static final Clock CLOCK = new StaticClock(TIMESTAMP_MS);
 
     private final HmacJwtSigner signer = new HmacJwtSigner(SECRET_KEY);
 
@@ -133,7 +131,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, new StaticClock(new Date(TIMESTAMP_MS + 1))).verify(jwt);
+        new NimbusJwtReader(new MACVerifier(SECRET_KEY), jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).verify(jwt);
     }
 
     @Test(expected = JwtParseException.class)

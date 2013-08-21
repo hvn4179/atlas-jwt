@@ -6,9 +6,9 @@ public class StaticClock implements Clock
 {
     private final Date now;
 
-    public StaticClock(Date now)
+    public StaticClock(long nowMs)
     {
-        this.now = now;
+        this.now = new Date(nowMs);
     }
 
     @Override
