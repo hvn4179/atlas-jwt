@@ -5,7 +5,7 @@ package com.atlassian.jwt.exception;
  *
  * @since 1.0
  */
-public class JwtSigningException extends Exception
+public class JwtSigningException extends RuntimeException
 {
     public JwtSigningException(Exception cause)
     {
