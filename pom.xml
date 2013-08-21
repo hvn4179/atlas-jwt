@@ -17,7 +17,7 @@
     <artifactId>jwt-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Atlassian JWT Parent</name>
-    <description>Plugin to provide support for JWT authentication in our RESTful APIs</description>
+    <description>Library that provides support for JWT authentication.</description>
     <packaging>pom</packaging>
 
     <organization>
@@ -210,6 +210,19 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>atlassian-m2-repository</id>
+            <name>Atlassian Public Repository</name>
+            <url>https://maven.atlassian.com/public</url>
+        </repository>
+        <snapshotRepository>
+            <id>atlassian-m2-snapshot-repository</id>
+            <name>Atlassian Public Snapshot Repository</name>
+            <url>https://maven.atlassian.com/public-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <amps.version>4.2.3</amps.version>
