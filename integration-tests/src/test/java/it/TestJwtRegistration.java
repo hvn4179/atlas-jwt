@@ -25,9 +25,13 @@ public class TestJwtRegistration extends AbstractPeerTest
     {
         registerPeer(peer);
 
-        String id = peer.getSecretStore().getId();
-        assertNotNull(id);
-        assertTrue(id.length() > 0);
+        String clientId = peer.getSecretStore().getClientId();
+        assertNotNull(clientId);
+        assertTrue(clientId.length() > 0);
+
+        String serverId = peer.getSecretStore().getServerId();
+        assertNotNull(serverId);
+        assertTrue(serverId.length() > 0);
 
         String secret = peer.getSecretStore().getSecret();
         assertNotNull(secret);

@@ -16,7 +16,12 @@ public interface JwtPeerService
      * <p/>
      * The credentials are issued as an HTTP POST with two application/x-www-form-urlencoded form parameters:
      * <ul>
-     * <li><strong>id</strong> - an identifier for the linked application to use as the 'iss' field when generating JWTs</li>
+     * <li><strong>myId</strong> - an identifier that this application will pass in the 'iss' claim when generating
+     *                             JWTs
+*    * </li>
+     * <li><strong>yourId</strong> - an identifier that the linked application MUST pass in the 'iss' claim when
+     *                               generating JWTs
+     * </li>
      * <li><strong>secret</strong> - a shared secret which should be used to generate HMAC SHA-256 signatures for JWTs</li>
      * </ul>
      * <p/>

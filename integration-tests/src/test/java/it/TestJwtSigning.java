@@ -29,7 +29,7 @@ public class TestJwtSigning extends AbstractPeerTest
                 .put("iat", TimeUtil.currentTimeSeconds())
                 .put("exp", TimeUtil.currentTimePlusNSeconds(60))
                 .build());
-        HttpUtil.post(relayResource(peer.getSecretStore().getId()), ImmutableMap.of(
+        HttpUtil.post(relayResource(peer.getSecretStore().getClientId()), ImmutableMap.of(
                 "path", "verify",
                 "method", "POST",
                 "payload", json.toString()

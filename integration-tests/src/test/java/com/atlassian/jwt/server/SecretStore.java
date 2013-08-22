@@ -2,23 +2,43 @@ package com.atlassian.jwt.server;
 
 public class SecretStore
 {
-    private String id;
+    /**
+     * ID of the Jetty peer
+     */
+    private String clientId;
+    /**
+     * ID of the Atlassian app
+     */
+    private String serverId;
+    /**
+     * Shared secret for HMAC
+     */
     private String secret;
 
-    public void update(String id, String secret)
+    public SecretStore()
     {
-        this.id = id;
+    }
+
+    public void update(String cliendId, String serverId, String secret)
+    {
+        this.clientId = cliendId;
+        this.serverId = serverId;
         this.secret = secret;
     }
 
     public void clear()
     {
-        update(null, null);
+        update(null, null, null);
     }
 
-    public String getId()
+    public String getClientId()
     {
-        return id;
+        return clientId;
+    }
+
+    public String getServerId()
+    {
+        return serverId;
     }
 
     public String getSecret()

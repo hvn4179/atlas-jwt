@@ -29,7 +29,7 @@ public class TestJwtAuthentication extends AbstractPeerTest
     {
         JwtWriter jwtWriter = new NimbusJwtWriterFactory().macSigningWriter(HS256, peer.getSecretStore().getSecret());
         String json = new JsonSmartJwtJsonBuilder()
-                .issuer(peer.getSecretStore().getId())
+                .issuer(peer.getSecretStore().getClientId())
                 .subject("admin")
                 .issuedAt(TimeUtil.currentTimeSeconds())
                 .expirationTime(TimeUtil.currentTimePlusNSeconds(60))

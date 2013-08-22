@@ -70,7 +70,7 @@ public abstract class AbstractPeerTest
 
     public void unregisterPeer(JwtPeer peer) throws IOException
     {
-        HttpUtil.delete(registrationResource() + "/" + peer.getSecretStore().getId(), expectStatus(SC_NO_CONTENT));
+        HttpUtil.delete(registrationResource() + "/" + peer.getSecretStore().getClientId(), expectStatus(SC_NO_CONTENT));
     }
 
 }

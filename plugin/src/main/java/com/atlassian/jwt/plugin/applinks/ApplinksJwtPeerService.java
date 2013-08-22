@@ -3,6 +3,7 @@ package com.atlassian.jwt.plugin.applinks;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
@@ -17,6 +18,13 @@ public class ApplinksJwtPeerService implements JwtPeerService
 
     public static final String ATLASSIAN_JWT_SHARED_SECRET = "atlassian.jwt.shared.secret";
 
+    private final InternalHostApplication hostApplication;
+
+    public ApplinksJwtPeerService(InternalHostApplication hostApplication)
+    {
+        this.hostApplication = hostApplication;
+    }
+
     @Override
     public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailedException
     {
@@ -29,7 +37,8 @@ public class ApplinksJwtPeerService implements JwtPeerService
             applicationLink.createAuthenticatedRequestFactory(Anonymous.class)
                     .createRequest(Request.MethodType.POST, path)
                     .addRequestParameters(
-                            "id", applicationLink.getId().toString(),
+                            "myId", hostApplication.getId().get(),
+                            "yourId", applicationLink.getId().toString(),
                             "secret", sharedSecret)
                     .execute(new ResponseHandler<Response>()
                     {

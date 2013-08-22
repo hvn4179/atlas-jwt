@@ -133,6 +133,11 @@
                 <version>${applinks.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.atlassian.applinks</groupId>
+                <artifactId>applinks-host</artifactId>
+                <version>${applinks.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.atlassian.security</groupId>
                 <artifactId>atlassian-secure-random</artifactId>
                 <version>3.1.4</version>

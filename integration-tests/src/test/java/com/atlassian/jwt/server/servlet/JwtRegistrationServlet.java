@@ -29,19 +29,21 @@ public class JwtRegistrationServlet extends HttpServlet
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        String id = req.getParameter("id");
+        String serverId = req.getParameter("myId");
+        String clientId = req.getParameter("yourId");
         String secret = req.getParameter("secret");
 
-        System.out.println("id: " + id);
+        System.out.println("myId: " + serverId);
+        System.out.println("yourId: " + clientId);
         System.out.println("secret: " + secret);
 
-        if (StringUtils.isBlank(id) || StringUtils.isBlank(secret))
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(serverId) || StringUtils.isBlank(secret))
         {
-            resp.sendError(SC_BAD_REQUEST, "id and secret are required");
+            resp.sendError(SC_BAD_REQUEST, "myId, yourId and secret are required");
         }
         else
         {
-            secretStore.update(id, secret);
+            secretStore.update(clientId, serverId, secret);
             resp.setStatus(SC_OK);
             resp.getWriter().println("OK");
         }
