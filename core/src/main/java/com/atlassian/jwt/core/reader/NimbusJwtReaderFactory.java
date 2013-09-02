@@ -4,10 +4,12 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
-import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.exception.JwsUnsupportedAlgorithmException;
+import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
+import com.atlassian.jwt.exception.JwtParseException;
+import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
-import com.atlassian.jwt.reader.UnverifiedJwtReader;
 
 public class NimbusJwtReaderFactory implements JwtReaderFactory
 {
