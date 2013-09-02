@@ -4,7 +4,9 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.core.JwtUtil;
+import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtParseException;
+import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.exception.JwtVerificationException;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -65,6 +67,14 @@ public class JwtAuthenticator implements Authenticator
             return createError(e);
         }
         catch (JwtVerificationException e)
+        {
+            return createFailure(e);
+        }
+        catch (JwtIssuerLacksSharedSecretException e)
+        {
+            return createFailure(e);
+        }
+        catch (JwtUnknownIssuerException e)
         {
             return createFailure(e);
         }

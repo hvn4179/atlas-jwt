@@ -3,6 +3,7 @@ package com.atlassian.jwt.server.servlet;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.server.RequestCache;
@@ -36,7 +37,8 @@ public class JwtVerificationServlet extends HttpServlet
     {
         this.secretStore = secretStore;
         this.requestCache = requestCache;
-        readerFactory = new NimbusJwtReaderFactory();
+        TrivialJwtPeerSharedSecretService jwtPeerSharedSecretService = new TrivialJwtPeerSharedSecretService(secretStore);
+        readerFactory = new NimbusJwtReaderFactory(jwtPeerSharedSecretService, jwtPeerSharedSecretService);
     }
 
     @Override
@@ -54,7 +56,15 @@ public class JwtVerificationServlet extends HttpServlet
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
-        JwtReader reader = readerFactory.macVerifyingReader(secretStore.getSecret());
+        JwtReader reader = null;
+        try
+        {
+            reader = readerFactory.getReader(jwtString);
+        }
+        catch (Exception e)
+        {
+            handleJwtException(resp, e);
+        }
 
         VerifiedJwt jwt;
         try
@@ -63,9 +73,7 @@ public class JwtVerificationServlet extends HttpServlet
         }
         catch (Exception e)
         {
-            String message = "Failed to verify JWT.";
-            resp.sendError(SC_BAD_REQUEST, message);
-            log.error(message, e);
+            handleJwtException(resp, e);
             return;
         }
 
@@ -73,5 +81,12 @@ public class JwtVerificationServlet extends HttpServlet
 
         resp.setStatus(SC_OK);
         resp.getWriter().write(jwt.getJsonPayload());
+    }
+
+    private void handleJwtException(HttpServletResponse resp, Exception e) throws IOException
+    {
+        String message = "Failed to verify JWT.";
+        resp.sendError(SC_BAD_REQUEST, message);
+        log.error(message, e);
     }
 }

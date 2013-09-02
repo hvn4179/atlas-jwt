@@ -1,5 +1,7 @@
 package com.atlassian.jwt.reader;
 
+import com.atlassian.jwt.exception.*;
+
 /**
  * Factory for {@link JwtReader} and {@link UnverifiedJwtReader}.
  *
@@ -17,4 +19,6 @@ public interface JwtReaderFactory
      * @return an {@link UnverifiedJwtReader}
      */
     UnverifiedJwtReader unverified();
+
+    JwtReader getReader(String jwt) throws JwsUnsupportedAlgorithmException, JwtInvalidClaimException, JwtUnknownIssuerException, JwtParseException, JwtIssuerLacksSharedSecretException;
 }

@@ -25,11 +25,13 @@ public class TestJwtSigning extends AbstractPeerTest
     @Test
     public void testRequestSignedWithJwtHs256() throws Exception
     {
+        String clientId = peer.getSecretStore().getClientId();
         JSONObject json = new JSONObject(ImmutableMap.builder()
                 .put("iat", TimeUtil.currentTimeSeconds())
                 .put("exp", TimeUtil.currentTimePlusNSeconds(60))
+                .put("iss", clientId)
                 .build());
-        HttpUtil.post(relayResource(peer.getSecretStore().getClientId()), ImmutableMap.of(
+        HttpUtil.post(relayResource(clientId), ImmutableMap.of(
                 "path", "verify",
                 "method", "POST",
                 "payload", json.toString()

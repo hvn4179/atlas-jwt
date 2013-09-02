@@ -6,12 +6,11 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.UnverifiedJwt;
+import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtSigningException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.writer.JwtWriterFactory;
@@ -39,12 +38,12 @@ public class ApplinksJwtService implements JwtService
     }
 
     @Override
-    public ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException
+    public ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
-        UnverifiedJwt unverifiedJwt = jwtReaderFactory.unverified().parse(jwt);
-        String applicationId = unverifiedJwt.getIssuer();
+        JwtReader jwtReader = jwtReaderFactory.getReader(jwt);
+        VerifiedJwt verifiedJwt = jwtReader.verify(jwt);
+        String applicationId = verifiedJwt.getIssuer();
         ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
-        JwtReader jwtReader = jwtReaderFactory.macVerifyingReader(requireSharedSecret(applicationLink));
         return new SimpleApplinkJwt(jwtReader.verify(jwt), applicationLink);
     }
 
