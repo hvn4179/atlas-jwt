@@ -65,21 +65,24 @@ public class JwtVerificationServlet extends HttpServlet
             handleJwtException(resp, e);
         }
 
-        Jwt jwt;
-        try
+        if (null != reader)
         {
-            jwt = reader.verify(jwtString);
-        }
-        catch (Exception e)
-        {
-            handleJwtException(resp, e);
-            return;
-        }
+            Jwt jwt;
+            try
+            {
+                jwt = reader.verify(jwtString);
+            }
+            catch (Exception e)
+            {
+                handleJwtException(resp, e);
+                return;
+            }
 
-        requestCache.setMostRecentPayload(jwt.getJsonPayload());
+            requestCache.setMostRecentPayload(jwt.getJsonPayload());
 
-        resp.setStatus(SC_OK);
-        resp.getWriter().write(jwt.getJsonPayload());
+            resp.setStatus(SC_OK);
+            resp.getWriter().write(jwt.getJsonPayload());
+        }
     }
 
     private void handleJwtException(HttpServletResponse resp, Exception e) throws IOException
