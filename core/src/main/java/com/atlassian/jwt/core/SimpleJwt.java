@@ -1,11 +1,11 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 
 /**
  *
  */
-public class SimpleJwt implements VerifiedJwt
+public class SimpleJwt implements Jwt
 {
     private final String iss;
     private final String sub;

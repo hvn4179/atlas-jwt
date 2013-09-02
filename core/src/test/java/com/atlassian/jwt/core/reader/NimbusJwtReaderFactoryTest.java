@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -63,7 +63,7 @@ public class NimbusJwtReaderFactoryTest
     public void readerReturnedForValidJwtCanVerifyThatJwt() throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         String payload = createPayload(VALID_ISSUER);
-        VerifiedJwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
+        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
         assertThat(factory.getReader(jwt).verify(jwt), is(expected));
     }

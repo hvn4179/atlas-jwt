@@ -1,9 +1,8 @@
 package com.atlassian.jwt.server.servlet;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
-import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.server.RequestCache;
@@ -66,7 +65,7 @@ public class JwtVerificationServlet extends HttpServlet
             handleJwtException(resp, e);
         }
 
-        VerifiedJwt jwt;
+        Jwt jwt;
         try
         {
             jwt = reader.verify(jwtString);

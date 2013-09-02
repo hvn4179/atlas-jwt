@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
@@ -29,7 +29,7 @@ public class NimbusJwtReader implements JwtReader
     }
 
     @Override
-    public VerifiedJwt verify(String jwt) throws JwtParseException, JwtVerificationException
+    public Jwt verify(String jwt) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
