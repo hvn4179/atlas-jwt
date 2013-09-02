@@ -4,18 +4,14 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import static junit.framework.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *
  */
 public class JsonUtils
 {
-    public static void assertJsonContains(String payload, Object... claims) throws ParseException
-    {
-        assertJsonContains(payload, false, claims);
-    }
-
     public static void assertJsonContainsOnly(String payload, Object... claims) throws ParseException
     {
         assertJsonContains(payload, true, claims);
@@ -29,11 +25,11 @@ public class JsonUtils
             String claim = (String) claims[i];
             Object expected = claims[i + 1];
             Object val = obj.get(claim);
-            assertEquals("Unexpected value for claim '" + claim + "'", expected, val);
+            assertThat("Unexpected value for claim '" + claim + "'", val, is(expected));
         }
         if (onlyThese)
         {
-            assertEquals("Incorrect number of payload values", claims.length / 2, obj.keySet().size());
+            assertThat("Incorrect number of payload values", obj.keySet().size(), is(claims.length / 2));
         }
     }
 }
