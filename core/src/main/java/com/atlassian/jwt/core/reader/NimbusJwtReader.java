@@ -98,7 +98,7 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
-        return new SimpleJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
+        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
     }
 
 

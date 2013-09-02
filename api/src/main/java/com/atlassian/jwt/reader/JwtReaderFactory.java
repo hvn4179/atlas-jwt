@@ -3,7 +3,7 @@ package com.atlassian.jwt.reader;
 import com.atlassian.jwt.exception.*;
 
 /**
- * Factory for {@link JwtReader} and {@link UnverifiedJwtReader}.
+ * Factory for {@link JwtReader}.
  *
  * @since 1.0
  */

@@ -1,30 +1,21 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.VerifiedJwt;
 
 /**
  *
  */
-public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
+public class SimpleJwt implements VerifiedJwt
 {
-    private final String algorithm;
     private final String iss;
     private final String sub;
     private final String payload;
 
-    public SimpleJwt(String algorithm, String iss, String sub, String payload)
+    public SimpleJwt(String iss, String sub, String payload)
     {
-        this.algorithm = algorithm;
         this.iss = iss;
         this.sub = sub;
         this.payload = payload;
-    }
-
-    @Override
-    public String getAlgorithm()
-    {
-        return algorithm;
     }
 
     @Override
@@ -49,8 +40,7 @@ public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
     public String toString()
     {
         return "SimpleJwt{" +
-                "algorithm='" + algorithm + '\'' +
-                ", iss='" + iss + '\'' +
+                "iss='" + iss + '\'' +
                 ", sub='" + sub + '\'' +
                 ", payload='" + payload + '\'' +
                 '}';
@@ -70,10 +60,6 @@ public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
 
         SimpleJwt simpleJwt = (SimpleJwt) o;
 
-        if (algorithm != null ? !algorithm.equals(simpleJwt.algorithm) : simpleJwt.algorithm != null)
-        {
-            return false;
-        }
         if (iss != null ? !iss.equals(simpleJwt.iss) : simpleJwt.iss != null)
         {
             return false;
@@ -93,8 +79,7 @@ public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
     @Override
     public int hashCode()
     {
-        int result = algorithm != null ? algorithm.hashCode() : 0;
-        result = 31 * result + (iss != null ? iss.hashCode() : 0);
+        int result = iss != null ? iss.hashCode() : 0;
         result = 31 * result + (sub != null ? sub.hashCode() : 0);
         result = 31 * result + (payload != null ? payload.hashCode() : 0);
         return result;

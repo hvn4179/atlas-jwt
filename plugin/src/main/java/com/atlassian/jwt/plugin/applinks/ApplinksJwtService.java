@@ -5,7 +5,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.VerifiedJwt;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
