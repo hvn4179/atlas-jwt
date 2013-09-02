@@ -15,10 +15,5 @@ public interface JwtReaderFactory
      */
     JwtReader macVerifyingReader(String sharedSecret);
 
-    /**
-     * @return an {@link UnverifiedJwtReader}
-     */
-    UnverifiedJwtReader unverified();
-
     JwtReader getReader(String jwt) throws JwsUnsupportedAlgorithmException, JwtInvalidClaimException, JwtUnknownIssuerException, JwtParseException, JwtIssuerLacksSharedSecretException;
 }

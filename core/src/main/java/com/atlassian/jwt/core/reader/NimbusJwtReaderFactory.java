@@ -34,15 +34,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
     }
 
     @Override
-    public UnverifiedJwtReader unverified()
-    {
-        return new NimbusUnverifiedJwtReader();
-    }
-
-    @Override
     public JwtReader getReader(String jwt) throws JwtParseException, JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
     {
-        UnverifiedJwt unverifiedJwt = unverified().parse(jwt);
+        UnverifiedJwt unverifiedJwt = new NimbusUnverifiedJwtReader().parse(jwt);
         SigningAlgorithm algorithm = validateAlgorithm(unverifiedJwt);
         String issuer = validateIssuer(unverifiedJwt);
 
