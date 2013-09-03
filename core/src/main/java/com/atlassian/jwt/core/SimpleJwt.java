@@ -2,6 +2,10 @@ package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.UnverifiedJwt;
 import com.atlassian.jwt.VerifiedJwt;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  *
@@ -48,55 +52,46 @@ public class SimpleJwt implements VerifiedJwt, UnverifiedJwt
     @Override
     public String toString()
     {
-        return "SimpleJwt{" +
-                "algorithm='" + algorithm + '\'' +
-                ", iss='" + iss + '\'' +
-                ", sub='" + sub + '\'' +
-                ", payload='" + payload + '\'' +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("algorithm", algorithm)
+                .append("iss", iss)
+                .append("sub", sub)
+                .append("payload", payload)
+                .toString();
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
+        if (o == null)
+        {
+            return false;
+        }
+        if (o == this)
         {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
+        if (o.getClass() != getClass())
         {
             return false;
         }
-
-        SimpleJwt simpleJwt = (SimpleJwt) o;
-
-        if (algorithm != null ? !algorithm.equals(simpleJwt.algorithm) : simpleJwt.algorithm != null)
-        {
-            return false;
-        }
-        if (iss != null ? !iss.equals(simpleJwt.iss) : simpleJwt.iss != null)
-        {
-            return false;
-        }
-        if (payload != null ? !payload.equals(simpleJwt.payload) : simpleJwt.payload != null)
-        {
-            return false;
-        }
-        if (sub != null ? !sub.equals(simpleJwt.sub) : simpleJwt.sub != null)
-        {
-            return false;
-        }
-
-        return true;
+        SimpleJwt rhs = (SimpleJwt) o;
+        return new EqualsBuilder()
+                .append(algorithm, rhs.algorithm)
+                .append(iss, rhs.iss)
+                .append(sub, rhs.sub)
+                .append(payload, rhs.payload)
+                .isEquals();
     }
 
     @Override
     public int hashCode()
     {
-        int result = algorithm != null ? algorithm.hashCode() : 0;
-        result = 31 * result + (iss != null ? iss.hashCode() : 0);
-        result = 31 * result + (sub != null ? sub.hashCode() : 0);
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(31, 17)
+                .append(algorithm)
+                .append(iss)
+                .append(sub)
+                .append(payload)
+                .hashCode();
     }
 }
