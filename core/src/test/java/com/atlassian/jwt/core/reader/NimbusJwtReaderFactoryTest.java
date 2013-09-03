@@ -117,7 +117,7 @@ public class NimbusJwtReaderFactoryTest
     {
         try
         {
-            return new NimbusJwtWriter(algorithm, SIGNER).jsonToJwt(payload);
+            return new AnyAlgorithmNimbusJwtWriter(algorithm, SIGNER).jsonToJwt(payload);
         }
         catch (JwtSigningException e)
         {
@@ -138,7 +138,7 @@ public class NimbusJwtReaderFactoryTest
                     return jwsAlgorithms;
                 }
             };
-            return new NimbusJwtWriter(algorithm, fakeSigner).jsonToJwt(payload);
+            return new AnyAlgorithmNimbusJwtWriter(algorithm, fakeSigner).jsonToJwt(payload);
         }
     }
 
@@ -151,5 +151,13 @@ public class NimbusJwtReaderFactoryTest
         claims.setExpirationTime(new Date(now.getTime() + 10000));
         claims.setSubject(SUBJECT);
         return claims.toJSONObject().toJSONString();
+    }
+
+    private class AnyAlgorithmNimbusJwtWriter extends NimbusJwtWriter
+    {
+        public AnyAlgorithmNimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
+        {
+            super(algorithm, signer);
+        }
     }
 }
