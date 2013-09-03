@@ -40,11 +40,10 @@ public class ApplinksJwtService implements JwtService
     @Override
     public ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
-        JwtReader jwtReader = jwtReaderFactory.getReader(jwt);
-        VerifiedJwt verifiedJwt = jwtReader.verify(jwt);
+        VerifiedJwt verifiedJwt = jwtReaderFactory.getReader(jwt).verify(jwt);
         String applicationId = verifiedJwt.getIssuer();
         ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
-        return new SimpleApplinkJwt(jwtReader.verify(jwt), applicationLink);
+        return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }
 
     private String requireSharedSecret(ApplicationLink applicationLink)
