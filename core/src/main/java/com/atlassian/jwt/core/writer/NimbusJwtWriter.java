@@ -18,7 +18,7 @@ public class NimbusJwtWriter implements JwtWriter
         this(NimbusUtil.asNimbusJWSAlgorithm(algorithm), signer);
     }
 
-    public NimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
+    protected NimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
     {
         this.algorithm = algorithm;
         this.signer = signer;
