@@ -56,20 +56,10 @@ public class JwtVerificationServlet extends HttpServlet
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
-        JwtReader reader = null;
-        try
-        {
-            reader = readerFactory.getReader(jwtString);
-        }
-        catch (Exception e)
-        {
-            handleJwtException(resp, e);
-        }
-
         VerifiedJwt jwt;
         try
         {
-            jwt = reader.verify(jwtString);
+            jwt = readerFactory.getReader(jwtString).verify(jwtString);
         }
         catch (Exception e)
         {
