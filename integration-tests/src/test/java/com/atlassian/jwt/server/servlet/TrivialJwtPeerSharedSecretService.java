@@ -17,7 +17,8 @@ public class TrivialJwtPeerSharedSecretService implements JwtIssuerValidator, Jw
     @Override
     public boolean isValid(String issuer)
     {
-        return secretStore.getClientId().equals(issuer);
+        String clientId = secretStore.getClientId();
+        return null != clientId && clientId.equals(issuer);
     }
 
     @Override

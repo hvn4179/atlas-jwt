@@ -1,6 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -44,7 +44,7 @@ public class NimbusJwtReaderFactoryTest
     private JwtReaderFactory factory;
 
     @Before
-    public void before() throws JwtIssuerLacksSharedSecretException
+    public void before() throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         when(jwtIssuerValidator.isValid(VALID_ISSUER)).thenReturn(true);
         when(jwtIssuerValidator.isValid(ISSUER_WITHOUT_SECRET)).thenReturn(true); // this issuer uses a signing method without a shared secret (e.g. RSA)
@@ -63,7 +63,7 @@ public class NimbusJwtReaderFactoryTest
     public void readerReturnedForValidJwtCanVerifyThatJwt() throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         String payload = createPayload(VALID_ISSUER);
-        VerifiedJwt expected = new SimpleJwt(SUPPORTED_ALGORITHM.getName(), VALID_ISSUER, SUBJECT, payload);
+        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
         assertThat(factory.getReader(jwt).verify(jwt), is(expected));
     }
@@ -117,7 +117,7 @@ public class NimbusJwtReaderFactoryTest
     {
         try
         {
-            return new NimbusJwtWriter(algorithm, SIGNER).jsonToJwt(payload);
+            return new AnyAlgorithmNimbusJwtWriter(algorithm, SIGNER).jsonToJwt(payload);
         }
         catch (JwtSigningException e)
         {
@@ -138,7 +138,7 @@ public class NimbusJwtReaderFactoryTest
                     return jwsAlgorithms;
                 }
             };
-            return new NimbusJwtWriter(algorithm, fakeSigner).jsonToJwt(payload);
+            return new AnyAlgorithmNimbusJwtWriter(algorithm, fakeSigner).jsonToJwt(payload);
         }
     }
 
@@ -151,5 +151,13 @@ public class NimbusJwtReaderFactoryTest
         claims.setExpirationTime(new Date(now.getTime() + 10000));
         claims.setSubject(SUBJECT);
         return claims.toJSONObject().toJSONString();
+    }
+
+    private class AnyAlgorithmNimbusJwtWriter extends NimbusJwtWriter
+    {
+        public AnyAlgorithmNimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
+        {
+            super(algorithm, signer);
+        }
     }
 }
