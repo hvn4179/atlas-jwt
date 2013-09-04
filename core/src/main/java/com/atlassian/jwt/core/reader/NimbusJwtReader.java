@@ -1,10 +1,9 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
-import com.atlassian.jwt.core.SystemClock;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.JOSEException;
@@ -22,11 +21,6 @@ public class NimbusJwtReader implements JwtReader
     private final Clock clock;
     private final JwtConfiguration jwtConfiguration;
 
-    public NimbusJwtReader(JWSVerifier verifier, JwtConfiguration jwtConfiguration)
-    {
-        this(verifier, jwtConfiguration, SystemClock.getInstance());
-    }
-
     public NimbusJwtReader(JWSVerifier verifier, JwtConfiguration jwtConfiguration, Clock clock)
     {
         this.verifier = verifier;
@@ -35,7 +29,7 @@ public class NimbusJwtReader implements JwtReader
     }
 
     @Override
-    public VerifiedJwt verify(String jwt) throws JwtParseException, JwtVerificationException
+    public Jwt verify(String jwt) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
@@ -98,7 +92,7 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
-        return new SimpleJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
+        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
     }
 
 

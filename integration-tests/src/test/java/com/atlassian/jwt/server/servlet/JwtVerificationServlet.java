@@ -1,6 +1,6 @@
 package com.atlassian.jwt.server.servlet;
 
-import com.atlassian.jwt.VerifiedJwt;
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
 import com.atlassian.jwt.exception.*;
@@ -56,7 +56,7 @@ public class JwtVerificationServlet extends HttpServlet
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
-        VerifiedJwt jwt;
+        Jwt jwt;
         try
         {
             jwt = readerFactory.getReader(jwtString).verify(jwtString);
