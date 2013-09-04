@@ -1,5 +1,7 @@
 package com.atlassian.jwt.core;
 
+import com.atlassian.jwt.SigningAlgorithm;
+import com.nimbusds.jose.JWSSigner;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ public class JwtUtil
     public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String JWT_JSON_KEY_QUERY_SIG = "querySignature";
 
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
@@ -46,5 +49,10 @@ public class JwtUtil
             }
         }
         return null;
+    }
+
+    public static String computeQuerySignature(SigningAlgorithm signingAlgorithm, JWSSigner jwtSigner, HttpServletRequest request)
+    {
+        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 }

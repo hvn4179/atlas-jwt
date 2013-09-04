@@ -115,6 +115,12 @@ public class JwtAuthenticator implements Authenticator
             {
                 return null;
             }
+
+            @Override
+            public String toString()
+            {
+                return message;
+            }
         };
     }
 }
