@@ -15,14 +15,18 @@ public class NimbusJwtWriter implements JwtWriter
 
     public NimbusJwtWriter(SigningAlgorithm algorithm, JWSSigner signer)
     {
-        this.algorithm = NimbusUtil.asNimbusJWSAlgorithm(algorithm);
+        this(NimbusUtil.asNimbusJWSAlgorithm(algorithm), signer);
+    }
+
+    protected NimbusJwtWriter(JWSAlgorithm algorithm, JWSSigner signer)
+    {
+        this.algorithm = algorithm;
         this.signer = signer;
     }
 
     @Override
     public String jsonToJwt(String json) throws JwtSigningException
     {
-        // Create JWS header with HS256 algorithm
         JWSHeader header = new JWSHeader(algorithm);
         header.setType(new JOSEObjectType(JWT));
 

@@ -28,4 +28,8 @@ public enum SigningAlgorithm
         }
     }
 
+    public boolean requiresSharedSecret()
+    {
+        return equals(HS256);
+    }
 }

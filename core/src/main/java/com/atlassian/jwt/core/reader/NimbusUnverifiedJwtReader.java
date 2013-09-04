@@ -19,7 +19,7 @@ public class NimbusUnverifiedJwtReader implements UnverifiedJwtReader
         try
         {
             JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-            return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jwsObject.getPayload().toString());
+            return new SimpleJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), jwsObject.getPayload().toString());
         }
         catch (ParseException e)
         {

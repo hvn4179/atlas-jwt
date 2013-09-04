@@ -7,4 +7,8 @@ package com.atlassian.jwt;
  */
 public interface UnverifiedJwt extends Jwt
 {
+    /**
+     * @return the raw algorithm specified in the JWT header.
+     */
+    String getAlgorithm();
 }

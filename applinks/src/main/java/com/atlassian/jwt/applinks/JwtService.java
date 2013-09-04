@@ -5,9 +5,7 @@ import com.atlassian.applinks.api.ApplicationType;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtSigningException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 
 /**
  * Verifies incoming {@link Jwt JWTs} issued by {@link ApplicationLink linked applications} and generates
@@ -39,7 +37,7 @@ public interface JwtService
      * @throws TypeNotInstalledException if the {@link ApplicationLink linked application's} {@link ApplicationType} is
      *                                   not installed.
      */
-    ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException;
+    ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
 
     /**
      * Generate a JWT for the supplied payload, suitable for authenticating with the specified
