@@ -27,7 +27,7 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
     @Override
     public boolean isValid(String issuer)
     {
-        return null != getApplicationLink(issuer);
+        return null != issuer && null != getApplicationLink(issuer);
     }
 
     @Override
