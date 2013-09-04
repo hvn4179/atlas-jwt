@@ -44,7 +44,7 @@ public class NimbusJwtReaderFactoryTest
     private JwtReaderFactory factory;
 
     @Before
-    public void before() throws JwtIssuerLacksSharedSecretException
+    public void before() throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         when(jwtIssuerValidator.isValid(VALID_ISSUER)).thenReturn(true);
         when(jwtIssuerValidator.isValid(ISSUER_WITHOUT_SECRET)).thenReturn(true); // this issuer uses a signing method without a shared secret (e.g. RSA)

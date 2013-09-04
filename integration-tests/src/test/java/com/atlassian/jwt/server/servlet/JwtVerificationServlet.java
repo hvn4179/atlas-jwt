@@ -3,6 +3,7 @@ package com.atlassian.jwt.server.servlet;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.server.RequestCache;
@@ -55,34 +56,21 @@ public class JwtVerificationServlet extends HttpServlet
             throw new IllegalStateException("Shared secret not initialized!");
         }
 
-        JwtReader reader = null;
+        Jwt jwt;
         try
         {
-            reader = readerFactory.getReader(jwtString);
+            jwt = readerFactory.getReader(jwtString).verify(jwtString);
         }
         catch (Exception e)
         {
             handleJwtException(resp, e);
+            return;
         }
 
-        if (null != reader)
-        {
-            Jwt jwt;
-            try
-            {
-                jwt = reader.verify(jwtString);
-            }
-            catch (Exception e)
-            {
-                handleJwtException(resp, e);
-                return;
-            }
+        requestCache.setMostRecentPayload(jwt.getJsonPayload());
 
-            requestCache.setMostRecentPayload(jwt.getJsonPayload());
-
-            resp.setStatus(SC_OK);
-            resp.getWriter().write(jwt.getJsonPayload());
-        }
+        resp.setStatus(SC_OK);
+        resp.getWriter().write(jwt.getJsonPayload());
     }
 
     private void handleJwtException(HttpServletResponse resp, Exception e) throws IOException
