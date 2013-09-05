@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
@@ -92,7 +93,9 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
-        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
+        Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_SIGNATURE);
+        String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
+        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), querySignature, jsonPayload.toString());
     }
 
 

@@ -45,4 +45,11 @@ public class NimbusJwtWriterTest
         String jwt = new HmacJwtSigner("secret").jsonToHmacSha256Jwt(json);
         assertThat(writer.jsonToJwt(json), is(jwt));
     }
+
+    @Test
+    public void signatureIsConsistent()
+    {
+        String signingInput = "input";
+        assertThat(writer.sign(signingInput), is(writer.jsonToJwt(signingInput).split("\\.")[2]));
+    }
 }

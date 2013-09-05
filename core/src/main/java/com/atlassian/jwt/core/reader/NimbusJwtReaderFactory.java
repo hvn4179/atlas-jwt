@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
@@ -74,9 +75,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
     {
         private final String algorithm;
 
-        public SimpleUnverifiedJwt(String algorithm, String iss, String sub, String payload)
+        public SimpleUnverifiedJwt(String algorithm, String iss, String sub, String qsg, String payload)
         {
-            super(iss, sub, payload);
+            super(iss, sub, qsg, payload);
             this.algorithm = algorithm;
         }
 
@@ -94,7 +95,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
             try
             {
                 JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-                return new SimpleUnverifiedJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), jwsObject.getPayload().toString());
+                Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_SIGNATURE);
+                String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
+                return new SimpleUnverifiedJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), querySignature, jwsObject.getPayload().toString());
             }
             catch (ParseException e)
             {

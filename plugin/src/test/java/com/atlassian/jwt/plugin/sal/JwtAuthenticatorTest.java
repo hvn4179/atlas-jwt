@@ -3,6 +3,7 @@ package com.atlassian.jwt.plugin.sal;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
@@ -37,6 +38,7 @@ import java.util.StringTokenizer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,11 +74,11 @@ public class JwtAuthenticatorTest
     private static final String METHOD = "GET";
     private static final String URI = "/service";
 
-    private static final Map<String, String> PARAMETERS_WITHOUT_JWT;
+    private static final Map<String, String[]> PARAMETERS_WITHOUT_JWT;
     static
     {
-        PARAMETERS_WITHOUT_JWT = new HashMap<String, String>();
-        PARAMETERS_WITHOUT_JWT.put("param-name", "param-value");
+        PARAMETERS_WITHOUT_JWT = new HashMap<String, String[]>();
+        PARAMETERS_WITHOUT_JWT.put("param-name", new String[]{"param-value"});
     }
 
     public static final String PROTOCOL = "http";
@@ -121,6 +123,18 @@ public class JwtAuthenticatorTest
         {
             throw new NotImplementedException();
         }
+
+        @Override
+        public String issueSignature(String signingInput, ApplicationLink applicationLink)
+        {
+            return new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(SHARED_SECRET)).sign(signingInput);
+        }
+
+        @Override
+        public ApplicationLink getApplicationLink(Jwt jwt)
+        {
+            return mock(ApplicationLink.class);
+        }
     };
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
@@ -137,7 +151,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtResultsInSuccess()
+    public void validJwtResultsInSuccess() throws IOException
     {
         setUpValidJwtQueryParameter();
         Authenticator.Result result = authenticator.authenticate(request, response);
@@ -145,14 +159,14 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtResultsInCorrectPrincipal()
+    public void validJwtResultsInCorrectPrincipal() throws IOException
     {
         setUpValidJwtQueryParameter();
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
     }
 
     @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure()
+    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException
     {
         when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
         setUpValidJwtQueryParameter();
@@ -181,7 +195,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void badJwtSignatureResultsInFailure()
+    public void badJwtSignatureResultsInFailure() throws IOException
     {
         String validJwt = createValidJwt();
         String badJwt = validJwt.substring(0, validJwt.lastIndexOf('.') + 1) + "bad_signature";
@@ -197,7 +211,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheMethodResultsInFailure()
+    public void tamperingWithTheMethodResultsInFailure() throws IOException
     {
         setUpValidJwtQueryParameter();
         when(request.getMethod()).thenReturn(METHOD.equals("GET") ? "POST" : "GET"); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -205,7 +219,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheUriResultsInFailure()
+    public void tamperingWithTheUriResultsInFailure() throws IOException
     {
         setUpValidJwtQueryParameter();
         when(request.getRequestURI()).thenReturn("/tampered"); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -213,17 +227,17 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheQueryParametersResultsInFailure()
+    public void tamperingWithTheQueryParametersResultsInFailure() throws IOException
     {
         setUpValidJwtQueryParameter();
-        Map<String, String> editedParams = new HashMap<String, String>(PARAMETERS_WITHOUT_JWT);
-        editedParams.put("new", "value");
+        Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
+        editedParams.put("new", new String[]{"value"});
         when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     @Test
-    public void changingTheProtocolIsHarmless()
+    public void changingTheProtocolIsHarmless() throws IOException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, "different protocol", HOST, PORT, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -231,7 +245,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void changingTheHostIsHarmless()
+    public void changingTheHostIsHarmless() throws IOException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, PROTOCOL, "different host", PORT, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -239,7 +253,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void changingThePortIsHarmless()
+    public void changingThePortIsHarmless() throws IOException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, PROTOCOL, HOST, PORT + 1, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -253,9 +267,23 @@ public class JwtAuthenticatorTest
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
+    @Test
+    public void emptyStringQueryParamsSigResultsInFailure()
+    {
+        setUpJwtQueryParameter(createJwtWithEmptyStringQuerySignature());
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
     private String createJwtWithoutQuerySignature()
     {
         return JWT_WRITER.jsonToJwt(createJwtClaimsSetWithoutSignatures().toJSONObject().toJSONString());
+    }
+
+    private String createJwtWithEmptyStringQuerySignature()
+    {
+        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, "");
+        return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
     private String createExpiredJwt()
@@ -268,7 +296,7 @@ public class JwtAuthenticatorTest
         return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
-    private void setUpValidJwtQueryParameter()
+    private void setUpValidJwtQueryParameter() throws IOException
     {
         setUpJwtQueryParameter(createValidJwt());
     }
@@ -276,8 +304,8 @@ public class JwtAuthenticatorTest
     private void setUpJwtQueryParameter(String jwt)
     {
         when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(jwt);
-        Map<String, String> parameters = PARAMETERS_WITHOUT_JWT;
-        parameters.put(JwtUtil.JWT_PARAM_NAME, jwt);
+        Map<String, String[]> parameters = PARAMETERS_WITHOUT_JWT;
+        parameters.put(JwtUtil.JWT_PARAM_NAME, new String[]{jwt});
         when(request.getParameterMap()).thenReturn(parameters);
     }
 
@@ -300,10 +328,10 @@ public class JwtAuthenticatorTest
         return claims;
     }
 
-    private String createValidJwt()
+    private String createValidJwt() throws IOException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtUtil.JWT_JSON_KEY_QUERY_SIG, JwtUtil.computeQuerySignature(SIGNING_ALGORITHM, JWT_SIGNER, request));
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.computeQuerySignature(SIGNING_ALGORITHM, JWT_SIGNER, request));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }

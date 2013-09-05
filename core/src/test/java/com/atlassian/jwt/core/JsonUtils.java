@@ -25,7 +25,7 @@ public class JsonUtils
             String claim = (String) claims[i];
             Object expected = claims[i + 1];
             Object val = obj.get(claim);
-            assertThat("Unexpected value for claim '" + claim + "'", val, is(expected));
+            assertThat("Unexpected parameter for claim '" + claim + "'", val, is(expected));
         }
         if (onlyThese)
         {

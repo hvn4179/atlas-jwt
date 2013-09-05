@@ -1,19 +1,18 @@
 package com.atlassian.jwt.plugin.sal;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.jwt.applinks.ApplinkJwt;
+import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtUnknownIssuerException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 
@@ -45,8 +44,8 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            ApplinkJwt jwt = jwtService.verifyJwt(jwtString);
-            Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getSubject());
+            Jwt jwt = verifyJwt(jwtString, request);
+            Principal userPrincipal = new SimplePrincipal(jwt.getSubject());
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
@@ -77,6 +76,39 @@ public class JwtAuthenticator implements Authenticator
         catch (JwtUnknownIssuerException e)
         {
             return createFailure(e);
+        }
+        catch (IOException e)
+        {
+            return createError(e);
+        }
+    }
+
+    private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
+    {
+        Jwt jwt = jwtService.verifyJwt(jwtString).getJwt();
+        verifyQuerySignature(jwt, request);
+        return jwt;
+    }
+
+    private void verifyQuerySignature(Jwt jwt, HttpServletRequest request) throws JwtSignatureMismatchException, IOException, TypeNotInstalledException
+    {
+        String receivedSignature = jwt.getQuerySignature();
+
+        if (null == receivedSignature)
+        {
+            throw new JwtSignatureMismatchException(String.format("JWT must include a '%s' claim; please specify one", JwtConstants.Claims.QUERY_SIGNATURE));
+        }
+
+        if ("".equals(receivedSignature))
+        {
+            throw new JwtSignatureMismatchException(String.format("JWT must included a non-empty-string '%s' claim; please specify one", JwtConstants.Claims.QUERY_SIGNATURE));
+        }
+
+        String computedSignature = jwtService.issueSignature(JwtUtil.canonicalizeQuery(request), jwtService.getApplicationLink(jwt));
+
+        if (!receivedSignature.equals(computedSignature))
+        {
+            throw new JwtSignatureMismatchException(String.format("Received signature '%s' does not match computed signature '%s'", receivedSignature, computedSignature));
         }
     }
 

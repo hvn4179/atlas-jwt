@@ -18,6 +18,11 @@ public interface Jwt
     String getSubject();
 
     /**
+     * @return the value of the {@link JwtConstants.Claims.QUERY_SIGNATURE} custom claim.
+     */
+    String getQuerySignature();
+
+    /**
      * @return a JSON representation of the claims contained in this JWT.
      */
     String getJsonPayload();

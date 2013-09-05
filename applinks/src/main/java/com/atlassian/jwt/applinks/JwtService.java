@@ -52,4 +52,22 @@ public interface JwtService
      * @throws JwtSigningException  if a problem was encountered while generating the JWT
      */
     String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException;
+
+    /**
+     * Generate the signature for a given input using the {@link ApplicationLink} settings.
+     * Useful for verifying received signatures.
+     *
+     * @param signingInput finalized input to the signing algorithm
+     * @param applicationLink the {@link ApplicationLink} with corresponding signing parameters (e.g. {@link com.atlassian.jwt.SigningAlgorithm}
+     * @return the signature
+     */
+    String issueSignature(String signingInput, ApplicationLink applicationLink);
+
+    /**
+     * Find the {@link ApplicationLink} from which the received {@link Jwt} claims to have been sent.
+     *
+     * @param jwt the verified {@link Jwt}
+     * @return the corresponding {@link ApplicationLink}, looked up using the issuer claim
+     */
+    ApplicationLink getApplicationLink(Jwt jwt) throws TypeNotInstalledException;
 }

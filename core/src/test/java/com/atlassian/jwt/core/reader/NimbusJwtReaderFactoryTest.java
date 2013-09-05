@@ -63,7 +63,7 @@ public class NimbusJwtReaderFactoryTest
     public void readerReturnedForValidJwtCanVerifyThatJwt() throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         String payload = createPayload(VALID_ISSUER);
-        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
+        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, null, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
         assertThat(factory.getReader(jwt).verify(jwt), is(expected));
     }

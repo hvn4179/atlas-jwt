@@ -15,7 +15,7 @@ public class NimbusUtil
         }
         catch (ClassCastException e)
         {
-            throw new JwtParseException("'" + claimName + "' claim value should be a string", e);
+            throw new JwtParseException("'" + claimName + "' claim parameter should be a string", e);
         }
     }
 

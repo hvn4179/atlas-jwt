@@ -11,6 +11,7 @@ import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReaderFactory;
+import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.jwt.writer.JwtWriterFactory;
 
 import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN_JWT_SHARED_SECRET;
@@ -39,8 +40,7 @@ public class ApplinksJwtService implements JwtService
     public ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         Jwt verifiedJwt = jwtReaderFactory.getReader(jwt).verify(jwt);
-        String applicationId = verifiedJwt.getIssuer();
-        ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
+        ApplicationLink applicationLink = getApplicationLink(verifiedJwt);
         return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }
 
@@ -57,9 +57,26 @@ public class ApplinksJwtService implements JwtService
     @Override
     public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
     {
+        return getJwtWriter(applicationLink).jsonToJwt(jsonPayload);
+    }
+
+    @Override
+    public String issueSignature(String signingInput, ApplicationLink applicationLink)
+    {
+        return getJwtWriter(applicationLink).sign(signingInput);
+    }
+
+    private JwtWriter getJwtWriter(ApplicationLink applicationLink)
+    {
         return jwtWriterFactory
-                .macSigningWriter(SigningAlgorithm.HS256, requireSharedSecret(applicationLink))
-                .jsonToJwt(jsonPayload);
+                .macSigningWriter(SigningAlgorithm.HS256, requireSharedSecret(applicationLink));
+    }
+
+    @Override
+    public ApplicationLink getApplicationLink(Jwt jwt) throws TypeNotInstalledException
+    {
+        String applicationId = jwt.getIssuer();
+        return applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
     }
 
 }
