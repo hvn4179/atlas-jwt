@@ -39,15 +39,6 @@ public class JwtUtilTest
     }
 
     @Test
-    public void computeCorrectQuerySignature() throws JOSEException, IOException
-    {
-        String sharedSecret = "shared secret";
-        JWSSigner signer = new MACSigner(sharedSecret);
-        String expected = new HmacJwtSigner(sharedSecret).signHmac256(JwtUtil.canonicalizeQuery(request));
-        assertThat(JwtUtil.computeQuerySignature(SigningAlgorithm.HS256, signer, request), is(expected));
-    }
-
-    @Test
     public void computeCorrectCanonicalizedQuery() throws IOException
     {
         String expected = new StringBuilder()

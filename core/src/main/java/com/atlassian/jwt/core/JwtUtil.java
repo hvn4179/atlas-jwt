@@ -68,25 +68,15 @@ public class JwtUtil
         return null;
     }
 
-    public static String computeQuerySignature(SigningAlgorithm signingAlgorithm, JWSSigner jwsSigner, HttpServletRequest request) throws IOException
-    {
-        try
-        {
-            return jwsSigner.sign(new JWSHeader(JWSAlgorithm.parse(signingAlgorithm.name())), canonicalizeQuery(request).getBytes()).toString();
-        }
-        catch (JOSEException e)
-        {
-            throw new JwtSigningException(e);
-        }
-    }
-
     public static String canonicalizeQuery(HttpServletRequest request) throws IOException
     {
         char separator = '&';
         return new StringBuilder()
-                .append(canonicalizeRequestMethod(request)).append(separator)
-                .append(canonicalizeRequestUri(request)).append(separator)
-                .append(canonicalizeQueryParameters(request)).append(separator)
+                .append(canonicalizeRequestMethod(request))
+                .append(separator)
+                .append(canonicalizeRequestUri(request))
+                .append(separator)
+                .append(canonicalizeQueryParameters(request))
                 .toString();
     }
 

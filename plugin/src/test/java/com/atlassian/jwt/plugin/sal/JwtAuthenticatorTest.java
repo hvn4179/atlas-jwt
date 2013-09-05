@@ -147,6 +147,7 @@ public class JwtAuthenticatorTest
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
         when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(new StringTokenizer(""));
+        when(request.getParameterMap()).thenReturn(PARAMETERS_WITHOUT_JWT);
         when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(true);
     }
 
@@ -304,7 +305,7 @@ public class JwtAuthenticatorTest
     private void setUpJwtQueryParameter(String jwt)
     {
         when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(jwt);
-        Map<String, String[]> parameters = PARAMETERS_WITHOUT_JWT;
+        Map<String, String[]> parameters = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
         parameters.put(JwtUtil.JWT_PARAM_NAME, new String[]{jwt});
         when(request.getParameterMap()).thenReturn(parameters);
     }
@@ -331,7 +332,7 @@ public class JwtAuthenticatorTest
     private String createValidJwt() throws IOException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.computeQuerySignature(SIGNING_ALGORITHM, JWT_SIGNER, request));
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(JwtUtil.canonicalizeQuery(request)));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }
