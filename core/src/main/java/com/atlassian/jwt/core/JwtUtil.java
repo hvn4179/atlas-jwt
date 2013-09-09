@@ -1,12 +1,9 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.exception.JwtSigningException;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
@@ -70,30 +67,107 @@ public class JwtUtil
 
     public static String canonicalizeQuery(HttpServletRequest request) throws IOException
     {
+        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
+    }
+
+    public static String canonicalizeQuery(HttpUriRequest request) throws IOException
+    {
+        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
+    }
+
+    /**
+     * {@link URLEncoder}#encode() but encode some characters differently to URLEncoder, to match OAuth1 and VisualVault.
+     * @param str {@link String} to be percent-encoded
+     * @return encoded {@link String}
+     */
+    public static String percentEncode(String str) throws UnsupportedEncodingException
+    {
+        if (str == null)
+        {
+            return "";
+        }
+
+        return URLEncoder.encode(str, ENCODING)
+                .replace("+", "%20")
+                .replace("*", "%2A")
+                .replace("%7E", "~");
+    }
+
+    private static String canonicalizeQuery(String canonicalRequestMethod, String canonicalUri, String canonicalQueryParameters)
+    {
         char separator = '&';
         return new StringBuilder()
-                .append(canonicalizeRequestMethod(request))
+                .append(canonicalRequestMethod)
                 .append(separator)
-                .append(canonicalizeRequestUri(request))
+                .append(canonicalUri)
                 .append(separator)
-                .append(canonicalizeQueryParameters(request))
+                .append(canonicalQueryParameters)
                 .toString();
     }
 
     private static String canonicalizeRequestUri(HttpServletRequest request)
     {
-        return StringUtils.defaultIfBlank(StringUtils.removeEnd(request.getRequestURI(), "/"), "/");
+        return canonicalizeRelativeRequestUri(request.getRequestURI());
+    }
+
+    private static String canonicalizeRequestUri(HttpUriRequest request)
+    {
+        return canonicalizeRelativeRequestUri(request.getURI().getPath());
+    }
+
+    private static String canonicalizeRelativeRequestUri(String uri)
+    {
+        return StringUtils.defaultIfBlank(StringUtils.removeEnd(uri, "/"), "/");
     }
 
     private static String canonicalizeRequestMethod(HttpServletRequest request)
     {
-        return StringUtils.upperCase(request.getMethod());
+        return canonicalizeRequestMethod(request.getMethod());
+    }
+
+    private static String canonicalizeRequestMethod(HttpUriRequest request)
+    {
+        return canonicalizeRequestMethod(request.getMethod());
+    }
+
+    private static String canonicalizeRequestMethod(String method)
+    {
+        return StringUtils.upperCase(method);
     }
 
     private static String canonicalizeQueryParameters(HttpServletRequest request) throws IOException
     {
+        return canonicalizeQueryParameters(request.getParameterMap());
+    }
+
+    private static String canonicalizeQueryParameters(HttpUriRequest request) throws IOException
+    {
+        List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), '&'); // TODO: is there a constant for '&'?
+        Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParams.size());
+
+        for (NameValuePair nameValuePair : queryParams)
+        {
+            String values[] = queryParamsMap.get(nameValuePair.getName());
+
+            if (null == values)
+            {
+                values = new String[]{ nameValuePair.getValue() };
+            }
+            else
+            {
+                values = Arrays.copyOf(values, values.length + 1);
+                values[values.length-1] = nameValuePair.getValue();
+            }
+
+            queryParamsMap.put(nameValuePair.getName(), values);
+        }
+
+        return canonicalizeQueryParameters(queryParamsMap);
+    }
+
+    private static String canonicalizeQueryParameters(Map<String, String[]> parameterMap) throws IOException
+    {
         String result = "";
-        Map<String, String[]> parameterMap = request.getParameterMap();
 
         if (null != parameterMap)
         {
@@ -180,27 +254,6 @@ public class JwtUtil
         }
     }
 
-    private static String percentEncode(String s)
-    {
-        if (s == null)
-        {
-            return "";
-        }
-        try
-        {
-            return URLEncoder.encode(s, ENCODING)
-                    // encodes some characters differently to URLEncoder
-                    // to match OAuth1 and VisualVault
-                    .replace("+", "%20")
-                    .replace("*", "%2A")
-                    .replace("%7E", "~");
-        }
-        catch (UnsupportedEncodingException wow)
-        {
-            throw new RuntimeException(wow.getMessage(), wow);
-        }
-    }
-
     private static final String safeToString(Object from)
     {
         return null == from ? null : from.toString();
@@ -211,7 +264,7 @@ public class JwtUtil
      */
     private static class ComparableParameter implements Comparable<ComparableParameter>
     {
-        ComparableParameter(Map.Entry<String, String[]> parameter)
+        ComparableParameter(Map.Entry<String, String[]> parameter) throws UnsupportedEncodingException
         {
             this.parameter = parameter;
             String name = JwtUtil.safeToString(parameter.getKey());

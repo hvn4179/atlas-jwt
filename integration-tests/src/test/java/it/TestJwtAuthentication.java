@@ -1,15 +1,22 @@
 package it;
 
+import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
 import com.atlassian.jwt.core.writer.NimbusJwtWriterFactory;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
+import com.atlassian.jwt.writer.JwtJsonBuilder;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.google.common.collect.ImmutableMap;
 import it.rule.JwtPeerRegistration;
+import org.apache.http.client.methods.HttpGet;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static com.atlassian.jwt.SigningAlgorithm.HS256;
 import static it.util.HttpResponseConsumers.expectBody;
@@ -22,27 +29,42 @@ public class TestJwtAuthentication extends AbstractPeerTest
     private JwtPeer peer = new JwtPeer();
 
     @Rule
-    public JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);
+    public final JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);
+    private JwtWriter jwtWriter;
 
-    @Test
-    public void testRequestSignedWithJwtHs256() throws Exception
+    @Before
+    public void before()
     {
-        JwtWriter jwtWriter = new NimbusJwtWriterFactory().macSigningWriter(HS256, peer.getSecretStore().getSecret());
-        String json = new JsonSmartJwtJsonBuilder()
-                .issuer(peer.getSecretStore().getClientId())
-                .subject("admin")
-                .issuedAt(TimeUtil.currentTimeSeconds())
-                .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
-                .build();
-        String jwt = jwtWriter.jsonToJwt(json);
-        HttpUtil.get(whoAmIResource(), expectBody("anonymous")); // sanity check
-        testWhoAmIWithJwtInHeaderAndQueryString(jwt);
+        jwtWriter = new NimbusJwtWriterFactory().macSigningWriter(HS256, peer.getSecretStore().getSecret());
     }
 
-    private void testWhoAmIWithJwtInHeaderAndQueryString(String jwt) throws Exception
+    @Test
+    public void testRequestFromAnonymous() throws IOException
     {
+        HttpUtil.get(whoAmIResource(), expectBody("anonymous")); // sanity check
+    }
+
+    @Test
+    public void testRequestSignedWithJwtHs256InQueryString() throws Exception
+    {
+        String jwt = jwtWriter.jsonToJwt(createJwtJsonBuilder(whoAmIResource()).build());
         HttpUtil.get(whoAmIResource() + "?jwt=" + jwt, expectBody("admin"));
+    }
+
+    @Test
+    public void testRequestSignedWithJwtHs256InHeader() throws Exception
+    {
+        String jwt = jwtWriter.jsonToJwt(createJwtJsonBuilder(whoAmIResource()).build());
         HttpUtil.get(whoAmIResource(), ImmutableMap.of("Authorization", "JWT " + jwt), expectBody("admin"));
     }
 
+    private JwtJsonBuilder createJwtJsonBuilder(String url) throws IOException
+    {
+        return new JsonSmartJwtJsonBuilder()
+                    .issuer(peer.getSecretStore().getClientId())
+                    .subject("admin")
+                    .issuedAt(TimeUtil.currentTimeSeconds())
+                    .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
+                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(JwtUtil.canonicalizeQuery(new HttpGet(url))));
+    }
 }
