@@ -35,6 +35,10 @@ public class JwtUtil
      * The character between "a" and "b%20c" in "some_param=a,b%20c"
      */
     private static final char ENCODED_PARAM_VALUE_SEPARATOR = ',';
+    /**
+     * As appears between "value1" and "param2" in the URL "http://server/path?param1=value1&param2=value2".
+     */
+    private static final char QUERY_PARAMS_SEPARATOR = '&';
 
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
@@ -120,12 +124,11 @@ public class JwtUtil
 
     private static String canonicalizeQuery(String canonicalRequestMethod, String canonicalUri, String canonicalQueryParameters)
     {
-        char separator = '&';
         return new StringBuilder()
                 .append(canonicalRequestMethod)
-                .append(separator)
+                .append(QUERY_PARAMS_SEPARATOR)
                 .append(canonicalUri)
-                .append(separator)
+                .append(QUERY_PARAMS_SEPARATOR)
                 .append(canonicalQueryParameters)
                 .toString();
     }
@@ -167,7 +170,7 @@ public class JwtUtil
 
     private static String canonicalizeQueryParameters(HttpUriRequest request) throws IOException
     {
-        List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), '&'); // TODO: is there a constant for '&'?
+        List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), QUERY_PARAMS_SEPARATOR);
         Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParams.size());
 
         for (NameValuePair nameValuePair : queryParams)
@@ -262,7 +265,7 @@ public class JwtUtil
                 }
                 else
                 {
-                    into.write('&');
+                    into.write(QUERY_PARAMS_SEPARATOR);
                 }
 
                 into.write(percentEncode(safeToString(parameter.getKey())).getBytes());
