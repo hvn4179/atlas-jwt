@@ -38,7 +38,6 @@ public class JwtAuthenticator implements Authenticator
             return authenticate(request, jwt);
         }
 
-        // TODO: consider localising this error message
         throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
     }
 
@@ -55,7 +54,6 @@ public class JwtAuthenticator implements Authenticator
             }
             else
             {
-                // TODO: consider localising this error message
                 return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request)));
             }
         }
