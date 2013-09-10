@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Collections;
+import java.util.Map;
 
 public class JwtAuthenticator implements Authenticator
 {
@@ -85,31 +87,8 @@ public class JwtAuthenticator implements Authenticator
 
     private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
     {
-        Jwt jwt = jwtService.verifyJwt(jwtString).getJwt();
-        verifyQuerySignature(jwt, request);
-        return jwt;
-    }
-
-    private void verifyQuerySignature(Jwt jwt, HttpServletRequest request) throws JwtSignatureMismatchException, IOException, TypeNotInstalledException
-    {
-        String receivedSignature = jwt.getQuerySignature();
-
-        if (null == receivedSignature)
-        {
-            throw new JwtSignatureMismatchException(String.format("JWT must include a '%s' claim; please specify one", JwtConstants.Claims.QUERY_SIGNATURE));
-        }
-
-        if ("".equals(receivedSignature))
-        {
-            throw new JwtSignatureMismatchException(String.format("JWT must included a non-empty-string '%s' claim; please specify one", JwtConstants.Claims.QUERY_SIGNATURE));
-        }
-
-        String computedSignature = jwtService.issueSignature(JwtUtil.canonicalizeQuery(request), jwtService.getApplicationLink(jwt));
-
-        if (!receivedSignature.equals(computedSignature))
-        {
-            throw new JwtSignatureMismatchException(String.format("Received signature '%s' does not match computed signature '%s'", receivedSignature, computedSignature));
-        }
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeQuery(request));
+        return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
     }
 
     private static Result.Error createError(Exception e)

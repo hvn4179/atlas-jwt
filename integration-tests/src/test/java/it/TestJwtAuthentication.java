@@ -1,15 +1,17 @@
 package it;
 
 import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
-import com.atlassian.jwt.core.writer.NimbusJwtWriterFactory;
+import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.jose.crypto.MACSigner;
 import it.rule.JwtPeerRegistration;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Before;
@@ -18,7 +20,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.atlassian.jwt.SigningAlgorithm.HS256;
 import static it.util.HttpResponseConsumers.expectBody;
 
 /**
@@ -35,7 +36,7 @@ public class TestJwtAuthentication extends AbstractPeerTest
     @Before
     public void before()
     {
-        jwtWriter = new NimbusJwtWriterFactory().macSigningWriter(HS256, peer.getSecretStore().getSecret());
+        jwtWriter = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(peer.getSecretStore().getSecret()));
     }
 
     @Test

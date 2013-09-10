@@ -11,6 +11,7 @@ import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -43,15 +44,15 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
 
         if (algorithm.requiresSharedSecret())
         {
-            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer));
+            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer), algorithm);
         }
 
         throw new JwsUnsupportedAlgorithmException(String.format("Currently we support only symmetric signing algorithms such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.HS256, algorithm.name()));
     }
 
-    private JwtReader macVerifyingReader(String sharedSecret)
+    private JwtReader macVerifyingReader(String sharedSecret, SigningAlgorithm algorithm)
     {
-        return new NimbusMacJwtReader(sharedSecret, jwtConfiguration);
+        return new NimbusMacJwtReader(sharedSecret, JWSAlgorithm.parse(algorithm.name()), jwtConfiguration);
     }
 
     private String validateIssuer(SimpleUnverifiedJwt unverifiedJwt) throws JwtUnknownIssuerException

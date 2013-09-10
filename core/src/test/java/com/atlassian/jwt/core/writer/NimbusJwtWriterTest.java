@@ -42,14 +42,22 @@ public class NimbusJwtWriterTest
         String json = "{\"iss\":\"joe\",\n"
                 + " \"exp\":1300819380,\n"
                 + " \"http://example.com/is_root\":true}";
-        String jwt = new HmacJwtSigner("secret").jsonToHmacSha256Jwt(json);
+        String jwt = new HmacJwtSigner(PASSWORD).jsonToHmacSha256Jwt(json);
         assertThat(writer.jsonToJwt(json), is(jwt));
+    }
+
+    @Test
+    public void compareSignatureToAltImplSignature()
+    {
+        String signingInput = "signing input";
+        assertThat(writer.sign(signingInput), is(new HmacJwtSigner(PASSWORD).signHmac256(signingInput)));
     }
 
     @Test
     public void signatureIsConsistent()
     {
-        String signingInput = "input";
-        assertThat(writer.sign(signingInput), is(writer.jsonToJwt(signingInput).split("\\.")[2]));
+        String[] encodedJwtParts = writer.jsonToJwt("body of signing input").split("\\."); // jsonToJwt(body): (static header, body) => encoded_header.encoded_body.signature
+        String encodedHeaderAndBody = (encodedJwtParts[0] + '.' + encodedJwtParts[1]);
+        assertThat(writer.sign(encodedHeaderAndBody), is(encodedJwtParts[2])); // sign(encoded_header_and_body) => signature
     }
 }

@@ -10,9 +10,10 @@ import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
-import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
+import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -98,9 +99,10 @@ public class JwtAuthenticatorTest
         }
 
         @Override
-        public ApplinkJwt verifyJwt(final String jwtString) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+        public ApplinkJwt verifyJwt(final String jwtString, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).verify(jwtString);
+            JwtReader reader = new NimbusHmac256JwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration());
+            final Jwt jwt = reader.verify(jwtString, JwtUtil.getStringJwtClaimVerifierMap(signedClaimSigningInputs, reader));
 
             return new ApplinkJwt()
             {
@@ -122,12 +124,6 @@ public class JwtAuthenticatorTest
         public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
         {
             throw new NotImplementedException();
-        }
-
-        @Override
-        public String issueSignature(String signingInput, ApplicationLink applicationLink)
-        {
-            return new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(SHARED_SECRET)).sign(signingInput);
         }
 
         @Override

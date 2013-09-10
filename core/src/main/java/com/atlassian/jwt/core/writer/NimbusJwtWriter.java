@@ -34,16 +34,23 @@ public class NimbusJwtWriter implements JwtWriter
     @Override
     public String sign(String signingInput)
     {
-        return generateJwsObject(signingInput).getSignature().toString();
+        try
+        {
+            return signer.sign(new JWSHeader(algorithm), signingInput.getBytes()).toString();
+        }
+        catch (JOSEException e)
+        {
+            throw new JwtSigningException(e);
+        }
     }
 
-    private JWSObject generateJwsObject(String signingInput)
+    private JWSObject generateJwsObject(String payload)
     {
         JWSHeader header = new JWSHeader(algorithm);
         header.setType(new JOSEObjectType(JWT));
 
         // Create JWS object
-        JWSObject jwsObject = new JWSObject(header, new Payload(signingInput));
+        JWSObject jwsObject = new JWSObject(header, new Payload(payload));
 
         try
         {

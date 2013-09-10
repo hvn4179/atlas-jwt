@@ -6,8 +6,10 @@ import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -15,22 +17,25 @@ import net.minidev.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 
 public class NimbusJwtReader implements JwtReader
 {
     private final JWSVerifier verifier;
+    private final JWSAlgorithm algorithm;
     private final Clock clock;
     private final JwtConfiguration jwtConfiguration;
 
-    public NimbusJwtReader(JWSVerifier verifier, JwtConfiguration jwtConfiguration, Clock clock)
+    public NimbusJwtReader(JWSVerifier verifier, JWSAlgorithm algorithm, JwtConfiguration jwtConfiguration, Clock clock)
     {
         this.verifier = verifier;
+        this.algorithm = algorithm;
         this.jwtConfiguration = jwtConfiguration;
         this.clock = clock;
     }
 
     @Override
-    public Jwt verify(String jwt) throws JwtParseException, JwtVerificationException
+    public Jwt verify(String jwt, Map<String, JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
@@ -93,10 +98,19 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now);
         }
 
+        for (Map.Entry<String, JwtClaimVerifier> requiredClaim : requiredClaims.entrySet())
+        {
+            requiredClaim.getValue().verify(claims.getClaim(requiredClaim.getKey()));
+        }
+
         Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_SIGNATURE);
         String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
         return new SimpleJwt(claims.getIssuer(), claims.getSubject(), querySignature, jsonPayload.toString());
     }
 
-
+    @Override
+    public JwtClaimVerifier createSignedClaimVerifier(final String signingInput, String claimName)
+    {
+        return new NimbusJwtClaimSignatureVerifier(verifier, algorithm, signingInput, claimName);
+    }
 }

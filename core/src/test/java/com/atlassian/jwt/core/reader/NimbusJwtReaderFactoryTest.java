@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -65,7 +66,7 @@ public class NimbusJwtReaderFactoryTest
         String payload = createPayload(VALID_ISSUER);
         Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, null, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
-        assertThat(factory.getReader(jwt).verify(jwt), is(expected));
+        assertThat(factory.getReader(jwt).verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS), is(expected));
     }
 
     @Test(expected = JwtParseException.class)
