@@ -13,8 +13,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NimbusJwtWriterTest
 {
-    public static final SigningAlgorithm ALGORITHM = SigningAlgorithm.HS256;
-    public static final String PASSWORD = "secret";
+    private static final SigningAlgorithm ALGORITHM = SigningAlgorithm.HS256;
+    private static final String PASSWORD = "secret";
 
     private JwtWriter writer;
 

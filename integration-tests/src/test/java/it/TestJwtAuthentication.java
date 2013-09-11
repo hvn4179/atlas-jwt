@@ -27,7 +27,7 @@ import static it.util.HttpResponseConsumers.expectBody;
  */
 public class TestJwtAuthentication extends AbstractPeerTest
 {
-    private JwtPeer peer = new JwtPeer();
+    private final JwtPeer peer = new JwtPeer();
 
     @Rule
     public final JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);

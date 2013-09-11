@@ -82,15 +82,15 @@ public class JwtAuthenticatorTest
         PARAMETERS_WITHOUT_JWT.put("param-name", new String[]{"param-value"});
     }
 
-    public static final String PROTOCOL = "http";
-    public static final String HOST = "host";
-    public static final int PORT = 80;
+    private static final String PROTOCOL = "http";
+    private static final String HOST = "host";
+    private static final int PORT = 80;
 
     @InjectMocks
     private JwtAuthenticator authenticator;
 
     @Mock AuthenticationController authenticationController;
-    JwtService jwtService = new JwtService()
+    private final JwtService jwtService = new JwtService()
     {
         @Override
         public boolean isJwtPeer(ApplicationLink applicationLink)

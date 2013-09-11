@@ -25,7 +25,7 @@ public class JwtUtil
     /**
      * Tell {@link com.atlassian.jwt.reader.JwtReader}.read() that no custom claims are mandatory.
      */
-    public static final Map<String, JwtClaimVerifier> NO_REQUIRED_CLAIMS = Collections.<String, JwtClaimVerifier>emptyMap();
+    public static final Map<String, JwtClaimVerifier> NO_REQUIRED_CLAIMS = Collections.emptyMap();
 
     /**
      * The encoding used to represent characters as bytes.
@@ -282,7 +282,7 @@ public class JwtUtil
         }
     }
 
-    private static final String safeToString(Object from)
+    private static String safeToString(Object from)
     {
         return null == from ? null : from.toString();
     }

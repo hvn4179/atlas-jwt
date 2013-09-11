@@ -24,7 +24,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
  */
 public class TestJwtSigning extends AbstractPeerTest
 {
-    private JwtPeer peer = new JwtPeer();
+    private final JwtPeer peer = new JwtPeer();
 
     @Rule
     public JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);

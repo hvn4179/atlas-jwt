@@ -33,11 +33,11 @@ public class NimbusJwtReaderFactoryTest
 {
     private static final JWSAlgorithm SUPPORTED_ALGORITHM = JWSAlgorithm.HS256;
     private static final JWSAlgorithm UNSUPPORTED_ALGORITHM = JWSAlgorithm.PS256;
-    private static String VALID_ISSUER = "valid";
-    private static String ISSUER_WITHOUT_SECRET = "setup in progress?";
-    private static String SUBJECT = "subject";
-    private static String SHARED_SECRET = "secret";
-    public static final JWSSigner SIGNER = new MACSigner(SHARED_SECRET);
+    private static final String VALID_ISSUER = "valid";
+    private static final String ISSUER_WITHOUT_SECRET = "setup in progress?";
+    private static final String SUBJECT = "subject";
+    private static final String SHARED_SECRET = "secret";
+    private static final JWSSigner SIGNER = new MACSigner(SHARED_SECRET);
 
     @Mock JwtIssuerValidator jwtIssuerValidator;
     @Mock JwtIssuerSharedSecretService jwtIssuerSharedSecretService;
@@ -99,7 +99,7 @@ public class NimbusJwtReaderFactoryTest
         factory.getReader(createJwtFromIssuer(SUPPORTED_ALGORITHM, ISSUER_WITHOUT_SECRET));
     }
 
-    private String createJwtFromIssuer(JWSAlgorithm algorithm, String issuer) throws JwsUnsupportedAlgorithmException
+    private String createJwtFromIssuer(JWSAlgorithm algorithm, String issuer)
     {
         return createJwtFromPayload(algorithm, createPayload(issuer));
     }

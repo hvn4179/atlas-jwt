@@ -52,7 +52,7 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
 
     private ApplicationLink getApplicationLink(String issuer)
     {
-        ApplicationLink applicationLink = null;
+        ApplicationLink applicationLink;
 
         try
         {
