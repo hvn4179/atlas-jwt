@@ -14,7 +14,7 @@ import java.util.Map;
 public interface JwtReader
 {
     /**
-     *
+     * Parses the encoded JWT message from {@link String}, verifies its signature (if there is one) and on success returns the decoded {@link Jwt}.
      * @param jwt a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
      * @param requiredClaims claims that must be present, the specified values
      * @return a verified {@link Jwt}
