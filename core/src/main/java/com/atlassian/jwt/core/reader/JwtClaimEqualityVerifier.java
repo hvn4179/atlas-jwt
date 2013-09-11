@@ -2,7 +2,8 @@ package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.exception.JwtInvalidClaimException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
-import org.apache.commons.lang.builder.EqualsBuilder;
+
+import java.util.Objects;
 
 public class JwtClaimEqualityVerifier implements JwtClaimVerifier
 {
@@ -16,7 +17,7 @@ public class JwtClaimEqualityVerifier implements JwtClaimVerifier
     @Override
     public void verify(Object claim) throws JwtInvalidClaimException
     {
-        if (!new EqualsBuilder().append(expectedValue, claim).isEquals())
+        if (!Objects.equals(expectedValue, claim))
         {
             throw new JwtInvalidClaimException(String.format("Expecting claim to have value '%s' but instead it has the value '%s'", expectedValue, claim));
         }
