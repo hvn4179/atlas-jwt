@@ -18,6 +18,8 @@ import java.util.Map;
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static org.mockito.Mockito.when;
 
+import static com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder.NO_REQUIRED_CLAIMS;
+
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest
 {
@@ -49,7 +51,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        String payload = createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
+        String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
@@ -66,7 +68,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -77,7 +79,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -89,7 +91,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test
@@ -102,7 +104,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        String payload = createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
+        String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP,
                 "iat", oneHourEarlier,
@@ -120,7 +122,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader("wrong secret", jwtConfiguration, CLOCK).read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        new NimbusHmac256JwtReader("wrong secret", jwtConfiguration, CLOCK).read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtExpiredException.class)
@@ -132,13 +134,13 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtParseException.class)
     public void garbledJwtIsRejected() throws JwtParseException, JwtVerificationException
     {
-        createNimbusHmac256JwtReader().read("easy.as.abc", JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read("easy.as.abc", NO_REQUIRED_CLAIMS);
     }
 
     // replace the payload with a slightly different payload, leaving the header and signature untouched
@@ -163,7 +165,7 @@ public class NimbusJwtReaderTest
 
         String forgedJwt = StringUtils.join(new String[]{jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
 
-        createNimbusHmac256JwtReader().read(forgedJwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(forgedJwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test

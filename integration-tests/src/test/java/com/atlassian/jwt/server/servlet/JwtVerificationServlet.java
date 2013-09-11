@@ -1,15 +1,13 @@
 package com.atlassian.jwt.server.servlet;
 
 import com.atlassian.jwt.Jwt;
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.JwtUtil;
+import com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
-import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.server.RequestCache;
 import com.atlassian.jwt.server.SecretStore;
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -63,10 +60,7 @@ public class JwtVerificationServlet extends HttpServlet
         try
         {
             JwtReader reader = readerFactory.getReader(jwtString);
-            String canonicalQuery = JwtUtil.canonicalizeQuery(req);
-            String claimName = JwtConstants.Claims.QUERY_SIGNATURE;
-            Map<String, JwtClaimVerifier> claimVerifiers = ImmutableMap.of(claimName, reader.createSignedClaimVerifier(canonicalQuery, claimName));
-            jwt = reader.read(jwtString, claimVerifiers);
+            jwt = reader.read(jwtString, JwtClaimVerificationsBuilder.build(req, reader));
         }
         catch (Exception e)
         {

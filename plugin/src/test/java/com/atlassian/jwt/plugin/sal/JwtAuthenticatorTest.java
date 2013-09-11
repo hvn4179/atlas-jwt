@@ -10,6 +10,7 @@ import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
+import com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder;
 import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -102,7 +103,7 @@ public class JwtAuthenticatorTest
         public ApplinkJwt verifyJwt(final String jwtString, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
             JwtReader reader = new NimbusHmac256JwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration());
-            final Jwt jwt = reader.read(jwtString, JwtUtil.getStringJwtClaimVerifierMap(signedClaimSigningInputs, reader));
+            final Jwt jwt = reader.read(jwtString, JwtClaimVerificationsBuilder.buildNameToVerifierMap(signedClaimSigningInputs, reader));
 
             return new ApplinkJwt()
             {

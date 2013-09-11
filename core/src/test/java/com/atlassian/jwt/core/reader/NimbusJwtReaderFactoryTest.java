@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -27,6 +26,8 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
+
+import static com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder.NO_REQUIRED_CLAIMS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderFactoryTest
@@ -66,7 +67,7 @@ public class NimbusJwtReaderFactoryTest
         String payload = createPayload(VALID_ISSUER);
         Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, null, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
-        assertThat(factory.getReader(jwt).read(jwt, JwtUtil.NO_REQUIRED_CLAIMS), is(expected));
+        assertThat(factory.getReader(jwt).read(jwt, NO_REQUIRED_CLAIMS), is(expected));
     }
 
     @Test(expected = JwtParseException.class)

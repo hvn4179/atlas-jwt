@@ -1,7 +1,5 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.reader.JwtReader;
-import com.atlassian.jwt.reader.JwtClaimVerifier;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
@@ -21,11 +19,6 @@ public class JwtUtil
     public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-
-    /**
-     * Tell {@link com.atlassian.jwt.reader.JwtReader}.read() that no custom claims are mandatory.
-     */
-    public static final Map<String, JwtClaimVerifier> NO_REQUIRED_CLAIMS = Collections.emptyMap();
 
     /**
      * The encoding used to represent characters as bytes.
@@ -53,24 +46,6 @@ public class JwtUtil
             jwt = getJwtHeaderValue(request);
         }
         return jwt;
-    }
-
-    /**
-     * @param signedClaimSigningInputs {@link Map} of claim name to corresponding input to signing algorithm
-     * @param reader {@link JwtReader} that will read the JWT message
-     * @return {@link Map} of claim name to {@link JwtClaimVerifier} capable of verifying every specified claim
-     */
-    public static Map<String, JwtClaimVerifier> getStringJwtClaimVerifierMap(Map<String, String> signedClaimSigningInputs, JwtReader reader)
-    {
-        Map<String, JwtClaimVerifier> claimVerifiers = new HashMap<String, JwtClaimVerifier>(signedClaimSigningInputs.size());
-
-        for (Map.Entry<String, String> claimAndSigningInput : signedClaimSigningInputs.entrySet())
-        {
-            String claimName = claimAndSigningInput.getKey();
-            claimVerifiers.put(claimName, reader.createSignedClaimVerifier(claimAndSigningInput.getValue(), claimName));
-        }
-
-        return claimVerifiers;
     }
 
     private static String getJwtParameter(HttpServletRequest request)
