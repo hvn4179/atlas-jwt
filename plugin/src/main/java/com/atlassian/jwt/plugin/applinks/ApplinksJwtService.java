@@ -44,7 +44,7 @@ public class ApplinksJwtService implements JwtService
     public ApplinkJwt verifyJwt(String jwt, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         JwtReader reader = jwtReaderFactory.getReader(jwt);
-        Jwt verifiedJwt = reader.verify(jwt, JwtUtil.getStringJwtClaimVerifierMap(signedClaimSigningInputs, reader));
+        Jwt verifiedJwt = reader.read(jwt, JwtUtil.getStringJwtClaimVerifierMap(signedClaimSigningInputs, reader));
         ApplicationLink applicationLink = getApplicationLink(verifiedJwt);
         return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }

@@ -66,7 +66,7 @@ public class JwtVerificationServlet extends HttpServlet
             String canonicalQuery = JwtUtil.canonicalizeQuery(req);
             String claimName = JwtConstants.Claims.QUERY_SIGNATURE;
             Map<String, JwtClaimVerifier> claimVerifiers = ImmutableMap.of(claimName, reader.createSignedClaimVerifier(canonicalQuery, claimName));
-            jwt = reader.verify(jwtString, claimVerifiers);
+            jwt = reader.read(jwtString, claimVerifiers);
         }
         catch (Exception e)
         {

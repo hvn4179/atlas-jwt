@@ -21,7 +21,7 @@ public interface JwtReader
      * @throws JwtParseException        if the JWT string was malformed
      * @throws JwtVerificationException if the JWT string was well-formed but failed verification
      */
-    Jwt verify(String jwt, Map<String, JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
+    Jwt read(String jwt, Map<String, JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
 
     /**
      * Construct an object that can verify a signed claim against a particular input.

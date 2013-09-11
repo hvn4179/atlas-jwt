@@ -35,7 +35,7 @@ public class NimbusJwtReader implements JwtReader
     }
 
     @Override
-    public Jwt verify(String jwt, Map<String, JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    public Jwt read(String jwt, Map<String, JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 

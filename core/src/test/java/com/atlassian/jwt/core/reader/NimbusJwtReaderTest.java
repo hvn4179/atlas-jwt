@@ -5,7 +5,6 @@ import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReader;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.crypto.MACVerifier;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        String payload = createNimbusHmac256JwtReader().verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
+        String payload = createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
@@ -67,7 +66,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -78,7 +77,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -90,7 +89,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        createNimbusHmac256JwtReader().verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test
@@ -103,7 +102,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        String payload = createNimbusHmac256JwtReader().verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
+        String payload = createNimbusHmac256JwtReader().read(jwt, JwtUtil.NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP,
                 "iat", oneHourEarlier,
@@ -121,7 +120,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader("wrong secret", jwtConfiguration, CLOCK).verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        new NimbusHmac256JwtReader("wrong secret", jwtConfiguration, CLOCK).read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtExpiredException.class)
@@ -133,13 +132,13 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).verify(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).read(jwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtParseException.class)
     public void garbledJwtIsRejected() throws JwtParseException, JwtVerificationException
     {
-        createNimbusHmac256JwtReader().verify("easy.as.abc", JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read("easy.as.abc", JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     // replace the payload with a slightly different payload, leaving the header and signature untouched
@@ -164,7 +163,7 @@ public class NimbusJwtReaderTest
 
         String forgedJwt = StringUtils.join(new String[]{jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
 
-        createNimbusHmac256JwtReader().verify(forgedJwt, JwtUtil.NO_REQUIRED_CLAIMS);
+        createNimbusHmac256JwtReader().read(forgedJwt, JwtUtil.NO_REQUIRED_CLAIMS);
     }
 
     @Test
@@ -177,7 +176,7 @@ public class NimbusJwtReaderTest
                 "iss", "joe"
         );
         Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
-        createNimbusHmac256JwtReader().verify(jwt, requiredClaims);
+        createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -190,7 +189,7 @@ public class NimbusJwtReaderTest
                 "iss", "joe"
         );
         Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
-        createNimbusHmac256JwtReader().verify(jwt, requiredClaims);
+        createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
@@ -203,7 +202,7 @@ public class NimbusJwtReaderTest
                 "iss", "joe"
         );
         Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
-        createNimbusHmac256JwtReader().verify(jwt, requiredClaims);
+        createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test
@@ -220,7 +219,7 @@ public class NimbusJwtReaderTest
                 "iss", "joe"
         );
         Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, signedClaimVerifier);
-        reader.verify(jwt, requiredClaims);
+        reader.read(jwt, requiredClaims);
     }
 
     @Test(expected = JwtSignatureMismatchException.class)
@@ -237,7 +236,7 @@ public class NimbusJwtReaderTest
                 "iss", "joe"
         );
         Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, signedClaimVerifier);
-        reader.verify(jwt, requiredClaims);
+        reader.read(jwt, requiredClaims);
     }
 
     private JwtReader createNimbusHmac256JwtReader()
