@@ -2,7 +2,7 @@ package com.atlassian.jwt.server.servlet;
 
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder;
+import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
@@ -60,7 +60,7 @@ public class JwtVerificationServlet extends HttpServlet
         try
         {
             JwtReader reader = readerFactory.getReader(jwtString);
-            jwt = reader.read(jwtString, JwtClaimVerificationsBuilder.build(req, reader));
+            jwt = reader.read(jwtString, JwtClaimVerifiersBuilder.build(req, reader));
         }
         catch (Exception e)
         {

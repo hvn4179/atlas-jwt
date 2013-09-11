@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
-import static com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder.NO_REQUIRED_CLAIMS;
+import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderFactoryTest

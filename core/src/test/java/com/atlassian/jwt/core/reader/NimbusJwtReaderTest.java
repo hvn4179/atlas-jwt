@@ -18,7 +18,7 @@ import java.util.Map;
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static org.mockito.Mockito.when;
 
-import static com.atlassian.jwt.core.reader.JwtClaimVerificationsBuilder.NO_REQUIRED_CLAIMS;
+import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest
