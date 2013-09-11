@@ -126,12 +126,6 @@ public class JwtAuthenticatorTest
         {
             throw new NotImplementedException();
         }
-
-        @Override
-        public ApplicationLink getApplicationLink(Jwt jwt)
-        {
-            return mock(ApplicationLink.class);
-        }
     };
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;

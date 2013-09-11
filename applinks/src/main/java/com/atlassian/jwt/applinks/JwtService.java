@@ -55,12 +55,4 @@ public interface JwtService
      * @throws JwtSigningException  if a problem was encountered while generating the JWT
      */
     String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException;
-
-    /**
-     * Find the {@link ApplicationLink} from which the received {@link Jwt} claims to have been sent.
-     *
-     * @param jwt the verified {@link Jwt}
-     * @return the corresponding {@link ApplicationLink}, looked up using the issuer claim
-     */
-    ApplicationLink getApplicationLink(Jwt jwt) throws TypeNotInstalledException;
 }

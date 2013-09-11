@@ -45,7 +45,7 @@ public class ApplinksJwtService implements JwtService
     {
         JwtReader reader = jwtReaderFactory.getReader(jwt);
         Jwt verifiedJwt = reader.read(jwt, JwtClaimVerifiersBuilder.buildNameToVerifierMap(signedClaimSigningInputs, reader));
-        ApplicationLink applicationLink = getApplicationLink(verifiedJwt);
+        ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(verifiedJwt.getIssuer()));
         return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }
 
@@ -70,12 +70,4 @@ public class ApplinksJwtService implements JwtService
         return jwtWriterFactory
                 .macSigningWriter(SigningAlgorithm.HS256, requireSharedSecret(applicationLink));
     }
-
-    @Override
-    public ApplicationLink getApplicationLink(Jwt jwt) throws TypeNotInstalledException
-    {
-        String applicationId = jwt.getIssuer();
-        return applicationLinkService.getApplicationLink(new ApplicationId(applicationId));
-    }
-
 }
