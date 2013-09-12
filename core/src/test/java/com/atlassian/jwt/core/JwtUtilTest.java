@@ -8,8 +8,7 @@ import org.junit.Test;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,6 +48,14 @@ public class JwtUtilTest
 
         HttpUriRequest request = createHttpUriRequest();
         assertThat(JwtUtil.canonicalizeQuery(request, contextPath), is(expected));
+    }
+
+    @Test
+    public void percentEncodedStringsAreSortedByCodePoint() throws UnsupportedEncodingException
+    {
+        List<String> encodedStrings = Arrays.asList(JwtUtil.percentEncode("a"), JwtUtil.percentEncode("A"), JwtUtil.percentEncode("b"), JwtUtil.percentEncode("B"));
+        Collections.sort(encodedStrings);
+        assertThat(encodedStrings, is(Arrays.asList("A", "B", "a", "b")));
     }
 
     private String createExpectedCanonicalRequestString(String contextPath)
