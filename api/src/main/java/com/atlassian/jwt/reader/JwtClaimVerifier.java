@@ -5,6 +5,8 @@ import com.atlassian.jwt.exception.JwtVerificationException;
 /**
  * Interface for asserting that a JWT claim is valid.
  * Implementations include straightforward equality checking and verification of signatures.
+ *
+ * @since 1.0
  */
 public interface JwtClaimVerifier
 {
