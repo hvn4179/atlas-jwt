@@ -1,11 +1,10 @@
 package com.atlassian.jwt.core.reader;
 
+import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReader;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,9 +24,9 @@ public class JwtClaimVerifiersBuilder
      * @return {@link Map} of claim name to verifier for claims upon which we place requirements
      * @throws IOException
      */
-    public static Map<String, JwtClaimVerifier> build(HttpServletRequest request, JwtReader reader) throws IOException
+    public static Map<String, JwtClaimVerifier> build(CanonicalHttpRequest request, JwtReader reader) throws IOException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeRequest(request));
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, request.canonicalize());
         return buildNameToVerifierMap(signedClaimSigningInputs, reader);
     }
 
