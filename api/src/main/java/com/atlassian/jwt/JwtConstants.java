@@ -30,9 +30,10 @@ public class JwtConstants
          * 4. Append the character '&'.
          * 5. Compute the canonical query string.
          *    Sort the query parameters primarily by their percent-encoded names and secondarily by their percent-encoded values.
+         *    Sorting is by codepoint: sort(["a", "A", "b", "B"]) => ["A", "B", "a", "b"].
          *    For each parameter append its percent-encoded name, the '=' character and then its percent-encoded value.
          *    In the case of repeated parameters append the ',' character and subsequent percent-encoded values.
-         *    Ignore the {@link JwtConstants.JWT_PARAM_NAME} parameter, if present.
+         *    Ignore the {@link JwtConstants}.JWT_PARAM_NAME parameter, if present.
          *    Some particular values to be aware of: "+" is encoded as "%20",
          *                                           "*" as "%2A" and
          *                                           "~" as "~".
