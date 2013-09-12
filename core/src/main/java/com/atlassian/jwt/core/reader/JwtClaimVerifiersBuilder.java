@@ -27,7 +27,7 @@ public class JwtClaimVerifiersBuilder
      */
     public static Map<String, JwtClaimVerifier> build(HttpServletRequest request, JwtReader reader) throws IOException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeQuery(request));
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeRequest(request));
         return buildNameToVerifierMap(signedClaimSigningInputs, reader);
     }
 

@@ -69,14 +69,14 @@ public class JwtUtil
         return null;
     }
 
-    public static String canonicalizeQuery(HttpServletRequest request) throws IOException
+    public static String canonicalizeRequest(HttpServletRequest request) throws IOException
     {
-        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
+        return canonicalizeRequest(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
     }
 
-    public static String canonicalizeQuery(HttpUriRequest request, String contextPath) throws IOException
+    public static String canonicalizeRequest(HttpUriRequest request, String contextPath) throws IOException
     {
-        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request, contextPath), canonicalizeQueryParameters(request));
+        return canonicalizeRequest(canonicalizeRequestMethod(request), canonicalizeRequestUri(request, contextPath), canonicalizeQueryParameters(request));
     }
 
     /**
@@ -97,7 +97,7 @@ public class JwtUtil
                 .replace("%7E", "~");
     }
 
-    private static String canonicalizeQuery(String canonicalRequestMethod, String canonicalUri, String canonicalQueryParameters)
+    private static String canonicalizeRequest(String canonicalRequestMethod, String canonicalUri, String canonicalQueryParameters)
     {
         return new StringBuilder()
                 .append(canonicalRequestMethod)

@@ -85,7 +85,7 @@ public class JwtAuthenticator implements Authenticator
 
     private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeQuery(request));
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, JwtUtil.canonicalizeRequest(request));
         return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
     }
 

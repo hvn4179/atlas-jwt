@@ -323,7 +323,7 @@ public class JwtAuthenticatorTest
     private String createValidJwt() throws IOException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(JwtUtil.canonicalizeQuery(request)));
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(JwtUtil.canonicalizeRequest(request)));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }
