@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core;
 
+import com.atlassian.jwt.JwtConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -135,7 +136,7 @@ public class JwtUtilTest
         queryParameters.put("zee_last", new String[]{"param"});
         queryParameters.put("repeated", new String[]{"parameter 1","parameter 2"});
         queryParameters.put("first", new String[]{"param"});
-        queryParameters.put(JwtUtil.JWT_PARAM_NAME, new String[]{"should.be.ignored"});
+        queryParameters.put(JwtConstants.JWT_PARAM_NAME, new String[]{"should.be.ignored"});
         return queryParameters;
     }
 }

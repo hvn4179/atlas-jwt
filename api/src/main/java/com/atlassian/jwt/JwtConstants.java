@@ -2,6 +2,12 @@ package com.atlassian.jwt;
 
 public class JwtConstants
 {
+    /**
+     * When the JWT message is specified in the query string of a URL then this is the parameter name.
+     * E.g. "jwt" in "http://server:80/some/path?otherparam=value&jwt=eyJhbGciOiJIUzI1NiIsI.eyJleHAiOjEzNzg5NCI6MTM3ODk1MjQ4OH0.cDihfcsKW_We_EY21tIs55dVwjU"
+     */
+    public static final String JWT_PARAM_NAME = "jwt";
+
     public static final class Claims
     {
         /**

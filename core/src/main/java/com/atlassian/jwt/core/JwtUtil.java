@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core;
 
+import com.atlassian.jwt.JwtConstants;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
@@ -15,7 +16,6 @@ import java.util.*;
 
 public class JwtUtil
 {
-    public static final String JWT_PARAM_NAME = "jwt";
     public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -50,7 +50,7 @@ public class JwtUtil
 
     private static String getJwtParameter(HttpServletRequest request)
     {
-        String jwtParam = request.getParameter(JwtUtil.JWT_PARAM_NAME);
+        String jwtParam = request.getParameter(JwtConstants.JWT_PARAM_NAME);
         return StringUtils.isEmpty(jwtParam) ? null : jwtParam;
     }
 
@@ -179,7 +179,7 @@ public class JwtUtil
 
             for (Map.Entry<String, String[]> parameter : parameterMap.entrySet())
             {
-                if (!JWT_PARAM_NAME.equals(parameter.getKey()))
+                if (!JwtConstants.JWT_PARAM_NAME.equals(parameter.getKey()))
                 {
                     parameterList.add(new ComparableParameter(parameter));
                 }

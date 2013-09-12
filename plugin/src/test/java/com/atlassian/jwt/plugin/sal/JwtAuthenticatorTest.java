@@ -295,9 +295,9 @@ public class JwtAuthenticatorTest
 
     private void setUpJwtQueryParameter(String jwt)
     {
-        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(jwt);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(jwt);
         Map<String, String[]> parameters = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
-        parameters.put(JwtUtil.JWT_PARAM_NAME, new String[]{jwt});
+        parameters.put(JwtConstants.JWT_PARAM_NAME, new String[]{jwt});
         when(request.getParameterMap()).thenReturn(parameters);
     }
 
