@@ -32,6 +32,11 @@ public class JwtConstants
          *    Sort the query parameters primarily by their percent-encoded names and secondarily by their percent-encoded values.
          *    For each parameter append its percent-encoded name, the '=' character and then its percent-encoded value.
          *    In the case of repeated parameters append the ',' character and subsequent percent-encoded values.
+         *    Ignore the {@link JwtConstants.JWT_PARAM_NAME} parameter, if present.
+         *    Some particular values to be aware of: "+" is encoded as "%20",
+         *                                           "*" as "%2A" and
+         *                                           "~" as "~".
+         *                                           (These values used for consistency with OAuth1.)
          *    An example: for a GET request to the not-yet-percent-encoded URL "http://localhost:2990/path/to/service?zee_last=param&repeated=parameter 1&first=param&repeated=parameter 2"
          *    the canonical request is "GET&/path/to/service&first=param&repeated=parameter%201,parameter%202&zee_last=param".
          * 6. Convert the canonical request string to bytes.

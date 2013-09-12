@@ -33,6 +33,11 @@ public class JwtUtil
      */
     private static final char QUERY_PARAMS_SEPARATOR = '&';
 
+    /**
+     * For separating the method, URI etc in a canonical request string.
+     */
+    private static final char CANONICAL_REQUEST_PART_SEPARATOR = '&';
+
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
         return extractJwt(request) != null;
@@ -101,9 +106,9 @@ public class JwtUtil
     {
         return new StringBuilder()
                 .append(canonicalRequestMethod)
-                .append(QUERY_PARAMS_SEPARATOR)
+                .append(CANONICAL_REQUEST_PART_SEPARATOR)
                 .append(canonicalUri)
-                .append(QUERY_PARAMS_SEPARATOR)
+                .append(CANONICAL_REQUEST_PART_SEPARATOR)
                 .append(canonicalQueryParameters)
                 .toString();
     }
