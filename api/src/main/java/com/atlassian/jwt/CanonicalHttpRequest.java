@@ -12,7 +12,7 @@ public interface CanonicalHttpRequest
 {
     /**
      * Assemble the components of the HTTP request into the correct format so that they can be signed.
-     * See {@link JwtConstants.Claims.QUERY_SIGNATURE} for a detailed description of how to compute the signature.
+     * See {@link JwtConstants.Claims}#QUERY_SIGNATURE for a detailed description of how to compute the signature.
      * @return {@link String} representing the canonical form of the HTTP request
      * @throws IOException
      */
