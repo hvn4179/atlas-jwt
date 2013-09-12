@@ -191,7 +191,7 @@ public class JwtUtil
             }
 
             Collections.sort(parameterList);
-            result = formEncode(getParameters(parameterList));
+            result = percentEncode(getParameters(parameterList));
         }
 
         return result;
@@ -221,10 +221,10 @@ public class JwtUtil
      * Construct a form-urlencoded document containing the given sequence of
      * name/parameter pairs.
      */
-    private static String formEncode(Iterable<? extends Map.Entry<String, String[]>> parameters) throws IOException
+    private static String percentEncode(Iterable<? extends Map.Entry<String, String[]>> parameters) throws IOException
     {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
-        formEncode(parameters, b);
+        percentEncode(parameters, b);
         return new String(b.toByteArray());
     }
 
@@ -232,7 +232,7 @@ public class JwtUtil
      * Write a form-urlencoded document into the given stream, containing the
      * given sequence of name/parameter pairs.
      */
-    private static void formEncode(Iterable<? extends Map.Entry<String, String[]>> parameters, OutputStream into) throws IOException
+    private static void percentEncode(Iterable<? extends Map.Entry<String, String[]>> parameters, OutputStream into) throws IOException
     {
         if (parameters != null)
         {
