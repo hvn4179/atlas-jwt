@@ -13,7 +13,10 @@ public class JwtConstants
          *    Simply the upper-case of the method name (e.g. "GET", "PUT").
          * 2. Append the character '&'
          * 3. Compute canonical URI.
-         *    Discard the protocol, server, and port and query parameters from the full URL.
+         *    Discard the protocol, server, port, context path and query parameters from the full URL.
+         *    (Removing the context path allows a reverse proxy to redirect incoming requests for "jira.example.com/getsomething"
+         *    to "example.com/jira/getsomething" without breaking authentication. The requester cannot know that the reverse proxy
+         *    will prepend the context path "/jira" to the originally requested path "/getsomething".)
          *    Empty-string is not permitted; use "/" instead.
          *    Do not suffix with a '/' character unless it is the only character.
          *    E.g. in "http://server:80/some/path/?param=value" the canonical URI is "/some/path"

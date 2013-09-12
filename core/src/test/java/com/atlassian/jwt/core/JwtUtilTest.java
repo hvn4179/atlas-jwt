@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,21 +21,65 @@ public class JwtUtilTest
     @Test
     public void computeCorrectCanonicalizedQueryFromHttpServletRequest() throws IOException
     {
-        assertThat(JwtUtil.canonicalizeQuery(createHttpServletRequest()), is(expected()));
+        assertThat(JwtUtil.canonicalizeQuery(createHttpServletRequest()), is(expectedWhenThereIsNoContextPath()));
     }
 
     @Test
     public void computeCorrectCanonicalizedQueryFromHttpUriRequest() throws IOException
     {
-        assertThat(JwtUtil.canonicalizeQuery(createHttpUriRequest()), is(expected()));
+        assertThat(JwtUtil.canonicalizeQuery(createHttpUriRequest(), ""), is(expectedWhenThereIsNoContextPath()));
     }
 
-    private String expected()
+    @Test
+    public void contextPathIsNotPartOfCanonicalizedRequestFromHttpServletRequest() throws IOException
+    {
+        String contextPath = "/path";
+        String expected = createExpectedCanonicalRequestString(contextPath);
+
+        HttpServletRequest request = createHttpServletRequest();
+        when(request.getContextPath()).thenReturn(contextPath);
+        assertThat(JwtUtil.canonicalizeQuery(request), is(expected));
+    }
+
+    @Test
+    public void contextPathIsNotPartOfCanonicalizedRequestFromHttpUriRequest() throws IOException
+    {
+        String contextPath = "/path";
+        String expected = createExpectedCanonicalRequestString(contextPath);
+
+        HttpUriRequest request = createHttpUriRequest();
+        assertThat(JwtUtil.canonicalizeQuery(request, contextPath), is(expected));
+    }
+
+    private String createExpectedCanonicalRequestString(String contextPath)
+    {
+        String expected = expectedWhenThereIsAContextPath(contextPath);
+        assertThat(RELATIVE_URI, startsWith(contextPath)); // precondition
+        assertThat(expected, is(not(expectedWhenThereIsNoContextPath()))); // precondition
+        return expected;
+    }
+
+    private static String expectedWhenThereIsNoContextPath()
+    {
+        return createCanonicalRequest(createCanonicalUri());
+    }
+
+    private static String expectedWhenThereIsAContextPath(String contextPath)
+    {
+        return createCanonicalRequest(StringUtils.replaceOnce(createCanonicalUri(), contextPath, ""));
+    }
+
+    private static String createCanonicalUri()
+    {
+        return StringUtils.removeEnd(RELATIVE_URI, "/");
+    }
+
+    private static String createCanonicalRequest(String uri)
     {
         return new StringBuilder()
                     .append("GET")
                     .append('&')
-                    .append("/path/to/service")
+                    .append(uri)
                     .append('&')
                     .append("first=param&repeated=parameter%201,parameter%202&zee_last=param")
                     .toString();
@@ -72,6 +117,7 @@ public class JwtUtilTest
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn(RELATIVE_URI);
         when(request.getParameterMap()).thenReturn(QUERY_PARAMS);
+        when(request.getContextPath()).thenReturn("/");
 
         return request;
     }

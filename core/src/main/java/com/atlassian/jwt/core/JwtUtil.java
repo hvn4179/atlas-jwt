@@ -74,9 +74,9 @@ public class JwtUtil
         return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
     }
 
-    public static String canonicalizeQuery(HttpUriRequest request) throws IOException
+    public static String canonicalizeQuery(HttpUriRequest request, String contextPath) throws IOException
     {
-        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request), canonicalizeQueryParameters(request));
+        return canonicalizeQuery(canonicalizeRequestMethod(request), canonicalizeRequestUri(request, contextPath), canonicalizeQueryParameters(request));
     }
 
     /**
@@ -110,17 +110,18 @@ public class JwtUtil
 
     private static String canonicalizeRequestUri(HttpServletRequest request)
     {
-        return canonicalizeRelativeRequestUri(request.getRequestURI());
+        return canonicalizeRelativeRequestUri(request.getRequestURI(), request.getContextPath());
     }
 
-    private static String canonicalizeRequestUri(HttpUriRequest request)
+    private static String canonicalizeRequestUri(HttpUriRequest request, String contextPath)
     {
-        return canonicalizeRelativeRequestUri(request.getURI().getPath());
+        return canonicalizeRelativeRequestUri(request.getURI().getPath(), contextPath);
     }
 
-    private static String canonicalizeRelativeRequestUri(String uri)
+    private static String canonicalizeRelativeRequestUri(String uri, String contextPath)
     {
-        return StringUtils.defaultIfBlank(StringUtils.removeEnd(uri, "/"), "/");
+        String contextPathToRemove = null == contextPath || "/".equals(contextPath) ? "" : contextPath;
+        return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(uri, contextPathToRemove), "/"), "/");
     }
 
     private static String canonicalizeRequestMethod(HttpServletRequest request)

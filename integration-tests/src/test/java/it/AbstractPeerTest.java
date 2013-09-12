@@ -21,6 +21,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 public abstract class AbstractPeerTest
 {
     protected final String baseUrl;
+    private final String contextPath;
 
     public AbstractPeerTest()
     {
@@ -32,12 +33,19 @@ public abstract class AbstractPeerTest
         if (System.getProperty("baseurl") == null)
         {
             Defaults defs = testedProductClass.getAnnotation(Defaults.class);
-            baseUrl = "http://localhost:" + defs.httpPort() + defs.contextPath();
+            contextPath = defs.contextPath();
+            baseUrl = "http://localhost:" + defs.httpPort() + contextPath;
         }
         else
         {
+            contextPath = TestedProductHolder.INSTANCE.getProductInstance().getContextPath();
             baseUrl = TestedProductHolder.INSTANCE.getProductInstance().getBaseUrl();
         }
+    }
+
+    protected String getContextPath()
+    {
+        return contextPath;
     }
 
     protected String jwtTestBasePath()

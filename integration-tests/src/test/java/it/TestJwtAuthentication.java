@@ -66,6 +66,6 @@ public class TestJwtAuthentication extends AbstractPeerTest
                     .subject("admin")
                     .issuedAt(TimeUtil.currentTimeSeconds())
                     .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
-                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(JwtUtil.canonicalizeQuery(new HttpGet(url))));
+                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(JwtUtil.canonicalizeQuery(new HttpGet(url), getContextPath())));
     }
 }
