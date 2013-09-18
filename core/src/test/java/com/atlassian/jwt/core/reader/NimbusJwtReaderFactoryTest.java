@@ -27,16 +27,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
+import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
+
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderFactoryTest
 {
     private static final JWSAlgorithm SUPPORTED_ALGORITHM = JWSAlgorithm.HS256;
     private static final JWSAlgorithm UNSUPPORTED_ALGORITHM = JWSAlgorithm.PS256;
-    private static String VALID_ISSUER = "valid";
-    private static String ISSUER_WITHOUT_SECRET = "setup in progress?";
-    private static String SUBJECT = "subject";
-    private static String SHARED_SECRET = "secret";
-    public static final JWSSigner SIGNER = new MACSigner(SHARED_SECRET);
+    private static final String VALID_ISSUER = "valid";
+    private static final String ISSUER_WITHOUT_SECRET = "setup in progress?";
+    private static final String SUBJECT = "subject";
+    private static final String SHARED_SECRET = "secret";
+    private static final JWSSigner SIGNER = new MACSigner(SHARED_SECRET);
 
     @Mock JwtIssuerValidator jwtIssuerValidator;
     @Mock JwtIssuerSharedSecretService jwtIssuerSharedSecretService;
@@ -63,9 +65,9 @@ public class NimbusJwtReaderFactoryTest
     public void readerReturnedForValidJwtCanVerifyThatJwt() throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         String payload = createPayload(VALID_ISSUER);
-        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
+        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, null, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
-        assertThat(factory.getReader(jwt).verify(jwt), is(expected));
+        assertThat(factory.getReader(jwt).read(jwt, NO_REQUIRED_CLAIMS), is(expected));
     }
 
     @Test(expected = JwtParseException.class)
@@ -98,7 +100,7 @@ public class NimbusJwtReaderFactoryTest
         factory.getReader(createJwtFromIssuer(SUPPORTED_ALGORITHM, ISSUER_WITHOUT_SECRET));
     }
 
-    private String createJwtFromIssuer(JWSAlgorithm algorithm, String issuer) throws JwsUnsupportedAlgorithmException
+    private String createJwtFromIssuer(JWSAlgorithm algorithm, String issuer)
     {
         return createJwtFromPayload(algorithm, createPayload(issuer));
     }

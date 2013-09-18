@@ -49,12 +49,17 @@ public class HmacJwtSigner
     {
         String jwtHeader = new JSONObject(ImmutableMap.of("alg", "HS256", "typ", "JWT")).toJSONString();
         String signingInput = encodeBase64URLSafeString(jwtHeader.getBytes()) + "." + encodeBase64URLSafeString(jsonPayload.getBytes());
+        return signingInput + "." + signHmac256(signingInput);
+    }
+
+    public String signHmac256(String signingInput)
+    {
         try
         {
             SecretKey key = new SecretKeySpec(sharedSecret.getBytes(), HMAC_SHA_256);
             Mac mac = Mac.getInstance(HMAC_SHA_256);
             mac.init(key);
-            return signingInput + "." + encodeBase64URLSafeString(mac.doFinal(signingInput.getBytes()));
+            return encodeBase64URLSafeString(mac.doFinal(signingInput.getBytes()));
         }
         catch (NoSuchAlgorithmException e)
         {

@@ -15,7 +15,7 @@ import static junit.framework.Assert.assertTrue;
  */
 public class TestJwtRegistration extends AbstractPeerTest
 {
-    private JwtPeer peer = new JwtPeer();
+    private final JwtPeer peer = new JwtPeer();
 
     @Rule
     public JwtPeerLifecycle peerRule = new JwtPeerLifecycle(peer);

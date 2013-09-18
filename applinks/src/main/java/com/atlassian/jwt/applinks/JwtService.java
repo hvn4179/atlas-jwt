@@ -7,6 +7,8 @@ import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.exception.*;
 
+import java.util.Map;
+
 /**
  * Verifies incoming {@link Jwt JWTs} issued by {@link ApplicationLink linked applications} and generates
  * {@link Jwt JWTs} for use in outbound requests targeting {@link ApplicationLink linked applications}.
@@ -27,6 +29,7 @@ public interface JwtService
      * Verify a JWT issued by a {@link ApplicationLink linked application}.
      *
      * @param jwt a JWT extracted from an incoming request.
+     * @param signedClaimSigningInputs claims containing signed values that must be present in the JWT, with their signing inputs
      * @return the {@link ApplinkJwt verified JWT} if the verification was successful, or throw an exception if
      *         verification failed.
      * @throws NotAJwtPeerException      if this server does not have a JWT relationship with the
@@ -37,7 +40,7 @@ public interface JwtService
      * @throws TypeNotInstalledException if the {@link ApplicationLink linked application's} {@link ApplicationType} is
      *                                   not installed.
      */
-    ApplinkJwt verifyJwt(String jwt) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
+    ApplinkJwt verifyJwt(String jwt, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
 
     /**
      * Generate a JWT for the supplied payload, suitable for authenticating with the specified

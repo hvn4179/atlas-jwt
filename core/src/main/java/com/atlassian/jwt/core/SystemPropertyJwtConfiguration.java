@@ -33,7 +33,7 @@ public class SystemPropertyJwtConfiguration implements JwtConfiguration
             }
             catch (NumberFormatException e)
             {
-                log.error("Failed to parse system property " + maxJwtLifetimeProperty + " value '" +
+                log.error("Failed to parse system property " + maxJwtLifetimeProperty + " parameter '" +
                         maxJwtLifetimeProperty + "'. Must be a number.", e);
                 jwtMax = defaultValue;
             }

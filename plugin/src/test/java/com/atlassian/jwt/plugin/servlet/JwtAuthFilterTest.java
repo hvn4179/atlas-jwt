@@ -1,6 +1,6 @@
 package com.atlassian.jwt.plugin.servlet;
 
-import com.atlassian.jwt.core.JwtUtil;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.AuthenticationController;
@@ -66,7 +66,7 @@ public class JwtAuthFilterTest
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://host/service"));
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
-        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
         when(request.getContextPath()).thenReturn("");
     }
 
@@ -120,7 +120,7 @@ public class JwtAuthFilterTest
     public void verifyThatWhenOAuthParametersAreNotPresentWeLetTheRequestPassThru() throws Exception
     {
         when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(true);
-        when(request.getParameter(JwtUtil.JWT_PARAM_NAME)).thenReturn(null);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(null);
 
         filter.doFilter(request, response, chain);
 

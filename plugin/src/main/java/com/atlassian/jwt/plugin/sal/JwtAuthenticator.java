@@ -1,21 +1,23 @@
 package com.atlassian.jwt.plugin.sal;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.jwt.applinks.ApplinkJwt;
+import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtService;
+import com.atlassian.jwt.core.CanonicalHttpRequests;
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtUnknownIssuerException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Collections;
+import java.util.Map;
 
 public class JwtAuthenticator implements Authenticator
 {
@@ -37,7 +39,6 @@ public class JwtAuthenticator implements Authenticator
             return authenticate(request, jwt);
         }
 
-        // TODO: consider localising this error message
         throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
     }
 
@@ -45,8 +46,8 @@ public class JwtAuthenticator implements Authenticator
     {
         try
         {
-            ApplinkJwt jwt = jwtService.verifyJwt(jwtString);
-            Principal userPrincipal = new SimplePrincipal(jwt.getJwt().getSubject());
+            Jwt jwt = verifyJwt(jwtString, request);
+            Principal userPrincipal = new SimplePrincipal(jwt.getSubject());
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
@@ -54,7 +55,6 @@ public class JwtAuthenticator implements Authenticator
             }
             else
             {
-                // TODO: consider localising this error message
                 return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request)));
             }
         }
@@ -78,6 +78,16 @@ public class JwtAuthenticator implements Authenticator
         {
             return createFailure(e);
         }
+        catch (IOException e)
+        {
+            return createError(e);
+        }
+    }
+
+    private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
+    {
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, CanonicalHttpRequests.from(request).canonicalize());
+        return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
     }
 
     private static Result.Error createError(Exception e)
@@ -114,6 +124,12 @@ public class JwtAuthenticator implements Authenticator
             public Serializable[] getArguments()
             {
                 return null;
+            }
+
+            @Override
+            public String toString()
+            {
+                return message;
             }
         };
     }

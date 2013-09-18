@@ -1,16 +1,27 @@
 package com.atlassian.jwt.core;
 
+import com.atlassian.jwt.JwtConstants;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 
 public class JwtUtil
 {
-    public static final String JWT_PARAM_NAME = "jwt";
     public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    /**
+     * The encoding used to represent characters as bytes.
+     */
+    private static final String ENCODING = "UTF-8";
+    /**
+     * As appears between "value1" and "param2" in the URL "http://server/path?param1=value1&param2=value2".
+     */
+    public static final char QUERY_PARAMS_SEPARATOR = '&';
 
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
@@ -29,7 +40,7 @@ public class JwtUtil
 
     private static String getJwtParameter(HttpServletRequest request)
     {
-        String jwtParam = request.getParameter(JwtUtil.JWT_PARAM_NAME);
+        String jwtParam = request.getParameter(JwtConstants.JWT_PARAM_NAME);
         return StringUtils.isEmpty(jwtParam) ? null : jwtParam;
     }
 
@@ -46,5 +57,24 @@ public class JwtUtil
             }
         }
         return null;
+    }
+
+    /**
+     * {@link URLEncoder}#encode() but encode some characters differently to URLEncoder, to match OAuth1 and VisualVault.
+     * @param str {@link String} to be percent-encoded
+     * @return encoded {@link String}
+     * @throws {@link UnsupportedEncodingException} if {@link URLEncoder} does not support {@link JwtUtil}#ENCODING
+     */
+    public static String percentEncode(String str) throws UnsupportedEncodingException
+    {
+        if (str == null)
+        {
+            return "";
+        }
+
+        return URLEncoder.encode(str, ENCODING)
+                .replace("+", "%20")
+                .replace("*", "%2A")
+                .replace("%7E", "~");
     }
 }

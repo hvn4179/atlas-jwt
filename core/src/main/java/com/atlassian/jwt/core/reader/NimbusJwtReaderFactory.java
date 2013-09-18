@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
@@ -10,6 +11,7 @@ import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -42,15 +44,15 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
 
         if (algorithm.requiresSharedSecret())
         {
-            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer));
+            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer), algorithm);
         }
 
         throw new JwsUnsupportedAlgorithmException(String.format("Currently we support only symmetric signing algorithms such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.HS256, algorithm.name()));
     }
 
-    private JwtReader macVerifyingReader(String sharedSecret)
+    private JwtReader macVerifyingReader(String sharedSecret, SigningAlgorithm algorithm)
     {
-        return new NimbusMacJwtReader(sharedSecret, jwtConfiguration);
+        return new NimbusMacJwtReader(sharedSecret, JWSAlgorithm.parse(algorithm.name()), jwtConfiguration);
     }
 
     private String validateIssuer(SimpleUnverifiedJwt unverifiedJwt) throws JwtUnknownIssuerException
@@ -74,9 +76,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
     {
         private final String algorithm;
 
-        public SimpleUnverifiedJwt(String algorithm, String iss, String sub, String payload)
+        public SimpleUnverifiedJwt(String algorithm, String iss, String sub, String qsg, String payload)
         {
-            super(iss, sub, payload);
+            super(iss, sub, qsg, payload);
             this.algorithm = algorithm;
         }
 
@@ -94,7 +96,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
             try
             {
                 JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-                return new SimpleUnverifiedJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), jwsObject.getPayload().toString());
+                Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_SIGNATURE);
+                String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
+                return new SimpleUnverifiedJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), querySignature, jwsObject.getPayload().toString());
             }
             catch (ParseException e)
             {

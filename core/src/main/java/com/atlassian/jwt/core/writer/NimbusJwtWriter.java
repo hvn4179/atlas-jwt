@@ -27,11 +27,30 @@ public class NimbusJwtWriter implements JwtWriter
     @Override
     public String jsonToJwt(String json) throws JwtSigningException
     {
+        // Serialise JWS object to compact format
+        return generateJwsObject(json).serialize();
+    }
+
+    @Override
+    public String sign(String signingInput)
+    {
+        try
+        {
+            return signer.sign(new JWSHeader(algorithm), signingInput.getBytes()).toString();
+        }
+        catch (JOSEException e)
+        {
+            throw new JwtSigningException(e);
+        }
+    }
+
+    private JWSObject generateJwsObject(String payload)
+    {
         JWSHeader header = new JWSHeader(algorithm);
         header.setType(new JOSEObjectType(JWT));
 
         // Create JWS object
-        JWSObject jwsObject = new JWSObject(header, new Payload(json));
+        JWSObject jwsObject = new JWSObject(header, new Payload(payload));
 
         try
         {
@@ -41,8 +60,6 @@ public class NimbusJwtWriter implements JwtWriter
         {
             throw new JwtSigningException(e);
         }
-
-        // Serialise JWS object to compact format
-        return jwsObject.serialize();
+        return jwsObject;
     }
 }

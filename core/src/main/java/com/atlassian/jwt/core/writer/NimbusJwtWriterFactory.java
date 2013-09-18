@@ -6,7 +6,7 @@ import com.atlassian.jwt.writer.JwtWriterFactory;
 import com.nimbusds.jose.crypto.MACSigner;
 
 /**
- *
+ * Factory for {@link JwtWriter} implementations that use the "Nimbus JOSE+JWT" library.
  */
 public class NimbusJwtWriterFactory implements JwtWriterFactory
 {
