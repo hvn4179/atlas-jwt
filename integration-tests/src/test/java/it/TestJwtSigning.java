@@ -30,6 +30,7 @@ public class TestJwtSigning extends AbstractPeerTest
     public JwtPeerRegistration lifecycle = new JwtPeerRegistration(peer, this);
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testRequestSignedWithJwtHs256() throws Exception
     {
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(peer.getSecretStore().getSecret()));
