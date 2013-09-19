@@ -21,13 +21,13 @@ public class JwtUtilTest
     @Test
     public void computeCorrectCanonicalizedQueryFromHttpServletRequest() throws IOException
     {
-        assertThat(CanonicalHttpRequests.from(createHttpServletRequest()).canonicalize(), is(expectedWhenThereIsNoContextPath()));
+        assertThat(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(createHttpServletRequest())), is(expectedWhenThereIsNoContextPath()));
     }
 
     @Test
     public void computeCorrectCanonicalizedQueryFromHttpUriRequest() throws IOException
     {
-        assertThat(CanonicalHttpRequests.from(createHttpUriRequest(), "").canonicalize(), is(expectedWhenThereIsNoContextPath()));
+        assertThat(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(createHttpUriRequest(), "")), is(expectedWhenThereIsNoContextPath()));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class JwtUtilTest
 
         HttpServletRequest request = createHttpServletRequest();
         when(request.getContextPath()).thenReturn(contextPath);
-        assertThat(CanonicalHttpRequests.from(request).canonicalize(), is(expected));
+        assertThat(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(request)), is(expected));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class JwtUtilTest
         String expected = createExpectedCanonicalRequestString(contextPath);
 
         HttpUriRequest request = createHttpUriRequest();
-        assertThat(CanonicalHttpRequests.from(request, contextPath).canonicalize(), is(expected));
+        assertThat(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(request, contextPath)), is(expected));
     }
 
     @Test

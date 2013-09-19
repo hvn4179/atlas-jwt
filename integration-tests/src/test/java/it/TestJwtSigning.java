@@ -34,7 +34,7 @@ public class TestJwtSigning extends AbstractPeerTest
     {
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(peer.getSecretStore().getSecret()));
         String targetUri = "/verify";
-        String querySignature = jwtWriter.sign(CanonicalHttpRequests.from(new HttpPost(targetUri), "").canonicalize());
+        String querySignature = jwtWriter.sign(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(new HttpPost(targetUri), "")));
         String clientId = peer.getSecretStore().getClientId();
         JSONObject json = new JSONObject(ImmutableMap.builder()
                 .put("iat", TimeUtil.currentTimeSeconds())

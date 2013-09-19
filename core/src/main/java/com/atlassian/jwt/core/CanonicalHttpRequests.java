@@ -25,17 +25,9 @@ public class CanonicalHttpRequests
      */
     private static final char CANONICAL_REQUEST_PART_SEPARATOR = '&';
 
-    private static interface ComposableCanonicalHttpRequest extends CanonicalHttpRequest
-    {
-        public String getMethod();
-        public String getUri();
-        public String getContextPath();
-        public Map<String, String[]> getParameterMap();
-    }
-
     public static CanonicalHttpRequest from(final HttpServletRequest request)
     {
-        return new ComposableCanonicalHttpRequest()
+        return new CanonicalHttpRequest()
         {
             @Override
             public String getMethod()
@@ -60,18 +52,12 @@ public class CanonicalHttpRequests
             {
                 return request.getParameterMap();
             }
-
-            @Override
-            public String canonicalize() throws UnsupportedEncodingException
-            {
-                return CanonicalHttpRequests.canonicalize(this);
-            }
         };
     }
 
     public static CanonicalHttpRequest from(final HttpUriRequest request, final String contextPath)
     {
-        return new ComposableCanonicalHttpRequest()
+        return new CanonicalHttpRequest()
         {
             @Override
             public String getMethod()
@@ -116,16 +102,16 @@ public class CanonicalHttpRequests
 
                 return queryParamsMap;
             }
-
-            @Override
-            public String canonicalize() throws UnsupportedEncodingException
-            {
-                return CanonicalHttpRequests.canonicalize(this);
-            }
         };
     }
 
-    private static String canonicalize(ComposableCanonicalHttpRequest request) throws UnsupportedEncodingException
+    /**
+     * Assemble the components of the HTTP request into the correct format so that they can be signed or hashed.
+     * @param request {@link CanonicalHttpRequest} that provides the necessary components
+     * @return {@link String} encoding the canonical form of this request as required for constructing {@link JwtConstants.Claims}#QUERY_SIGNATURE values
+     * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
+     */
+    public static String canonicalize(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
         return new StringBuilder()
                 .append(canonicalizeMethod(request))
@@ -136,18 +122,18 @@ public class CanonicalHttpRequests
                 .toString();
     }
 
-    private static String canonicalizeUri(ComposableCanonicalHttpRequest request)
+    private static String canonicalizeUri(CanonicalHttpRequest request)
     {
         String contextPathToRemove = null == request.getContextPath() || "/".equals(request.getContextPath()) ? "" : request.getContextPath();
         return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getUri(), contextPathToRemove), "/"), "/");
     }
 
-    private static String canonicalizeMethod(ComposableCanonicalHttpRequest request)
+    private static String canonicalizeMethod(CanonicalHttpRequest request)
     {
         return StringUtils.upperCase(request.getMethod());
     }
 
-    private static String canonicalizeQueryParameters(ComposableCanonicalHttpRequest request) throws UnsupportedEncodingException
+    private static String canonicalizeQueryParameters(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
         String result = "";
 
