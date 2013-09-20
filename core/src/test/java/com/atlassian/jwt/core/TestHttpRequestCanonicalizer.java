@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class TestCanonicalHttpRequests
+public class TestHttpRequestCanonicalizer
 {
     @Test
     public void computeCorrectCanonicalizedQuery() throws UnsupportedEncodingException
