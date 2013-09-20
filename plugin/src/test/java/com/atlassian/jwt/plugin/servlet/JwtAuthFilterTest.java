@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @Ignore // FIXME
