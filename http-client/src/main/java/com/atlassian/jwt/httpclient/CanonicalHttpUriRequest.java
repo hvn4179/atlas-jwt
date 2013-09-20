@@ -15,11 +15,13 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
 {
     private final HttpUriRequest request;
     private final String contextPath;
+    private final Map<String, String[]> parameterMap;
 
     public CanonicalHttpUriRequest(final HttpUriRequest request, final String contextPath)
     {
         this.request = request;
         this.contextPath = contextPath;
+        this.parameterMap = constructParameterMap(request);
     }
 
     @Override
@@ -42,6 +44,11 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
 
     @Override
     public Map<String, String[]> getParameterMap()
+    {
+        return parameterMap;
+    }
+
+    private static Map<String, String[]> constructParameterMap(HttpUriRequest request)
     {
         List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
         Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParams.size());
