@@ -4,7 +4,7 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtService;
-import com.atlassian.jwt.core.CanonicalHttpRequests;
+import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtParseException;
@@ -90,7 +90,7 @@ public class JwtAuthenticator implements Authenticator
 
     private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, CanonicalHttpRequests.canonicalize(new CanonicalHttpServletRequest(request)));
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, HttpRequestCanonicalizer.canonicalize(new CanonicalHttpServletRequest(request)));
         return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
     }
 

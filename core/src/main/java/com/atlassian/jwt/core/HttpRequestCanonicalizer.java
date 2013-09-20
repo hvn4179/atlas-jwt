@@ -4,14 +4,13 @@ import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
 import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-public class CanonicalHttpRequests
+public class HttpRequestCanonicalizer
 {
     /**
      * The character between "a" and "b%20c" in "some_param=a,b%20c"

@@ -16,31 +16,31 @@ public class TestCanonicalHttpRequests
     @Test
     public void computeCorrectCanonicalizedQuery() throws UnsupportedEncodingException
     {
-        assertThat(CanonicalHttpRequests.canonicalize(REQUEST), is(EXPECTED));
+        assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST), is(EXPECTED));
     }
 
     @Test
     public void computeCorrectCanonicalQueryWhenThereIsNoContextPath() throws UnsupportedEncodingException
     {
-        assertThat(CanonicalHttpRequests.canonicalize(REQUEST_WITH_NO_CONTEXT_PATH), is(EXPECTED_WHEN_THERE_IS_NO_CONTEXT_PATH));
+        assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST_WITH_NO_CONTEXT_PATH), is(EXPECTED_WHEN_THERE_IS_NO_CONTEXT_PATH));
     }
 
     @Test
     public void computeCorrectCanonicalizedQueryWhenThereAreRepeatedParameters() throws UnsupportedEncodingException
     {
-        assertThat(CanonicalHttpRequests.canonicalize(REQUEST_WITH_REPEATED_PARAMS), is(EXPECTED_WHEN_THERE_ARE_REPEATED_PARAMS));
+        assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST_WITH_REPEATED_PARAMS), is(EXPECTED_WHEN_THERE_ARE_REPEATED_PARAMS));
     }
 
     @Test
     public void computeCorrectCanonicalizedQueryWhenThereAreNoParameters() throws UnsupportedEncodingException
     {
-        assertThat(CanonicalHttpRequests.canonicalize(REQUEST_WITH_NO_PARAMS), is(EXPECTED_WHEN_THERE_ARE_NO_PARAMS));
+        assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST_WITH_NO_PARAMS), is(EXPECTED_WHEN_THERE_ARE_NO_PARAMS));
     }
 
     @Test
     public void computeCorrectCanonicalizedQueryWhenThereAreManyParameters() throws UnsupportedEncodingException
     {
-        assertThat(CanonicalHttpRequests.canonicalize(REQUEST_WITH_MANY_PARAMS), is(EXPECTED_WHEN_THERE_ARE_MANY_PARAMS));
+        assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST_WITH_MANY_PARAMS), is(EXPECTED_WHEN_THERE_ARE_MANY_PARAMS));
     }
 
     private final static String EXPECTED = "GET&/and/more&foo=bah";
