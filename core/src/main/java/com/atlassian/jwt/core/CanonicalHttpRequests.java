@@ -2,10 +2,7 @@ package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpUriRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
@@ -24,86 +21,6 @@ public class CanonicalHttpRequests
      * For separating the method, URI etc in a canonical request string.
      */
     private static final char CANONICAL_REQUEST_PART_SEPARATOR = '&';
-
-    public static CanonicalHttpRequest from(final HttpServletRequest request)
-    {
-        return new CanonicalHttpRequest()
-        {
-            @Override
-            public String getMethod()
-            {
-                return request.getMethod();
-            }
-
-            @Override
-            public String getUri()
-            {
-                return request.getRequestURI();
-            }
-
-            @Override
-            public String getContextPath()
-            {
-                return request.getContextPath();
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap()
-            {
-                return request.getParameterMap();
-            }
-        };
-    }
-
-    public static CanonicalHttpRequest from(final HttpUriRequest request, final String contextPath)
-    {
-        return new CanonicalHttpRequest()
-        {
-            @Override
-            public String getMethod()
-            {
-                return request.getMethod();
-            }
-
-            @Override
-            public String getUri()
-            {
-                return request.getURI().getPath();
-            }
-
-            @Override
-            public String getContextPath()
-            {
-                return contextPath;
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap()
-            {
-                List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
-                Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParams.size());
-
-                for (NameValuePair nameValuePair : queryParams)
-                {
-                    String values[] = queryParamsMap.get(nameValuePair.getName());
-
-                    if (null == values)
-                    {
-                        values = new String[]{ nameValuePair.getValue() };
-                    }
-                    else
-                    {
-                        values = Arrays.copyOf(values, values.length + 1);
-                        values[values.length-1] = nameValuePair.getValue();
-                    }
-
-                    queryParamsMap.put(nameValuePair.getName(), values);
-                }
-
-                return queryParamsMap;
-            }
-        };
-    }
 
     /**
      * Assemble the components of the HTTP request into the correct format so that they can be signed or hashed.

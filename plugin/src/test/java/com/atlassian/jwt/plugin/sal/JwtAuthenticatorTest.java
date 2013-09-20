@@ -15,6 +15,7 @@ import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.sal.api.auth.AuthenticationController;
@@ -323,7 +324,7 @@ public class JwtAuthenticatorTest
     private String createValidJwt() throws IOException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(request))));
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(CanonicalHttpRequests.canonicalize(new CanonicalHttpServletRequest(request))));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }

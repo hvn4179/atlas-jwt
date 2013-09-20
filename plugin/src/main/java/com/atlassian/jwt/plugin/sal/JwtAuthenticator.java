@@ -10,6 +10,7 @@ import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
@@ -89,7 +90,7 @@ public class JwtAuthenticator implements Authenticator
 
     private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(request)));
+        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, CanonicalHttpRequests.canonicalize(new CanonicalHttpServletRequest(request)));
         return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
     }
 

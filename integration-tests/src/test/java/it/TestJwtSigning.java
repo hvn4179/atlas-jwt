@@ -5,6 +5,7 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.CanonicalHttpRequests;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
+import com.atlassian.jwt.httpclient.CanonicalHttpUriRequest;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
 import com.atlassian.jwt.writer.JwtWriter;
@@ -35,7 +36,7 @@ public class TestJwtSigning extends AbstractPeerTest
     {
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(peer.getSecretStore().getSecret()));
         String targetUri = "/verify";
-        String querySignature = jwtWriter.sign(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(new HttpPost(targetUri), "")));
+        String querySignature = jwtWriter.sign(CanonicalHttpRequests.canonicalize(new CanonicalHttpUriRequest(new HttpPost(targetUri), "")));
         String clientId = peer.getSecretStore().getClientId();
         JSONObject json = new JSONObject(ImmutableMap.builder()
                 .put("iat", TimeUtil.currentTimeSeconds())

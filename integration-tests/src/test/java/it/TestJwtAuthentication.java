@@ -6,6 +6,7 @@ import com.atlassian.jwt.core.CanonicalHttpRequests;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
+import com.atlassian.jwt.httpclient.CanonicalHttpUriRequest;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
@@ -66,6 +67,6 @@ public class TestJwtAuthentication extends AbstractPeerTest
                     .subject("admin")
                     .issuedAt(TimeUtil.currentTimeSeconds())
                     .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
-                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(CanonicalHttpRequests.canonicalize(CanonicalHttpRequests.from(new HttpGet(url), getContextPath()))));
+                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(CanonicalHttpRequests.canonicalize(new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()))));
     }
 }
