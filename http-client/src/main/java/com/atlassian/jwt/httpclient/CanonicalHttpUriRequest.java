@@ -30,7 +30,7 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
     }
 
     @Override
-    public String getUri()
+    public String getRelativeUri()
     {
         return request.getURI().getPath();
     }

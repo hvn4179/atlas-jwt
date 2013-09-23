@@ -21,7 +21,7 @@ public class CanonicalHttpServletRequest implements CanonicalHttpRequest
     }
 
     @Override
-    public String getUri()
+    public String getRelativeUri()
     {
         return request.getRequestURI();
     }

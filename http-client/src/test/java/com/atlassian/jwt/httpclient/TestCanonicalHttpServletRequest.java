@@ -26,7 +26,7 @@ public class TestCanonicalHttpServletRequest
     @Test
     public void testUri()
     {
-        assertThat(request.getUri(), is(RELATIVE_URI));
+        assertThat(request.getRelativeUri(), is(RELATIVE_URI));
     }
 
     @Test
