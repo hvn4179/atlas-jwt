@@ -16,11 +16,4 @@ public interface JwtWriter
      * @throws JwtSigningException if there was a problem signing the payload
      */
     String jsonToJwt(String json) throws JwtSigningException;
-
-    /**
-     * Generate the third part of a JWT string (i.e. the signature in <encoded header>.<encoded claims>.signature)
-     * @param signingInput the finalized input (usually <encoded header>.<encoded claims>)
-     * @return the signature
-     */
-    String sign(String signingInput);
 }

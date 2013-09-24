@@ -9,9 +9,8 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.exception.*;
-import com.atlassian.jwt.reader.JwtReader;
+import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.jwt.writer.JwtWriterFactory;
@@ -41,10 +40,9 @@ public class ApplinksJwtService implements JwtService
     }
 
     @Override
-    public ApplinkJwt verifyJwt(String jwt, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+    public ApplinkJwt verifyJwt(String jwt, Map<String, JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
-        JwtReader reader = jwtReaderFactory.getReader(jwt);
-        Jwt verifiedJwt = reader.read(jwt, JwtClaimVerifiersBuilder.buildNameToVerifierMap(signedClaimSigningInputs, reader));
+        Jwt verifiedJwt = jwtReaderFactory.getReader(jwt).read(jwt, claimVerifiers);
         ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(verifiedJwt.getIssuer()));
         return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }

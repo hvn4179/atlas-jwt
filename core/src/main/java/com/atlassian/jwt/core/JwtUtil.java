@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 
 public class JwtUtil
@@ -76,5 +78,33 @@ public class JwtUtil
                 .replace("+", "%20")
                 .replace("*", "%2A")
                 .replace("%7E", "~");
+    }
+
+    /**
+     * Compute the SHA-256 hash of hashInput.
+     * E.g. The SHA-256 has of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
+     * @param hashInput {@link String} to be hashed.
+     * @return {@link String} hash.
+     */
+    public static String computeSha256Hash(String hashInput) throws NoSuchAlgorithmException
+    {
+        if (null == hashInput)
+        {
+            throw new IllegalArgumentException("hashInput cannot be null");
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashInputBytes = hashInput.getBytes();
+        digest.update(hashInputBytes, 0, hashInputBytes.length);
+        byte[] digestBytes = digest.digest();
+
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < digestBytes.length; i++)
+        {
+            sb.append(Integer.toString((digestBytes[i] & 0xff) + 0x100, 16).substring(1)); // each character is in the 0-9 or a-f ranges
+        }
+
+        return sb.toString();
     }
 }

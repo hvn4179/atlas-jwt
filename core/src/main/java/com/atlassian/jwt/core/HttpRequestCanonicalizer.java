@@ -24,7 +24,7 @@ public class HttpRequestCanonicalizer
     /**
      * Assemble the components of the HTTP request into the correct format so that they can be signed or hashed.
      * @param request {@link CanonicalHttpRequest} that provides the necessary components
-     * @return {@link String} encoding the canonical form of this request as required for constructing {@link JwtConstants.Claims}#QUERY_SIGNATURE values
+     * @return {@link String} encoding the canonical form of this request as required for constructing {@link JwtConstants.Claims#QUERY_HASH} values
      * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
      */
     public static String canonicalize(CanonicalHttpRequest request) throws UnsupportedEncodingException

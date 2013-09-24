@@ -12,13 +12,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
 
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
-import static org.mockito.Mockito.when;
-
 import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest
@@ -171,74 +171,73 @@ public class NimbusJwtReaderTest
     @Test
     public void correctlySupplyingRequiredClaimsResultsInNoVerificationExceptions() throws JwtParseException, JwtVerificationException
     {
+        String claimName = "expectedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
-                "expectedClaim", "requiredValue",
+                claimName, "requiredValue",
                 "iss", "joe"
         );
-        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
+        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, (JwtClaimVerifier) new JwtClaimEqualityVerifier(claimName, "requiredValue"));
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
     public void omittingARequiredClaimResultsInAVerificationException() throws JwtParseException, JwtVerificationException
     {
+        String claimName = "expectedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
                 // missing "expectedClaim"
                 "iss", "joe"
         );
-        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
+        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, (JwtClaimVerifier) new JwtClaimEqualityVerifier(claimName, "requiredValue"));
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test(expected = JwtInvalidClaimException.class)
     public void anInCorrectValueForARequiredClaimResultsInAVerificationException() throws JwtParseException, JwtVerificationException
     {
+        String claimName = "expectedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
-                "expectedClaim", "totally wrong value",
+                claimName, "totally wrong value",
                 "iss", "joe"
         );
-        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap("expectedClaim", (JwtClaimVerifier) new JwtClaimEqualityVerifier("requiredValue"));
+        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, (JwtClaimVerifier) new JwtClaimEqualityVerifier(claimName, "requiredValue"));
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
     @Test
-    public void signedClaimVerifierVerifiesItsCorrectlySignedClaim() throws JwtParseException, JwtVerificationException
+    public void signedClaimVerifierVerifiesItsCorrectlyHashedClaim() throws JwtParseException, JwtVerificationException, NoSuchAlgorithmException
     {
         JwtReader reader = createNimbusHmac256JwtReader();
-        String signingInput = "signing input";
-        String claimName = "expectedSignedClaim";
-        JwtClaimVerifier signedClaimVerifier = reader.createSignedClaimVerifier(signingInput, claimName);
+        String hashInput = "foo";
+        String claimName = "expectedHashedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
-                claimName, signer.signHmac256(signingInput),
+                claimName, "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae",
                 "iss", "joe"
         );
-        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, signedClaimVerifier);
-        reader.read(jwt, requiredClaims);
+        reader.read(jwt, Collections.singletonMap(claimName, new JwtClaimEqualityVerifier(claimName, JwtUtil.computeSha256Hash(hashInput))));
     }
 
-    @Test(expected = JwtSignatureMismatchException.class)
-    public void signedClaimVerifierRejectsAnIncorrectlySignedClaim() throws JwtParseException, JwtVerificationException
+    @Test(expected = JwtInvalidClaimException.class)
+    public void signedClaimVerifierRejectsAnIncorrectlySignedClaim() throws JwtParseException, JwtVerificationException, NoSuchAlgorithmException
     {
         JwtReader reader = createNimbusHmac256JwtReader();
-        String signingInput = "signing input";
-        String claimName = "expectedSignedClaim";
-        JwtClaimVerifier signedClaimVerifier = reader.createSignedClaimVerifier(signingInput, claimName);
+        String hashInput = "hash input";
+        String claimName = "expectedHashedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(
                 "exp", TIMESTAMP,
                 "iat", TEN_MINS_EARLIER,
-                claimName, "bad signature",
+                claimName, "bad hash",
                 "iss", "joe"
         );
-        Map<String, JwtClaimVerifier> requiredClaims = Collections.singletonMap(claimName, signedClaimVerifier);
-        reader.read(jwt, requiredClaims);
+        reader.read(jwt, Collections.singletonMap(claimName, new JwtClaimEqualityVerifier(claimName, JwtUtil.computeSha256Hash(hashInput))));
     }
 
     private JwtReader createNimbusHmac256JwtReader()

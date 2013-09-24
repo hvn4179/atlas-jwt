@@ -11,7 +11,6 @@ import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.reader.JwtReaderFactory;
-import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -44,15 +43,15 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
 
         if (algorithm.requiresSharedSecret())
         {
-            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer), algorithm);
+            return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer));
         }
 
         throw new JwsUnsupportedAlgorithmException(String.format("Currently we support only symmetric signing algorithms such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.HS256, algorithm.name()));
     }
 
-    private JwtReader macVerifyingReader(String sharedSecret, SigningAlgorithm algorithm)
+    private JwtReader macVerifyingReader(String sharedSecret)
     {
-        return new NimbusMacJwtReader(sharedSecret, JWSAlgorithm.parse(algorithm.name()), jwtConfiguration);
+        return new NimbusMacJwtReader(sharedSecret, jwtConfiguration);
     }
 
     private String validateIssuer(SimpleUnverifiedJwt unverifiedJwt) throws JwtUnknownIssuerException
@@ -96,7 +95,7 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
             try
             {
                 JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-                Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_SIGNATURE);
+                Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_HASH);
                 String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
                 return new SimpleUnverifiedJwt(jwsObject.getHeader().getAlgorithm().getName(), claims.getIssuer(), claims.getSubject(), querySignature, jwsObject.getPayload().toString());
             }
