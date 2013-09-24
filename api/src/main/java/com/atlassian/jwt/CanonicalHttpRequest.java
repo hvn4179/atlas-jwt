@@ -16,8 +16,8 @@ public interface CanonicalHttpRequest
     public String getMethod();
 
     /**
-     * The part of an absolute URL that is after the protocol, server, port and context path.
-     * E.g. "/the_uri" in "http://server:80/context/the_uri?param=value".
+     * The part of an absolute URL that is after the protocol, server and port but including the context path.
+     * E.g. "/context/the_uri" in "http://server:80/context/the_uri?param=value".
      * @return the relative URI with no case manipulation.
      */
     public String getRelativeUri();
