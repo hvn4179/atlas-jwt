@@ -11,7 +11,7 @@ import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
-import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
+import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
@@ -103,7 +103,7 @@ public class JwtAuthenticatorTest
         @Override
         public ApplinkJwt verifyJwt(final String jwtString, Map<String, JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            final Jwt jwt = new NimbusHmac256JwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
+            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
 
             return new ApplinkJwt()
             {

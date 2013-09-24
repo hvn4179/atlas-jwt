@@ -122,7 +122,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader("wrong secret", jwtConfiguration, CLOCK).read(jwt, NO_REQUIRED_CLAIMS);
+        new NimbusMacJwtReader("wrong secret", jwtConfiguration, CLOCK).read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtExpiredException.class)
@@ -134,7 +134,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).read(jwt, NO_REQUIRED_CLAIMS);
+        new NimbusMacJwtReader(SECRET_KEY, jwtConfiguration, new StaticClock(TIMESTAMP_MS + 1)).read(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtParseException.class)
@@ -242,6 +242,6 @@ public class NimbusJwtReaderTest
 
     private JwtReader createNimbusHmac256JwtReader()
     {
-        return new NimbusHmac256JwtReader(SECRET_KEY, jwtConfiguration, CLOCK);
+        return new NimbusMacJwtReader(SECRET_KEY, jwtConfiguration, CLOCK);
     }
 }
