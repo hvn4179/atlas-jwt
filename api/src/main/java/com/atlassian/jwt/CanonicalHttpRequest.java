@@ -20,7 +20,7 @@ public interface CanonicalHttpRequest
      * E.g. "/context/the_uri" in "http://server:80/context/the_uri?param=value".
      * @return the relative URI with no case manipulation.
      */
-    public String getRelativeUri();
+    public String getResourcePath();
 
     /**
      * The part of an absolute URL that has been added by a reverse proxy, or "/" if no such redirection has occurred.

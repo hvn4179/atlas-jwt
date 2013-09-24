@@ -58,7 +58,7 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getRelativeUri()
+        public String getResourcePath()
         {
             return "/context/and/more/";
         }
@@ -85,7 +85,7 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getRelativeUri()
+        public String getResourcePath()
         {
             return "/simple";
         }
@@ -112,7 +112,7 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getRelativeUri()
+        public String getResourcePath()
         {
             return "/simple";
         }
@@ -139,7 +139,7 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getRelativeUri()
+        public String getResourcePath()
         {
             return "/simple";
         }
@@ -166,7 +166,7 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getRelativeUri()
+        public String getResourcePath()
         {
             return "/context/and/more/";
         }

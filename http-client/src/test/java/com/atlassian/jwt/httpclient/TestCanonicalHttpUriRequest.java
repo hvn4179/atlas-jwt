@@ -32,7 +32,7 @@ public class TestCanonicalHttpUriRequest
     @Test
     public void testUri()
     {
-        assertThat(request.getRelativeUri(), is(RELATIVE_URI));
+        assertThat(request.getResourcePath(), is(RELATIVE_URI));
     }
 
     @Test

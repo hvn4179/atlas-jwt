@@ -41,7 +41,7 @@ public class HttpRequestCanonicalizer
     private static String canonicalizeUri(CanonicalHttpRequest request)
     {
         String contextPathToRemove = null == request.getContextPath() || "/".equals(request.getContextPath()) ? "" : request.getContextPath();
-        return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getRelativeUri(), contextPathToRemove), "/"), "/");
+        return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getResourcePath(), contextPathToRemove), "/"), "/");
     }
 
     private static String canonicalizeMethod(CanonicalHttpRequest request)
