@@ -8,13 +8,14 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.core.CanonicalHttpRequests;
+import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.jwt.reader.JwtReader;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.sal.api.auth.AuthenticationController;
@@ -41,7 +42,6 @@ import java.util.StringTokenizer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -324,7 +324,7 @@ public class JwtAuthenticatorTest
     private String createValidJwt() throws IOException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(CanonicalHttpRequests.from(request).canonicalize()));
+        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpServletRequest(request))));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }

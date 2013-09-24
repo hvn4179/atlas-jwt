@@ -2,19 +2,15 @@ package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpUriRequest;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-public class CanonicalHttpRequests
+public class HttpRequestCanonicalizer
 {
     /**
      * The character between "a" and "b%20c" in "some_param=a,b%20c"
@@ -25,107 +21,13 @@ public class CanonicalHttpRequests
      */
     private static final char CANONICAL_REQUEST_PART_SEPARATOR = '&';
 
-    private static interface ComposableCanonicalHttpRequest extends CanonicalHttpRequest
-    {
-        public String getMethod();
-        public String getUri();
-        public String getContextPath();
-        public Map<String, String[]> getParameterMap();
-    }
-
-    public static CanonicalHttpRequest from(final HttpServletRequest request)
-    {
-        return new ComposableCanonicalHttpRequest()
-        {
-            @Override
-            public String getMethod()
-            {
-                return request.getMethod();
-            }
-
-            @Override
-            public String getUri()
-            {
-                return request.getRequestURI();
-            }
-
-            @Override
-            public String getContextPath()
-            {
-                return request.getContextPath();
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap()
-            {
-                return request.getParameterMap();
-            }
-
-            @Override
-            public String canonicalize() throws UnsupportedEncodingException
-            {
-                return CanonicalHttpRequests.canonicalize(this);
-            }
-        };
-    }
-
-    public static CanonicalHttpRequest from(final HttpUriRequest request, final String contextPath)
-    {
-        return new ComposableCanonicalHttpRequest()
-        {
-            @Override
-            public String getMethod()
-            {
-                return request.getMethod();
-            }
-
-            @Override
-            public String getUri()
-            {
-                return request.getURI().getPath();
-            }
-
-            @Override
-            public String getContextPath()
-            {
-                return contextPath;
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap()
-            {
-                List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
-                Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParams.size());
-
-                for (NameValuePair nameValuePair : queryParams)
-                {
-                    String values[] = queryParamsMap.get(nameValuePair.getName());
-
-                    if (null == values)
-                    {
-                        values = new String[]{ nameValuePair.getValue() };
-                    }
-                    else
-                    {
-                        values = Arrays.copyOf(values, values.length + 1);
-                        values[values.length-1] = nameValuePair.getValue();
-                    }
-
-                    queryParamsMap.put(nameValuePair.getName(), values);
-                }
-
-                return queryParamsMap;
-            }
-
-            @Override
-            public String canonicalize() throws UnsupportedEncodingException
-            {
-                return CanonicalHttpRequests.canonicalize(this);
-            }
-        };
-    }
-
-    private static String canonicalize(ComposableCanonicalHttpRequest request) throws UnsupportedEncodingException
+    /**
+     * Assemble the components of the HTTP request into the correct format so that they can be signed or hashed.
+     * @param request {@link CanonicalHttpRequest} that provides the necessary components
+     * @return {@link String} encoding the canonical form of this request as required for constructing {@link JwtConstants.Claims}#QUERY_SIGNATURE values
+     * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
+     */
+    public static String canonicalize(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
         return new StringBuilder()
                 .append(canonicalizeMethod(request))
@@ -136,18 +38,18 @@ public class CanonicalHttpRequests
                 .toString();
     }
 
-    private static String canonicalizeUri(ComposableCanonicalHttpRequest request)
+    private static String canonicalizeUri(CanonicalHttpRequest request)
     {
-        String contextPathToRemove = null == request.getContextPath() || "/".equals(request.getContextPath()) ? "" : request.getContextPath();
-        return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getUri(), contextPathToRemove), "/"), "/");
+        String path = StringUtils.defaultIfBlank(StringUtils.removeEnd(request.getRelativePath(), "/"), "/");
+        return path.startsWith("/") ? path : "/" + path;
     }
 
-    private static String canonicalizeMethod(ComposableCanonicalHttpRequest request)
+    private static String canonicalizeMethod(CanonicalHttpRequest request)
     {
         return StringUtils.upperCase(request.getMethod());
     }
 
-    private static String canonicalizeQueryParameters(ComposableCanonicalHttpRequest request) throws UnsupportedEncodingException
+    private static String canonicalizeQueryParameters(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
         String result = "";
 
@@ -260,7 +162,9 @@ public class CanonicalHttpRequests
         {
             this.parameter = parameter;
             String name = safeToString(parameter.getKey());
-            String value = StringUtils.join(parameter.getValue(), ',');
+            List<String> sortedValues = Arrays.asList(parameter.getValue());
+            Collections.sort(sortedValues);
+            String value = StringUtils.join(sortedValues, ',');
             this.key = JwtUtil.percentEncode(name) + ' ' + JwtUtil.percentEncode(value);
             // ' ' is used because it comes before any character
             // that can appear in a percentEncoded string.
