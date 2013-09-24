@@ -40,8 +40,8 @@ public class HttpRequestCanonicalizer
 
     private static String canonicalizeUri(CanonicalHttpRequest request)
     {
-        String contextPathToRemove = null == request.getContextPath() || "/".equals(request.getContextPath()) ? "" : request.getContextPath();
-        return StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getResourcePath(), contextPathToRemove), "/"), "/");
+        String path = StringUtils.defaultIfBlank(StringUtils.removeEnd(request.getRelativePath(), "/"), "/");
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     private static String canonicalizeMethod(CanonicalHttpRequest request)
@@ -162,7 +162,9 @@ public class HttpRequestCanonicalizer
         {
             this.parameter = parameter;
             String name = safeToString(parameter.getKey());
-            String value = StringUtils.join(parameter.getValue(), ',');
+            List<String> sortedValues = Arrays.asList(parameter.getValue());
+            Collections.sort(sortedValues);
+            String value = StringUtils.join(sortedValues, ',');
             this.key = JwtUtil.percentEncode(name) + ' ' + JwtUtil.percentEncode(value);
             // ' ' is used because it comes before any character
             // that can appear in a percentEncoded string.

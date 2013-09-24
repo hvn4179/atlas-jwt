@@ -6,39 +6,38 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CanonicalHttpUriRequest implements CanonicalHttpRequest
 {
-    private final HttpUriRequest request;
-    private final String contextPath;
+    private final String method;
+    private final String relativePath;
     private final Map<String, String[]> parameterMap;
 
     public CanonicalHttpUriRequest(final HttpUriRequest request, final String contextPath)
     {
-        this.request = request;
-        this.contextPath = contextPath;
+        this.method = request.getMethod();
+        String contextPathToRemove = null == contextPath || "/".equals(contextPath) ? "" : contextPath;
+        this.relativePath = StringUtils.defaultIfBlank(StringUtils.removeEnd(StringUtils.removeStart(request.getURI().getPath(), contextPathToRemove), "/"), "/");
         this.parameterMap = constructParameterMap(request);
     }
 
     @Override
     public String getMethod()
     {
-        return request.getMethod();
+        return method;
     }
 
     @Override
-    public String getResourcePath()
+    public String getRelativePath()
     {
-        return request.getURI().getPath();
-    }
-
-    @Override
-    public String getContextPath()
-    {
-        return contextPath;
+        return relativePath;
     }
 
     @Override

@@ -30,15 +30,9 @@ public class TestCanonicalHttpUriRequest
     }
 
     @Test
-    public void testUri()
+    public void testRelativePath()
     {
-        assertThat(request.getResourcePath(), is(RELATIVE_URI));
-    }
-
-    @Test
-    public void testContextPath()
-    {
-        assertThat(request.getContextPath(), is(CONTEXT_PATH));
+        assertThat(request.getRelativePath(), is(StringUtils.removeEnd(RESOURCE_PATH.substring(CONTEXT_PATH.length()), "/")));
     }
 
     @Test
@@ -117,7 +111,7 @@ public class TestCanonicalHttpUriRequest
     }
 
     private static final Map<String, String[]> QUERY_PARAMS = createExpectedQueryParameters();
-    private static final String RELATIVE_URI = "/context/path/to/service/";
+    private static final String RESOURCE_PATH = "/context/path/to/service/";
     private static final String CONTEXT_PATH = "/context";
     private static CanonicalHttpRequest request;
 
@@ -146,7 +140,7 @@ public class TestCanonicalHttpUriRequest
             }
         }
 
-        return new HttpGet("http://server:port" + RELATIVE_URI + '?' + JwtUtil.percentEncode(queryParams.toString()));
+        return new HttpGet("http://server:port" + RESOURCE_PATH + '?' + JwtUtil.percentEncode(queryParams.toString()));
     }
 
     private static Map<String, String[]> createExpectedQueryParameters()

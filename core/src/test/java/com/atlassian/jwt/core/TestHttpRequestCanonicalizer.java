@@ -58,15 +58,9 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getResourcePath()
+        public String getRelativePath()
         {
-            return "/context/and/more/";
-        }
-
-        @Override
-        public String getContextPath()
-        {
-            return "/context";
+            return "/and/more";
         }
 
         @Override
@@ -85,15 +79,9 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getResourcePath()
+        public String getRelativePath()
         {
             return "/simple";
-        }
-
-        @Override
-        public String getContextPath()
-        {
-            return "/";
         }
 
         @Override
@@ -112,21 +100,15 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getResourcePath()
+        public String getRelativePath()
         {
             return "/simple";
         }
 
         @Override
-        public String getContextPath()
-        {
-            return "/";
-        }
-
-        @Override
         public Map<String, String[]> getParameterMap()
         {
-            return Collections.singletonMap("bah", new String[]{ "humbug", "bah" });
+            return Collections.singletonMap("foo", new String[]{ "humbug", "bah" });
         }
     };
 
@@ -139,15 +121,9 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getResourcePath()
+        public String getRelativePath()
         {
             return "/simple";
-        }
-
-        @Override
-        public String getContextPath()
-        {
-            return "/";
         }
 
         @Override
@@ -166,22 +142,16 @@ public class TestHttpRequestCanonicalizer
         }
 
         @Override
-        public String getResourcePath()
+        public String getRelativePath()
         {
-            return "/context/and/more/";
-        }
-
-        @Override
-        public String getContextPath()
-        {
-            return "/context";
+            return "/and/more/";
         }
 
         @Override
         public Map<String, String[]> getParameterMap()
         {
             Map<String, String[]> params = new HashMap<String, String[]>();
-            params.put("bah", new String[]{ "humbug", "bah" });
+            params.put("foo", new String[]{ "humbug", "bah" });
             params.put("first", new String[]{ "param1" });
             params.put("last", new String[]{ "param 2", "param 1" });
             return params;

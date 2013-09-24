@@ -16,18 +16,11 @@ public interface CanonicalHttpRequest
     public String getMethod();
 
     /**
-     * The part of an absolute URL that is after the protocol, server and port but including the context path.
-     * E.g. "/context/the_uri" in "http://server:80/context/the_uri?param=value".
-     * @return the relative URI with no case manipulation.
+     * The part of an absolute URL that is after the protocol, server, port and context (i.e. base) path.
+     * E.g. "/the_path" in "http://server:80/context/the_path?param=value" where "/context" is the context path.
+     * @return the relative path with no case manipulation.
      */
-    public String getResourcePath();
-
-    /**
-     * The part of an absolute URL that has been added by a reverse proxy, or "/" if no such redirection has occurred.
-     * E.g. "/context" after "http://subdomain.server:80/the_uri?param=value" was redirected to "http://server:80/context/the_uri?param=value".
-     * @return the context path with no case manipulation.
-     */
-    public String getContextPath();
+    public String getRelativePath();
 
     /**
      * The {@link Map} of parameter-name to parameter-values.

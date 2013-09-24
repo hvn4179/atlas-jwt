@@ -24,15 +24,9 @@ public class TestCanonicalHttpServletRequest
     }
 
     @Test
-    public void testUri()
+    public void testRelativePath()
     {
-        assertThat(request.getResourcePath(), is(RELATIVE_URI));
-    }
-
-    @Test
-    public void testContextPath()
-    {
-        assertThat(request.getContextPath(), is(CONTEXT_PATH));
+        assertThat(request.getRelativePath(), is(RESOURCE_PATH.substring(CONTEXT_PATH.length())));
     }
 
     @Test
@@ -42,7 +36,7 @@ public class TestCanonicalHttpServletRequest
     }
 
     private static final Map<String, String[]> QUERY_PARAMS = createQueryParameters();
-    private static final String RELATIVE_URI = "/context/path/to/service/";
+    private static final String RESOURCE_PATH = "/context/path/to/service/";
     private static final String CONTEXT_PATH = "/context";
     private static CanonicalHttpRequest request;
 
@@ -57,7 +51,7 @@ public class TestCanonicalHttpServletRequest
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
         when(request.getContextPath()).thenReturn(CONTEXT_PATH);
-        when(request.getRequestURI()).thenReturn(RELATIVE_URI);
+        when(request.getRequestURI()).thenReturn(RESOURCE_PATH);
         when(request.getParameterMap()).thenReturn(QUERY_PARAMS);
         return request;
     }

@@ -1,6 +1,7 @@
 package com.atlassian.jwt.httpclient;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -21,15 +22,9 @@ public class CanonicalHttpServletRequest implements CanonicalHttpRequest
     }
 
     @Override
-    public String getResourcePath()
+    public String getRelativePath()
     {
-        return request.getRequestURI();
-    }
-
-    @Override
-    public String getContextPath()
-    {
-        return request.getContextPath();
+        return StringUtils.removeStart(request.getRequestURI(), request.getContextPath());
     }
 
     @Override
