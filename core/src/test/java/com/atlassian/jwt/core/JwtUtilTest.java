@@ -30,4 +30,10 @@ public class JwtUtilTest
         // * http://hash.online-convert.com/sha256-generator
         assertThat(JwtUtil.computeSha256Hash("foo"), is("2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void attemptToHashNullIsRejected() throws NoSuchAlgorithmException
+    {
+        JwtUtil.computeSha256Hash(null);
+    }
 }
