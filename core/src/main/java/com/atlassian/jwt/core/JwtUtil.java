@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.JwtConstants;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -97,15 +98,6 @@ public class JwtUtil
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hashInputBytes = hashInput.getBytes();
         digest.update(hashInputBytes, 0, hashInputBytes.length);
-        byte[] digestBytes = digest.digest();
-
-        StringBuilder sb = new StringBuilder();
-
-        for (byte aByte : digestBytes)
-        {
-            sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1)); // each character is in the 0-9 or a-f ranges
-        }
-
-        return sb.toString();
+        return new String(Hex.encodeHex(digest.digest()));
     }
 }
