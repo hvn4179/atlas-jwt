@@ -23,11 +23,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
-
-import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderFactoryTest
@@ -65,7 +64,7 @@ public class NimbusJwtReaderFactoryTest
     public void readerReturnedForValidJwtCanVerifyThatJwt() throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         String payload = createPayload(VALID_ISSUER);
-        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, null, payload);
+        Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
         assertThat(factory.getReader(jwt).read(jwt, NO_REQUIRED_CLAIMS), is(expected));
     }

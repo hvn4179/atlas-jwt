@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
@@ -100,8 +99,6 @@ public class NimbusJwtReader implements JwtReader
             requiredClaim.getValue().verify(claims.getClaim(requiredClaim.getKey()));
         }
 
-        Object querySignatureClaim = claims.getClaim(JwtConstants.Claims.QUERY_HASH);
-        String querySignature = null == querySignatureClaim ? null : querySignatureClaim.toString();
-        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), querySignature, jsonPayload.toString());
+        return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
     }
 }
