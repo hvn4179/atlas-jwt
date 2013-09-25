@@ -101,7 +101,7 @@ public class JwtAuthenticatorTest
         }
 
         @Override
-        public ApplinkJwt verifyJwt(final String jwtString, Map<String, JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+        public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
             final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
 
@@ -323,7 +323,7 @@ public class JwtAuthenticatorTest
     private String createValidJwt() throws IOException, NoSuchAlgorithmException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_HASH, JwtUtil.computeSha256Hash(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpServletRequest(request))));
+        claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }

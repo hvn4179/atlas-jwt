@@ -210,36 +210,6 @@ public class NimbusJwtReaderTest
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
-    @Test
-    public void signedClaimVerifierVerifiesItsCorrectlyHashedClaim() throws JwtParseException, JwtVerificationException, NoSuchAlgorithmException
-    {
-        JwtReader reader = createNimbusHmac256JwtReader();
-        String hashInput = "foo";
-        String claimName = "expectedHashedClaim";
-        String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
-                "iat", TEN_MINS_EARLIER,
-                claimName, "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae",
-                "iss", "joe"
-        );
-        reader.read(jwt, Collections.singletonMap(claimName, new JwtClaimEqualityVerifier(claimName, JwtUtil.computeSha256Hash(hashInput))));
-    }
-
-    @Test(expected = JwtInvalidClaimException.class)
-    public void signedClaimVerifierRejectsAnIncorrectlySignedClaim() throws JwtParseException, JwtVerificationException, NoSuchAlgorithmException
-    {
-        JwtReader reader = createNimbusHmac256JwtReader();
-        String hashInput = "hash input";
-        String claimName = "expectedHashedClaim";
-        String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
-                "iat", TEN_MINS_EARLIER,
-                claimName, "bad hash",
-                "iss", "joe"
-        );
-        reader.read(jwt, Collections.singletonMap(claimName, new JwtClaimEqualityVerifier(claimName, JwtUtil.computeSha256Hash(hashInput))));
-    }
-
     private JwtReader createNimbusHmac256JwtReader()
     {
         return new NimbusMacJwtReader(SECRET_KEY, jwtConfiguration, CLOCK);

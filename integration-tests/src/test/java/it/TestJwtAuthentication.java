@@ -1,11 +1,9 @@
 package it;
 
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
+import com.atlassian.jwt.core.writer.JwtClaimsBuilder;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.httpclient.CanonicalHttpUriRequest;
 import com.atlassian.jwt.server.JwtPeer;
@@ -64,11 +62,12 @@ public class TestJwtAuthentication extends AbstractPeerTest
 
     private JwtJsonBuilder createJwtJsonBuilder(String url) throws IOException, NoSuchAlgorithmException
     {
-        return new JsonSmartJwtJsonBuilder()
-                    .issuer(peer.getSecretStore().getClientId())
-                    .subject("admin")
-                    .issuedAt(TimeUtil.currentTimeSeconds())
-                    .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
-                    .claim(JwtConstants.Claims.QUERY_HASH, JwtUtil.computeSha256Hash(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()))));
+        JwtJsonBuilder jsonBuilder = new JsonSmartJwtJsonBuilder()
+                .issuer(peer.getSecretStore().getClientId())
+                .subject("admin")
+                .issuedAt(TimeUtil.currentTimeSeconds())
+                .expirationTime(TimeUtil.currentTimePlusNSeconds(60));
+        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()));
+        return jsonBuilder;
     }
 }

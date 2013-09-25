@@ -85,6 +85,7 @@ public class JwtUtil
      * E.g. The SHA-256 has of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
      * @param hashInput {@link String} to be hashed.
      * @return {@link String} hash.
+     * @throws {@link NoSuchAlgorithmException} if the hashing algorithm does not exist at runtime
      */
     public static String computeSha256Hash(String hashInput) throws NoSuchAlgorithmException
     {

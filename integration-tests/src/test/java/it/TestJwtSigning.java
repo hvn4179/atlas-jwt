@@ -1,16 +1,15 @@
 package it;
 
-import com.atlassian.jwt.JwtConstants;
-import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.TimeUtil;
+import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
+import com.atlassian.jwt.core.writer.JwtClaimsBuilder;
 import com.atlassian.jwt.httpclient.CanonicalHttpUriRequest;
 import com.atlassian.jwt.server.JwtPeer;
 import com.atlassian.jwt.util.HttpUtil;
+import com.atlassian.jwt.writer.JwtJsonBuilder;
 import com.google.common.collect.ImmutableMap;
 import it.rule.JwtPeerRegistration;
 import org.apache.http.client.methods.HttpPost;
-import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -32,18 +31,16 @@ public class TestJwtSigning extends AbstractPeerTest
     public void testRequestSignedWithJwtHs256() throws Exception
     {
         String targetUri = "/verify";
-        String querySignature = JwtUtil.computeSha256Hash(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpUriRequest(new HttpPost(targetUri), "")));
         String clientId = peer.getSecretStore().getClientId();
-        JSONObject json = new JSONObject(ImmutableMap.builder()
-                .put("iat", TimeUtil.currentTimeSeconds())
-                .put("exp", TimeUtil.currentTimePlusNSeconds(60))
-                .put("iss", clientId)
-                .put(JwtConstants.Claims.QUERY_HASH, querySignature)
-                .build());
+        JwtJsonBuilder jsonBuilder = new JsonSmartJwtJsonBuilder()
+                .issuedAt(TimeUtil.currentTimeSeconds())
+                .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
+                .issuer(clientId);
+        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest(new HttpPost(targetUri), getContextPath()));
         HttpUtil.post(relayResource(clientId), ImmutableMap.of(
                 "path", targetUri,
                 "method", "POST",
-                "payload", json.toString()
+                "payload", jsonBuilder.build()
         ), and(expectStatus(SC_OK), expectBody("OK")));
     }
 

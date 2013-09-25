@@ -4,6 +4,7 @@ import com.atlassian.jwt.CanonicalHttpRequest;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,38 @@ public class TestHttpRequestCanonicalizer
     public void computeCorrectCanonicalizedQueryWhenThereAreManyParameters() throws UnsupportedEncodingException
     {
         assertThat(HttpRequestCanonicalizer.canonicalize(REQUEST_WITH_MANY_PARAMS), is(EXPECTED_WHEN_THERE_ARE_MANY_PARAMS));
+    }
+
+    @Test
+    public void computeCanonicalRequestHashFromValidRequest() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        CanonicalHttpRequest request = new CanonicalHttpRequest()
+        {
+            @Override
+            public String getMethod()
+            {
+                return "GET";
+            }
+
+            @Override
+            public String getRelativePath()
+            {
+                return "/path";
+            }
+
+            @Override
+            public Map<String, String[]> getParameterMap()
+            {
+                return Collections.singletonMap("foo", new String[]{"bah"});
+            }
+        };
+        assertThat(HttpRequestCanonicalizer.computeCanonicalRequestHash(request), is(JwtUtil.computeSha256Hash(HttpRequestCanonicalizer.canonicalize(request))));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void willNotComputeHashForNullHttpRequest() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        HttpRequestCanonicalizer.computeCanonicalRequestHash(null);
     }
 
     private final static String EXPECTED = "GET&/and/more&foo=bah";

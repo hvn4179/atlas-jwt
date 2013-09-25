@@ -3,10 +3,10 @@ package com.atlassian.jwt.core.reader;
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
@@ -22,10 +22,10 @@ public class JwtClaimVerifiersBuilder
      * Encapsulate the building of requirements that we place upon JWTs in incoming requests.
      * @param request Incoming request
      * @return {@link Map} of claim name to verifier for claims upon which we place requirements
-     * @throws IOException, NoSuchAlgorithmException
+     * @throws {@link IOException}, {@link NoSuchAlgorithmException}
      */
-    public static Map<String, JwtClaimVerifier> build(CanonicalHttpRequest request) throws IOException, NoSuchAlgorithmException
+    public static Map<String, ? extends JwtClaimVerifier> build(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        return Collections.singletonMap(JwtConstants.Claims.QUERY_HASH, (JwtClaimVerifier) new JwtClaimEqualityVerifier(JwtConstants.Claims.QUERY_HASH, JwtUtil.computeSha256Hash(HttpRequestCanonicalizer.canonicalize(request))));
+        return Collections.singletonMap(JwtConstants.Claims.QUERY_HASH, new JwtClaimEqualityVerifier(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(request)));
     }
 }

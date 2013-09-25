@@ -41,7 +41,7 @@ public interface JwtService
      * @throws TypeNotInstalledException if the {@link ApplicationLink linked application's} {@link ApplicationType} is
      *                                   not installed.
      */
-    ApplinkJwt verifyJwt(String jwt, Map<String, JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
+    ApplinkJwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
 
     /**
      * Generate a JWT for the supplied payload, suitable for authenticating with the specified

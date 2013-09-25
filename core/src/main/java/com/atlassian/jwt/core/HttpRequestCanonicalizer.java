@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class HttpRequestCanonicalizer
@@ -36,6 +37,21 @@ public class HttpRequestCanonicalizer
                 .append(CANONICAL_REQUEST_PART_SEPARATOR)
                 .append(canonicalizeQueryParameters(request))
                 .toString();
+    }
+
+    /**
+     * Canonicalize the given {@link CanonicalHttpRequest} and hash it.
+     * This request hash can be included as a JWT claim to verify that request components are genuine.
+     * @param request {@link CanonicalHttpRequest} to be canonicalized and hashed
+     * @return {@link String} hash suitable for use as a JWT claim value
+     * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
+     * @throws {@link NoSuchAlgorithmException} if the hashing algorithm does not exist at runtime
+     */
+    public static String computeCanonicalRequestHash(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        // prevent the code in this method being repeated in every call site that needs a request hash,
+        // encapsulate the knowledge of the type of hash that we are using
+        return JwtUtil.computeSha256Hash(canonicalize(request));
     }
 
     private static String canonicalizeUri(CanonicalHttpRequest request)
