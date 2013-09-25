@@ -5,7 +5,6 @@ import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -22,7 +21,8 @@ public class JwtClaimVerifiersBuilder
      * Encapsulate the building of requirements that we place upon JWTs in incoming requests.
      * @param request Incoming request
      * @return {@link Map} of claim name to verifier for claims upon which we place requirements
-     * @throws {@link IOException}, {@link NoSuchAlgorithmException}
+     * @throws UnsupportedEncodingException if {@link java.net.URLEncoder} cannot encode the request's characters
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
     public static Map<String, ? extends JwtClaimVerifier> build(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {

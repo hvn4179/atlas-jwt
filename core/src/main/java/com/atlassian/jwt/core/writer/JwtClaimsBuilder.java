@@ -15,7 +15,8 @@ public class JwtClaimsBuilder
      * Encapsulates the knowledge of what claims we make regarding the request.
      * @param jsonBuilder {@link com.atlassian.jwt.writer.JwtJsonBuilder} that constructs the JWT payload
      * @param request {@link com.atlassian.jwt.CanonicalHttpRequest} representing the incoming or outgoing HTTP request
-     * @throws {@link java.io.IOException}, {@link java.security.NoSuchAlgorithmException}
+     * @throws UnsupportedEncodingException if {@link java.net.URLEncoder} cannot encode the request's characters
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
     public static void appendHttpRequestClaims(JwtJsonBuilder jsonBuilder, CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {

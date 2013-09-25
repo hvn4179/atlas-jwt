@@ -14,7 +14,7 @@ public class SimpleJwt implements Jwt
     private final String iss;
     private final String sub;
     /**
-     * {@link com.atlassian.jwt.JwtConstants.Claims.QUERY_SIGNATURE}
+     * {@link com.atlassian.jwt.JwtConstants.Claims#QUERY_HASH}
      */
     private final String qsg;
     private final String payload;

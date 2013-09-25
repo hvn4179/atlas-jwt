@@ -15,8 +15,8 @@ public interface JwtIssuerSharedSecretService
     /**
      * @param issuer the issuer as specified in the JWT "iss" claim
      * @return the shared secret for the specified JWT issuer
-     * @throws {@link JwtIssuerLacksSharedSecretException} if the issuer is not associated with a shared secret
-     * @throws {@link JwtUnknownIssuerException} if the issuer is unrecognized
+     * @throws JwtIssuerLacksSharedSecretException if the issuer is not associated with a shared secret
+     * @throws JwtUnknownIssuerException if the issuer is unrecognized
      */
     public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
 }

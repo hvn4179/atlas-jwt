@@ -26,17 +26,11 @@ public class HttpRequestCanonicalizer
      * Assemble the components of the HTTP request into the correct format so that they can be signed or hashed.
      * @param request {@link CanonicalHttpRequest} that provides the necessary components
      * @return {@link String} encoding the canonical form of this request as required for constructing {@link JwtConstants.Claims#QUERY_HASH} values
-     * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
+     * @throws UnsupportedEncodingException {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
      */
     public static String canonicalize(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
-        return new StringBuilder()
-                .append(canonicalizeMethod(request))
-                .append(CANONICAL_REQUEST_PART_SEPARATOR)
-                .append(canonicalizeUri(request))
-                .append(CANONICAL_REQUEST_PART_SEPARATOR)
-                .append(canonicalizeQueryParameters(request))
-                .toString();
+        return String.format("%s%s%s%s%s", canonicalizeMethod(request), CANONICAL_REQUEST_PART_SEPARATOR, canonicalizeUri(request), CANONICAL_REQUEST_PART_SEPARATOR, canonicalizeQueryParameters(request));
     }
 
     /**
@@ -44,8 +38,8 @@ public class HttpRequestCanonicalizer
      * This request hash can be included as a JWT claim to verify that request components are genuine.
      * @param request {@link CanonicalHttpRequest} to be canonicalized and hashed
      * @return {@link String} hash suitable for use as a JWT claim value
-     * @throws {@link UnsupportedEncodingException} if the {@link java.net.URLEncoder} cannot encode the request's field's characters
-     * @throws {@link NoSuchAlgorithmException} if the hashing algorithm does not exist at runtime
+     * @throws UnsupportedEncodingException if the {@link java.net.URLEncoder} cannot encode the request's field's characters
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
     public static String computeCanonicalRequestHash(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {

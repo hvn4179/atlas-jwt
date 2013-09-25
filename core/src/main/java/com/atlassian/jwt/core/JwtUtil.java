@@ -48,10 +48,10 @@ public class JwtUtil
 
     private static String getJwtHeaderValue(HttpServletRequest request)
     {
-        Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
+        Enumeration headers = request.getHeaders(AUTHORIZATION_HEADER);
         while (headers.hasMoreElements())
         {
-            String authzHeader = headers.nextElement().trim();
+            String authzHeader = headers.nextElement().toString().trim();
             String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
             if ("JWT ".equalsIgnoreCase(first4Chars))
             {
@@ -65,7 +65,7 @@ public class JwtUtil
      * {@link URLEncoder}#encode() but encode some characters differently to URLEncoder, to match OAuth1 and VisualVault.
      * @param str {@link String} to be percent-encoded
      * @return encoded {@link String}
-     * @throws {@link UnsupportedEncodingException} if {@link URLEncoder} does not support {@link JwtUtil}#ENCODING
+     * @throws UnsupportedEncodingException if {@link URLEncoder} does not support {@link JwtUtil#ENCODING}
      */
     public static String percentEncode(String str) throws UnsupportedEncodingException
     {
@@ -84,8 +84,8 @@ public class JwtUtil
      * Compute the SHA-256 hash of hashInput.
      * E.g. The SHA-256 has of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
      * @param hashInput {@link String} to be hashed.
-     * @return {@link String} hash.
-     * @throws {@link NoSuchAlgorithmException} if the hashing algorithm does not exist at runtime
+     * @return {@link String} hash
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
     public static String computeSha256Hash(String hashInput) throws NoSuchAlgorithmException
     {
@@ -99,11 +99,11 @@ public class JwtUtil
         digest.update(hashInputBytes, 0, hashInputBytes.length);
         byte[] digestBytes = digest.digest();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < digestBytes.length; i++)
+        for (byte aByte : digestBytes)
         {
-            sb.append(Integer.toString((digestBytes[i] & 0xff) + 0x100, 16).substring(1)); // each character is in the 0-9 or a-f ranges
+            sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1)); // each character is in the 0-9 or a-f ranges
         }
 
         return sb.toString();
