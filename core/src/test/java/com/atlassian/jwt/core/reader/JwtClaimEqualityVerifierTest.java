@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class JwtClaimEqualityVerifierTest
 {
-    private final JwtClaimVerifier claimVerifier = new JwtClaimEqualityVerifier("correct");
+    private final JwtClaimVerifier claimVerifier = new JwtClaimEqualityVerifier("some name", "correct");
 
     @Test
     public void correctClaimWorks() throws JwtVerificationException

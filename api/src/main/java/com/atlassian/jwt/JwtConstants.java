@@ -42,10 +42,9 @@ public class JwtConstants
          *    the canonical request is "GET&/path/to/service&first=param&repeated=parameter%201,parameter%202&zee_last=param".
          * 6. Convert the canonical request string to bytes.
          *    The encoding used to represent characters as bytes is UTF-8.
-         * 7. Sign the canonical request bytes using the same signing algorithm and other signing inputs (such a shared secret) used to sign the whole JWT.
-         *    E.g.   if you can compute jwtSignature = sign(base-64-encoded-JWT-header + '.' + base-64-encoded-JWT-claims)
-         *       then you can compute querySignature = sign(canonical-request-bytes)
+         * 7. Hash the canonical request bytes using the SHA-256 algorithm.
+         *    E.g. The SHA-256 hash of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
          */
-        public static final String QUERY_SIGNATURE = "qsg";
+        public static final String QUERY_HASH = "qsh";
     }
 }

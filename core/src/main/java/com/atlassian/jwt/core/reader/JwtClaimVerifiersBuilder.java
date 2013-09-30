@@ -4,11 +4,10 @@ import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
-import com.atlassian.jwt.reader.JwtReader;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class JwtClaimVerifiersBuilder
@@ -21,31 +20,12 @@ public class JwtClaimVerifiersBuilder
     /**
      * Encapsulate the building of requirements that we place upon JWTs in incoming requests.
      * @param request Incoming request
-     * @param reader Reader that will parse and verify the incoming request, in part by using the returned {@link JwtClaimVerifier}s
      * @return {@link Map} of claim name to verifier for claims upon which we place requirements
-     * @throws IOException
+     * @throws UnsupportedEncodingException if {@link java.net.URLEncoder} cannot encode the request's characters
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
-    public static Map<String, JwtClaimVerifier> build(CanonicalHttpRequest request, JwtReader reader) throws IOException
+    public static Map<String, ? extends JwtClaimVerifier> build(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, HttpRequestCanonicalizer.canonicalize(request));
-        return buildNameToVerifierMap(signedClaimSigningInputs, reader);
-    }
-
-    /**
-     * @param signedClaimSigningInputs {@link java.util.Map} of claim name to corresponding input to signing algorithm
-     * @param reader {@link com.atlassian.jwt.reader.JwtReader} that will read the JWT message
-     * @return {@link java.util.Map} of claim name to {@link com.atlassian.jwt.reader.JwtClaimVerifier} capable of verifying every specified claim
-     */
-    public static Map<String, JwtClaimVerifier> buildNameToVerifierMap(Map<String, String> signedClaimSigningInputs, JwtReader reader)
-    {
-        Map<String, JwtClaimVerifier> claimVerifiers = new HashMap<String, JwtClaimVerifier>(signedClaimSigningInputs.size());
-
-        for (Map.Entry<String, String> claimAndSigningInput : signedClaimSigningInputs.entrySet())
-        {
-            String claimName = claimAndSigningInput.getKey();
-            claimVerifiers.put(claimName, reader.createSignedClaimVerifier(claimAndSigningInput.getValue(), claimName));
-        }
-
-        return claimVerifiers;
+        return Collections.singletonMap(JwtConstants.Claims.QUERY_HASH, new JwtClaimEqualityVerifier(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(request)));
     }
 }

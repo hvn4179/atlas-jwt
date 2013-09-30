@@ -2,10 +2,9 @@ package com.atlassian.jwt.plugin.sal;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtService;
-import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
+import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
@@ -19,9 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.Map;
 
 public class JwtAuthenticator implements Authenticator
 {
@@ -86,12 +84,15 @@ public class JwtAuthenticator implements Authenticator
         {
             return createError(e);
         }
+        catch (NoSuchAlgorithmException e)
+        {
+            return createError(e);
+        }
     }
 
-    private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException
+    private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
     {
-        Map<String, String> signedClaimSigningInputs = Collections.singletonMap(JwtConstants.Claims.QUERY_SIGNATURE, HttpRequestCanonicalizer.canonicalize(new CanonicalHttpServletRequest(request)));
-        return jwtService.verifyJwt(jwtString, signedClaimSigningInputs).getJwt();
+        return jwtService.verifyJwt(jwtString, JwtClaimVerifiersBuilder.build(new CanonicalHttpServletRequest(request))).getJwt();
     }
 
     private static Result.Error createError(Exception e)

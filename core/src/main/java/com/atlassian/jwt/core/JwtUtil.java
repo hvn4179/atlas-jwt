@@ -1,11 +1,14 @@
 package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.JwtConstants;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 
 public class JwtUtil
@@ -46,10 +49,10 @@ public class JwtUtil
 
     private static String getJwtHeaderValue(HttpServletRequest request)
     {
-        Enumeration<String> headers = request.getHeaders(AUTHORIZATION_HEADER);
+        Enumeration headers = request.getHeaders(AUTHORIZATION_HEADER);
         while (headers.hasMoreElements())
         {
-            String authzHeader = headers.nextElement().trim();
+            String authzHeader = headers.nextElement().toString().trim();
             String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
             if ("JWT ".equalsIgnoreCase(first4Chars))
             {
@@ -63,7 +66,7 @@ public class JwtUtil
      * {@link URLEncoder}#encode() but encode some characters differently to URLEncoder, to match OAuth1 and VisualVault.
      * @param str {@link String} to be percent-encoded
      * @return encoded {@link String}
-     * @throws {@link UnsupportedEncodingException} if {@link URLEncoder} does not support {@link JwtUtil}#ENCODING
+     * @throws UnsupportedEncodingException if {@link URLEncoder} does not support {@link JwtUtil#ENCODING}
      */
     public static String percentEncode(String str) throws UnsupportedEncodingException
     {
@@ -76,5 +79,25 @@ public class JwtUtil
                 .replace("+", "%20")
                 .replace("*", "%2A")
                 .replace("%7E", "~");
+    }
+
+    /**
+     * Compute the SHA-256 hash of hashInput.
+     * E.g. The SHA-256 has of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
+     * @param hashInput {@link String} to be hashed.
+     * @return {@link String} hash
+     * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
+     */
+    public static String computeSha256Hash(String hashInput) throws NoSuchAlgorithmException
+    {
+        if (null == hashInput)
+        {
+            throw new IllegalArgumentException("hashInput cannot be null");
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashInputBytes = hashInput.getBytes();
+        digest.update(hashInputBytes, 0, hashInputBytes.length);
+        return new String(Hex.encodeHex(digest.digest()));
     }
 }

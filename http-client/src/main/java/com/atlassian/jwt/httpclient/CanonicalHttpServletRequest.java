@@ -28,6 +28,7 @@ public class CanonicalHttpServletRequest implements CanonicalHttpRequest
     }
 
     @Override
+    @SuppressWarnings("unchecked") // the javadoc on HttpServletRequest.getParameterMap() says that the return type is Map<String, String[]>
     public Map<String, String[]> getParameterMap()
     {
         return request.getParameterMap();

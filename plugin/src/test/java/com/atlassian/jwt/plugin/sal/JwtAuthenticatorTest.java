@@ -11,12 +11,11 @@ import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
-import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
-import com.atlassian.jwt.core.reader.NimbusHmac256JwtReader;
+import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
-import com.atlassian.jwt.reader.JwtReader;
+import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -34,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;
@@ -101,10 +101,9 @@ public class JwtAuthenticatorTest
         }
 
         @Override
-        public ApplinkJwt verifyJwt(final String jwtString, Map<String, String> signedClaimSigningInputs) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+        public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            JwtReader reader = new NimbusHmac256JwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration());
-            final Jwt jwt = reader.read(jwtString, JwtClaimVerifiersBuilder.buildNameToVerifierMap(signedClaimSigningInputs, reader));
+            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
 
             return new ApplinkJwt()
             {
@@ -144,7 +143,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtResultsInSuccess() throws IOException
+    public void validJwtResultsInSuccess() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         Authenticator.Result result = authenticator.authenticate(request, response);
@@ -152,14 +151,14 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtResultsInCorrectPrincipal() throws IOException
+    public void validJwtResultsInCorrectPrincipal() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
     }
 
     @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException
+    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
         setUpValidJwtQueryParameter();
@@ -188,7 +187,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void badJwtSignatureResultsInFailure() throws IOException
+    public void badJwtSignatureResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         String validJwt = createValidJwt();
         String badJwt = validJwt.substring(0, validJwt.lastIndexOf('.') + 1) + "bad_signature";
@@ -204,7 +203,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheMethodResultsInFailure() throws IOException
+    public void tamperingWithTheMethodResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         when(request.getMethod()).thenReturn(METHOD.equals("GET") ? "POST" : "GET"); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -212,7 +211,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheUriResultsInFailure() throws IOException
+    public void tamperingWithTheUriResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         when(request.getRequestURI()).thenReturn("/tampered"); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -220,7 +219,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void tamperingWithTheQueryParametersResultsInFailure() throws IOException
+    public void tamperingWithTheQueryParametersResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
@@ -230,7 +229,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void changingTheProtocolIsHarmless() throws IOException
+    public void changingTheProtocolIsHarmless() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, "different protocol", HOST, PORT, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -238,7 +237,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void changingTheHostIsHarmless() throws IOException
+    public void changingTheHostIsHarmless() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, PROTOCOL, "different host", PORT, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -246,7 +245,7 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void changingThePortIsHarmless() throws IOException
+    public void changingThePortIsHarmless() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         setUpRequestUrl(request, PROTOCOL, HOST, PORT + 1, URI); // important: tamper with the request AFTER setting up the valid JWT query parameter
@@ -275,7 +274,7 @@ public class JwtAuthenticatorTest
     private String createJwtWithEmptyStringQuerySignature()
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, "");
+        claims.setClaim(JwtConstants.Claims.QUERY_HASH, "");
         return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
@@ -289,7 +288,7 @@ public class JwtAuthenticatorTest
         return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
-    private void setUpValidJwtQueryParameter() throws IOException
+    private void setUpValidJwtQueryParameter() throws IOException, NoSuchAlgorithmException
     {
         setUpJwtQueryParameter(createValidJwt());
     }
@@ -321,10 +320,10 @@ public class JwtAuthenticatorTest
         return claims;
     }
 
-    private String createValidJwt() throws IOException
+    private String createValidJwt() throws IOException, NoSuchAlgorithmException
     {
         JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
-        claims.setClaim(JwtConstants.Claims.QUERY_SIGNATURE, JWT_WRITER.sign(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpServletRequest(request))));
+        claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }

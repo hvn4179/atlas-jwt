@@ -7,10 +7,12 @@ import java.util.Objects;
 
 public class JwtClaimEqualityVerifier implements JwtClaimVerifier
 {
+    private final String claimName;
     private final Object expectedValue;
 
-    public JwtClaimEqualityVerifier(Object expectedValue)
+    public JwtClaimEqualityVerifier(String claimName, Object expectedValue)
     {
+        this.claimName = claimName;
         this.expectedValue = expectedValue;
     }
 
@@ -19,7 +21,7 @@ public class JwtClaimEqualityVerifier implements JwtClaimVerifier
     {
         if (!Objects.equals(expectedValue, claim))
         {
-            throw new JwtInvalidClaimException(String.format("Expecting claim to have value '%s' but instead it has the value '%s'", expectedValue, claim));
+            throw new JwtInvalidClaimException(String.format("Expecting claim '%s' to have value '%s' but instead it has the value '%s'", claimName, expectedValue, claim));
         }
     }
 }

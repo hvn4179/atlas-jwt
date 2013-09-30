@@ -13,17 +13,12 @@ public class SimpleJwt implements Jwt
 {
     private final String iss;
     private final String sub;
-    /**
-     * {@link com.atlassian.jwt.JwtConstants.Claims.QUERY_SIGNATURE}
-     */
-    private final String qsg;
     private final String payload;
 
-    public SimpleJwt(String iss, String sub, String qsg, String payload)
+    public SimpleJwt(String iss, String sub, String payload)
     {
         this.iss = iss;
         this.sub = sub;
-        this.qsg = qsg;
         this.payload = payload;
     }
 
@@ -40,12 +35,6 @@ public class SimpleJwt implements Jwt
     }
 
     @Override
-    public String getQuerySignature()
-    {
-        return qsg;
-    }
-
-    @Override
     public String getJsonPayload()
     {
         return payload;
@@ -57,7 +46,6 @@ public class SimpleJwt implements Jwt
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("iss", iss)
                 .append("sub", sub)
-                .append("qsg", qsg)
                 .append("payload", payload)
                 .toString();
     }
@@ -81,7 +69,6 @@ public class SimpleJwt implements Jwt
         return new EqualsBuilder()
                 .append(iss, rhs.iss)
                 .append(sub, rhs.sub)
-                .append(qsg, rhs.qsg)
                 .append(payload, rhs.payload)
                 .isEquals();
     }
@@ -92,7 +79,6 @@ public class SimpleJwt implements Jwt
         return new HashCodeBuilder(31, 17)
                 .append(iss)
                 .append(sub)
-                .append(qsg)
                 .append(payload)
                 .hashCode();
     }

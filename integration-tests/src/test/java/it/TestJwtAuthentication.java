@@ -1,10 +1,9 @@
 package it;
 
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
+import com.atlassian.jwt.core.writer.JwtClaimsBuilder;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.httpclient.CanonicalHttpUriRequest;
 import com.atlassian.jwt.server.JwtPeer;
@@ -20,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import static it.util.HttpResponseConsumers.expectBody;
 
@@ -60,13 +60,14 @@ public class TestJwtAuthentication extends AbstractPeerTest
         HttpUtil.get(whoAmIResource(), ImmutableMap.of("Authorization", "JWT " + jwt), expectBody("admin"));
     }
 
-    private JwtJsonBuilder createJwtJsonBuilder(String url) throws IOException
+    private JwtJsonBuilder createJwtJsonBuilder(String url) throws IOException, NoSuchAlgorithmException
     {
-        return new JsonSmartJwtJsonBuilder()
-                    .issuer(peer.getSecretStore().getClientId())
-                    .subject("admin")
-                    .issuedAt(TimeUtil.currentTimeSeconds())
-                    .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
-                    .claim(JwtConstants.Claims.QUERY_SIGNATURE, jwtWriter.sign(HttpRequestCanonicalizer.canonicalize(new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()))));
+        JwtJsonBuilder jsonBuilder = new JsonSmartJwtJsonBuilder()
+                .issuer(peer.getSecretStore().getClientId())
+                .subject("admin")
+                .issuedAt(TimeUtil.currentTimeSeconds())
+                .expirationTime(TimeUtil.currentTimePlusNSeconds(60));
+        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()));
+        return jsonBuilder;
     }
 }

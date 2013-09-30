@@ -8,6 +8,8 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,6 +21,8 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
     private final String method;
     private final String relativePath;
     private final Map<String, String[]> parameterMap;
+
+    private static final Logger log = LoggerFactory.getLogger(CanonicalHttpUriRequest.class);
 
     public CanonicalHttpUriRequest(final HttpUriRequest request, final String contextPath)
     {
@@ -48,13 +52,21 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
 
     private static Map<String, String[]> constructParameterMap(HttpUriRequest request)
     {
-        List<NameValuePair> queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
-        Multimap<String, String> queryParamsMapIntermediate = HashMultimap.<String, String>create(queryParams.size(), 1); // 1 value per key is close to the truth in most cases
+        List queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
+        Multimap<String, String> queryParamsMapIntermediate = HashMultimap.create(queryParams.size(), 1); // 1 value per key is close to the truth in most cases
 
         // efficiently collect { name1 -> { value1, value2, ... }, name2 -> { ... }, ... }
-        for (NameValuePair nameValuePair : queryParams)
+        for (Object queryParam : queryParams)
         {
-            queryParamsMapIntermediate.put(nameValuePair.getName(), nameValuePair.getValue());
+            if (queryParam instanceof NameValuePair)
+            {
+                NameValuePair nameValuePair = (NameValuePair) queryParam;
+                queryParamsMapIntermediate.put(nameValuePair.getName(), nameValuePair.getValue());
+            }
+            else
+            {
+                log.warn("Ignoring query parameter '{}' that is of type '{}' rather than the expected NameValuePair", queryParam, null == queryParam ? null : queryParam.getClass().getName());
+            }
         }
 
         Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParamsMapIntermediate.size());

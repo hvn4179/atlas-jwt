@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,12 +40,12 @@ public class TestCanonicalHttpServletRequest
     private static CanonicalHttpRequest request;
 
     @BeforeClass
-    public static void beforeAllTests() throws UnsupportedEncodingException
+    public static void beforeAllTests()
     {
         request = new CanonicalHttpServletRequest(createHttpServletRequest());
     }
 
-    private static HttpServletRequest createHttpServletRequest() throws UnsupportedEncodingException
+    private static HttpServletRequest createHttpServletRequest()
     {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
