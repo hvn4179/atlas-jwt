@@ -43,6 +43,7 @@ public class JwtClaimsBuilderTest
     {
         return new CanonicalHttpRequest()
         {
+            @Nonnull
             @Override
             public String getMethod()
             {

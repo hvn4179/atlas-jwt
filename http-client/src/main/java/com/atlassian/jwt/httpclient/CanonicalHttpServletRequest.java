@@ -16,6 +16,7 @@ public class CanonicalHttpServletRequest implements CanonicalHttpRequest
         this.request = request;
     }
 
+    @Nonnull
     @Override
     public String getMethod()
     {

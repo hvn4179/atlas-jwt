@@ -50,6 +50,7 @@ public class TestHttpRequestCanonicalizer
     {
         CanonicalHttpRequest request = new CanonicalHttpRequest()
         {
+            @Nonnull
             @Override
             public String getMethod()
             {
@@ -86,6 +87,7 @@ public class TestHttpRequestCanonicalizer
 
     private final static CanonicalHttpRequest REQUEST = new CanonicalHttpRequest()
     {
+        @Nonnull
         @Override
         public String getMethod()
         {
@@ -108,6 +110,7 @@ public class TestHttpRequestCanonicalizer
 
     private static final CanonicalHttpRequest REQUEST_WITH_NO_CONTEXT_PATH = new CanonicalHttpRequest()
     {
+        @Nonnull
         @Override
         public String getMethod()
         {
@@ -130,6 +133,7 @@ public class TestHttpRequestCanonicalizer
 
     private static final CanonicalHttpRequest REQUEST_WITH_REPEATED_PARAMS = new CanonicalHttpRequest()
     {
+        @Nonnull
         @Override
         public String getMethod()
         {
@@ -152,6 +156,7 @@ public class TestHttpRequestCanonicalizer
 
     private static final CanonicalHttpRequest REQUEST_WITH_NO_PARAMS = new CanonicalHttpRequest()
     {
+        @Nonnull
         @Override
         public String getMethod()
         {
@@ -174,6 +179,7 @@ public class TestHttpRequestCanonicalizer
 
     private static final CanonicalHttpRequest REQUEST_WITH_MANY_PARAMS = new CanonicalHttpRequest()
     {
+        @Nonnull
         @Override
         public String getMethod()
         {

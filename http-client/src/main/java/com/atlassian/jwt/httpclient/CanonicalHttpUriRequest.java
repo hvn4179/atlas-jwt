@@ -33,6 +33,7 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
         this.parameterMap = constructParameterMap(request);
     }
 
+    @Nonnull
     @Override
     public String getMethod()
     {

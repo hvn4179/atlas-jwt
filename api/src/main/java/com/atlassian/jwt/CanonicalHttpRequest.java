@@ -16,7 +16,7 @@ public interface CanonicalHttpRequest
      *
      * @return the HTTP method in upper-case.
      */
-    @Nullable
+    @Nonnull
     String getMethod();
 
     /**
