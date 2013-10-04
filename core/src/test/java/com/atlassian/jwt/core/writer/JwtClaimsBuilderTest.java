@@ -6,6 +6,7 @@ import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -54,6 +55,7 @@ public class JwtClaimsBuilderTest
                 return "/path";
             }
 
+            @Nonnull
             @Override
             public Map<String, String[]> getParameterMap()
             {

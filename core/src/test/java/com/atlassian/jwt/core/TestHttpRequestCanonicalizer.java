@@ -3,6 +3,7 @@ package com.atlassian.jwt.core;
 import com.atlassian.jwt.CanonicalHttpRequest;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -61,6 +62,7 @@ public class TestHttpRequestCanonicalizer
                 return "/path";
             }
 
+            @Nonnull
             @Override
             public Map<String, String[]> getParameterMap()
             {
@@ -96,6 +98,7 @@ public class TestHttpRequestCanonicalizer
             return "/and/more";
         }
 
+        @Nonnull
         @Override
         public Map<String, String[]> getParameterMap()
         {
@@ -117,6 +120,7 @@ public class TestHttpRequestCanonicalizer
             return "/simple";
         }
 
+        @Nonnull
         @Override
         public Map<String, String[]> getParameterMap()
         {
@@ -138,6 +142,7 @@ public class TestHttpRequestCanonicalizer
             return "/simple";
         }
 
+        @Nonnull
         @Override
         public Map<String, String[]> getParameterMap()
         {
@@ -159,6 +164,7 @@ public class TestHttpRequestCanonicalizer
             return "/simple";
         }
 
+        @Nonnull
         @Override
         public Map<String, String[]> getParameterMap()
         {
@@ -180,6 +186,7 @@ public class TestHttpRequestCanonicalizer
             return "/and/more/";
         }
 
+        @Nonnull
         @Override
         public Map<String, String[]> getParameterMap()
         {

@@ -2,6 +2,8 @@ package com.atlassian.jwt.reader;
 
 import com.atlassian.jwt.exception.*;
 
+import javax.annotation.Nonnull;
+
 /**
  * Factory for {@link JwtReader}.
  *
@@ -17,5 +19,6 @@ public interface JwtReaderFactory
      * @throws JwtUnknownIssuerException if the JWT message's "iss" claim value is not recognized
      * @throws JwtIssuerLacksSharedSecretException if the JWT message's algorithm requires a shared secret but the claimed issuer does not have one associated
      */
-    JwtReader getReader(String jwt) throws JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtParseException, JwtIssuerLacksSharedSecretException;
+    @Nonnull
+    JwtReader getReader(@Nonnull String jwt) throws JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtParseException, JwtIssuerLacksSharedSecretException;
 }

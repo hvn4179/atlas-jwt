@@ -3,6 +3,7 @@ package com.atlassian.jwt.core.reader;
 import com.atlassian.jwt.exception.JwtInvalidClaimException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class JwtClaimEqualityVerifier implements JwtClaimVerifier
@@ -17,7 +18,7 @@ public class JwtClaimEqualityVerifier implements JwtClaimVerifier
     }
 
     @Override
-    public void verify(Object claim) throws JwtInvalidClaimException
+    public void verify(@Nonnull Object claim) throws JwtInvalidClaimException
     {
         if (!Objects.equals(expectedValue, claim))
         {

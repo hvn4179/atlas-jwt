@@ -13,6 +13,7 @@ import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 
+import javax.annotation.Nonnull;
 import java.text.ParseException;
 
 public class NimbusJwtReaderFactory implements JwtReaderFactory
@@ -33,8 +34,9 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
         this.jwtIssuerSharedSecretService = jwtIssuerSharedSecretService;
     }
 
+    @Nonnull
     @Override
-    public JwtReader getReader(String jwt) throws JwtParseException, JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
+    public JwtReader getReader(@Nonnull String jwt) throws JwtParseException, JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
     {
         SimpleUnverifiedJwt unverifiedJwt = new NimbusUnverifiedJwtReader().parse(jwt);
         SigningAlgorithm algorithm = validateAlgorithm(unverifiedJwt);

@@ -3,6 +3,7 @@ package com.atlassian.jwt.httpclient;
 import com.atlassian.jwt.CanonicalHttpRequest;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ public class CanonicalHttpServletRequest implements CanonicalHttpRequest
         return StringUtils.removeStart(request.getRequestURI(), request.getContextPath());
     }
 
+    @Nonnull
     @Override
     @SuppressWarnings("unchecked") // the javadoc on HttpServletRequest.getParameterMap() says that the return type is Map<String, String[]>
     public Map<String, String[]> getParameterMap()
