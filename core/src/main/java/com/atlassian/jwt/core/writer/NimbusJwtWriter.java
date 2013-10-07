@@ -6,6 +6,8 @@ import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.*;
 
+import javax.annotation.Nonnull;
+
 public class NimbusJwtWriter implements JwtWriter
 {
     private final JWSAlgorithm algorithm;
@@ -24,8 +26,9 @@ public class NimbusJwtWriter implements JwtWriter
         this.signer = signer;
     }
 
+    @Nonnull
     @Override
-    public String jsonToJwt(String json) throws JwtSigningException
+    public String jsonToJwt(@Nonnull String json) throws JwtSigningException
     {
         // Serialise JWS object to compact format
         return generateJwsObject(json).serialize();

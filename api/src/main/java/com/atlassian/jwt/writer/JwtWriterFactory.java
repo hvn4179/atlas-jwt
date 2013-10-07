@@ -2,6 +2,8 @@ package com.atlassian.jwt.writer;
 
 import com.atlassian.jwt.SigningAlgorithm;
 
+import javax.annotation.Nonnull;
+
 /**
  * Factory for {@link JwtJsonBuilderFactory}.
  *
@@ -9,5 +11,6 @@ import com.atlassian.jwt.SigningAlgorithm;
  */
 public interface JwtWriterFactory
 {
-    JwtWriter macSigningWriter(SigningAlgorithm algorithm, String sharedSecret);
+    @Nonnull
+    JwtWriter macSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull String sharedSecret);
 }

@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
         this.parameterMap = constructParameterMap(request);
     }
 
+    @Nonnull
     @Override
     public String getMethod()
     {
@@ -44,6 +46,7 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
         return relativePath;
     }
 
+    @Nonnull
     @Override
     public Map<String, String[]> getParameterMap()
     {

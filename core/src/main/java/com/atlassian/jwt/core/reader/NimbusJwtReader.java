@@ -13,6 +13,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
@@ -30,8 +31,9 @@ public class NimbusJwtReader implements JwtReader
         this.clock = clock;
     }
 
+    @Nonnull
     @Override
-    public Jwt read(String jwt, Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    public Jwt read(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 

@@ -2,6 +2,8 @@ package com.atlassian.jwt.writer;
 
 import com.atlassian.jwt.exception.JwtSigningException;
 
+import javax.annotation.Nonnull;
+
 /**
  * Creates JWTs for arbitrary JSON payloads.
  *
@@ -15,5 +17,6 @@ public interface JwtWriter
      *         containing the supplied payload and an appropriate signature.
      * @throws JwtSigningException if there was a problem signing the payload
      */
-    String jsonToJwt(String json) throws JwtSigningException;
+    @Nonnull
+    String jsonToJwt(@Nonnull String json) throws JwtSigningException;
 }

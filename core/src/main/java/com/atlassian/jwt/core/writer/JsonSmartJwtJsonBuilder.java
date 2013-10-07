@@ -4,6 +4,8 @@ import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
 import net.minidev.json.JSONObject;
 
+import javax.annotation.Nonnull;
+
 /**
  *
  */
@@ -17,13 +19,15 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
         expirationTime(TimeUtil.currentTimePlusNSeconds(180)); // default JWT lifetime is 3 minutes
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder audience(String aud)
+    public JwtJsonBuilder audience(@Nonnull String aud)
     {
         json.put("aud", aud);
         return this;
     }
 
+    @Nonnull
     @Override
     public JwtJsonBuilder expirationTime(long exp)
     {
@@ -31,6 +35,7 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
         return this;
     }
 
+    @Nonnull
     @Override
     public JwtJsonBuilder issuedAt(long iat)
     {
@@ -38,20 +43,23 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
         return this;
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder issuer(String iss)
+    public JwtJsonBuilder issuer(@Nonnull String iss)
     {
         json.put("iss", iss);
         return this;
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder jwtId(String jti)
+    public JwtJsonBuilder jwtId(@Nonnull String jti)
     {
         json.put("jti", jti);
         return this;
     }
 
+    @Nonnull
     @Override
     public JwtJsonBuilder notBefore(long nbf)
     {
@@ -59,27 +67,31 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
         return this;
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder subject(String sub)
+    public JwtJsonBuilder subject(@Nonnull String sub)
     {
         json.put("sub", sub);
         return this;
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder type(String typ)
+    public JwtJsonBuilder type(@Nonnull String typ)
     {
         json.put("typ", typ);
         return this;
     }
 
+    @Nonnull
     @Override
-    public JwtJsonBuilder claim(String name, Object obj)
+    public JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj)
     {
         json.put(name, obj);
         return this;
     }
 
+    @Nonnull
     @Override
     public String build()
     {

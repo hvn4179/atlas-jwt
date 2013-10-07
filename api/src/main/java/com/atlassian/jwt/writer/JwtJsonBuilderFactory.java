@@ -1,5 +1,7 @@
 package com.atlassian.jwt.writer;
 
+import javax.annotation.Nonnull;
+
 /**
  * Factory for {@link JwtJsonBuilder}.
  *
@@ -10,5 +12,6 @@ public interface JwtJsonBuilderFactory
     /**
      * @return a {@link JwtJsonBuilder}.
      */
+    @Nonnull
     JwtJsonBuilder jsonBuilder();
 }

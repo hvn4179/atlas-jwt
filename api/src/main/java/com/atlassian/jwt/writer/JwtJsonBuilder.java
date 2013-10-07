@@ -1,5 +1,6 @@
 package com.atlassian.jwt.writer;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -12,42 +13,50 @@ public interface JwtJsonBuilder
     /**
      * Sets the 'aud' parameter.
      */
-    JwtJsonBuilder audience(String aud);
+    @Nonnull
+    JwtJsonBuilder audience(@Nonnull String aud);
 
     /**
      * Sets the 'exp' parameter.
      */
+    @Nonnull
     JwtJsonBuilder expirationTime(long exp);
 
     /**
      * Sets the 'iat' parameter.
      */
+    @Nonnull
     JwtJsonBuilder issuedAt(long iat);
 
     /**
      * Sets the 'iss' parameter.
      */
-    JwtJsonBuilder issuer(String iss);
+    @Nonnull
+    JwtJsonBuilder issuer(@Nonnull String iss);
 
     /**
      * Sets the 'jti' parameter.
      */
-    JwtJsonBuilder jwtId(String jti);
+    @Nonnull
+    JwtJsonBuilder jwtId(@Nonnull String jti);
 
     /**
      * Sets the 'nbf' parameter.
      */
+    @Nonnull
     JwtJsonBuilder notBefore(long nbf);
 
     /**
      * Sets the 'sub' parameter.
      */
-    JwtJsonBuilder subject(String sub);
+    @Nonnull
+    JwtJsonBuilder subject(@Nonnull String sub);
 
     /**
      * Sets the 'typ' parameter.
      */
-    JwtJsonBuilder type(String typ);
+    @Nonnull
+    JwtJsonBuilder type(@Nonnull String typ);
 
     /**
      * Adds an arbitrary claim.
@@ -62,10 +71,12 @@ public interface JwtJsonBuilder
      *             <li>an array of any of the above</li>
      *             </ul>
      */
-    JwtJsonBuilder claim(String name, Object obj);
+    @Nonnull
+    JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj);
 
     /**
      * @return the generated JSON.
      */
+    @Nonnull
     String build();
 }
