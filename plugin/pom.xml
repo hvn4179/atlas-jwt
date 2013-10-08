@@ -94,6 +94,7 @@
                             com.atlassian.jwt.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
+                            com.atlassian.applinks.*,
                             com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
                             com.atlassian.sal.api.message;resolution:="optional",
                             com.atlassian.sal.api.net;resolution:="optional",
