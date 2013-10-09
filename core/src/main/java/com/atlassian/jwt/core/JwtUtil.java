@@ -18,6 +18,11 @@ public class JwtUtil
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     /**
+     * The start of a valid Authorization header specifying a JWT message.
+     */
+    public static final String JWT_AUTH_HEADER_PREFIX = "JWT ";
+
+    /**
      * The encoding used to represent characters as bytes.
      */
     private static final String ENCODING = "UTF-8";
@@ -50,15 +55,20 @@ public class JwtUtil
     private static String getJwtHeaderValue(HttpServletRequest request)
     {
         Enumeration headers = request.getHeaders(AUTHORIZATION_HEADER);
-        while (headers.hasMoreElements())
+
+        if (null != headers)
         {
-            String authzHeader = headers.nextElement().toString().trim();
-            String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
-            if ("JWT ".equalsIgnoreCase(first4Chars))
+            while (headers.hasMoreElements())
             {
-                return authzHeader.substring(4);
+                String authzHeader = headers.nextElement().toString().trim();
+                String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
+                if (JWT_AUTH_HEADER_PREFIX.equalsIgnoreCase(first4Chars))
+                {
+                    return authzHeader.substring(4);
+                }
             }
         }
+
         return null;
     }
 
