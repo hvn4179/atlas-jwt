@@ -30,8 +30,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthFilterTest
 {
-    private static final String VALID_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLAogImV4cCI6MTMwMDgxOTM4MCwKICJodHRwOi8vZXhhbXBsZS5jb20vaXNfcm9vdCI6dHJ1ZX0.FiSys799P0mmChbQXoj76wsXrjnPP7HDlIW76orDjV8";
-    public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+    private static final String MOCK_JWT = "a.b.c";
+    private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
     Filter filter;
 
@@ -67,7 +67,7 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void verifyThatNoWwwAuthenticateHeaderIsAttachedWhenAuthenticationIsSuccessful() throws IOException, ServletException
+    public void noWwwAuthenticateHeaderIsAttachedWhenAuthenticationIsSuccessful() throws IOException, ServletException
     {
         setUpSuccessWithJwtQueryStringParameter(successResponse());
         filter.doFilter(request, response, chain);
@@ -76,9 +76,9 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void isFlaggedAsJwtRequestIfJwtQueryStringParameterIsPresent() throws IOException, ServletException
+    public void requestIsFlaggedAsJwtIfJwtQueryStringParameterIsPresent() throws IOException, ServletException
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         setUpSuccessWithJwtQueryStringParameter(successResponse());
         filter.doFilter(request, response, chain);
 
@@ -86,7 +86,7 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void isFlaggedAsJwtRequestIfJwtAuthorizationHeaderIsPresent() throws IOException, ServletException
+    public void requestIsFlaggedAsJwtIfJwtAuthorizationHeaderIsPresent() throws IOException, ServletException
     {
         setUpSuccessThoughJwtAuthHeader();
         filter.doFilter(request, response, chain);
@@ -95,7 +95,7 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void isNotFlaggedAsJwtRequestIfNeitherJwtQueryStringParameterNorAuthHeaderArePresent() throws IOException, ServletException
+    public void requestIsNotFlaggedAsJwtIfNeitherJwtQueryStringParameterNorAuthHeaderArePresent() throws IOException, ServletException
     {
         setUpSuccessWithoutJwt();
         filter.doFilter(request, response, chain);
@@ -117,9 +117,9 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void verifyThatWeStopTheFilterChainAndReportFailureIfAuthenticationFails() throws Exception
+    public void weStopTheFilterChainAndReportFailureIfAuthenticationFails() throws Exception
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         Authenticator.Result.Failure failure = failureResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(failure);
         filter.doFilter(request, response, chain);
@@ -132,7 +132,7 @@ public class JwtAuthFilterTest
     @Test
     public void verifyThatNoWwwAuthenticateHeaderIsAttachedWhenAuthenticationFails() throws IOException, ServletException
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         Authenticator.Result.Failure failure = failureResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(failure);
         filter.doFilter(request, response, chain);
@@ -143,7 +143,7 @@ public class JwtAuthFilterTest
     @Test
     public void verifyThatWeStopTheFilterChainAndReportFailureIfThereIsAnErrorDuringAuthentication() throws Exception
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         Authenticator.Result.Error error = errorResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(error);
         filter.doFilter(request, response, chain);
@@ -156,7 +156,7 @@ public class JwtAuthFilterTest
     @Test
     public void verifyThatNoWwwAuthenticateHeaderIsAttachedIfThereIsAnErrorDuringAuthentication() throws IOException, ServletException
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         Authenticator.Result.Error error = errorResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(error);
         filter.doFilter(request, response, chain);
@@ -175,30 +175,6 @@ public class JwtAuthFilterTest
         verifyZeroInteractions(authenticator);
     }
 
-    @Test
-    public void weStopTheFilterChainAndReportFailureIfAuthenticationFails() throws IOException, ServletException
-    {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn("invalid.jwt.example");
-        Authenticator.Result.Failure failure = failureResponse();
-        when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(failure);
-        filter.doFilter(request, response, chain);
-
-        verify(authenticationListener).authenticationFailure(eq(failure), isA(HttpServletRequest.class), isA(HttpServletResponse.class));
-        verifyNoMoreInteractions(authenticationListener);
-        verifyZeroInteractions(chain);
-    }
-
-    @Test
-    public void noWwwAuthenticateHeaderIsAttachedWhenAuthenticationFails() throws IOException, ServletException
-    {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn("invalid.jwt.example");
-        Authenticator.Result.Failure failure = failureResponse();
-        when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(failure);
-        filter.doFilter(request, response, chain);
-
-        verify(response, never()).addHeader(eq(WWW_AUTHENTICATE), any(String.class)); // because the OAuth filter adds this header but it's unnecessary for JWT
-    }
-
     private void setUpSuccessThoughJwtAuthHeader()
     {
         when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
@@ -208,7 +184,7 @@ public class JwtAuthFilterTest
     private Enumeration<String> validJwtAuthHeaders()
     {
         Vector<String> authHeaders = new Vector<String>();
-        authHeaders.add(JwtUtil.JWT_AUTH_HEADER_PREFIX + VALID_JWT);
+        authHeaders.add(JwtUtil.JWT_AUTH_HEADER_PREFIX + MOCK_JWT);
         return authHeaders.elements();
     }
 
@@ -219,7 +195,7 @@ public class JwtAuthFilterTest
 
     private void setUpSuccessWithJwtQueryStringParameter(Authenticator.Result.Success success)
     {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(VALID_JWT);
+        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         setUpSuccessfulAuthResponse(success);
     }
 
