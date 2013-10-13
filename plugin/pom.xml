@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.jwt</groupId>
         <artifactId>jwt-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-m1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jwt-plugin</artifactId>
@@ -88,6 +88,41 @@
                 <configuration>
                     <skipManifestValidation>true</skipManifestValidation>
                     <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
+
+                    <instructions>
+                        <Export-Package>
+                            com.atlassian.jwt.*;version="${project.version}"
+                        </Export-Package>
+                        <Import-Package>
+                            com.atlassian.applinks.*,
+                            com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
+                            com.atlassian.sal.api.message,
+                            com.atlassian.sal.api.net,
+                            com.atlassian.security.random,
+                            com.google.common.collect,
+                            javax.crypto,
+                            javax.crypto.interfaces,
+                            javax.crypto.spec,
+                            javax.naming,
+                            javax.naming.directory,
+                            javax.net,
+                            javax.net.ssl,
+                            javax.security.auth.callback,
+                            javax.security.auth.x500,
+                            javax.security.sasl,
+                            javax.servlet,javax.servlet.http,
+                            javax.xml.transform,
+                            javax.xml.transform.stream,
+                            org.apache.avalon.framework.logger;resolution:="optional",
+                            org.apache.commons.lang,
+                            org.apache.commons.lang.builder,
+                            org.apache.log;resolution:="optional",
+                            org.apache.log4j;resolution:="optional",
+                            org.ietf.jgss,
+                            org.slf4j,
+                            sun.security.util;resolution:="optional"
+                        </Import-Package>
+                    </instructions>
 
                     <systemPropertyVariables>
                         <atlassian.mail.senddisabled>false</atlassian.mail.senddisabled>
