@@ -33,15 +33,15 @@ public class JwtAuthFilterTest
     private static final String MOCK_JWT = "a.b.c";
     private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
-    Filter filter;
+    private Filter filter;
 
-    @Mock JwtAuthenticator authenticator;
-    @Mock AuthenticationListener authenticationListener;
-    @Mock AuthenticationController authenticationController;
-    @Mock ApplicationProperties applicationProperties;
-    @Mock HttpServletRequest request;
-    @Mock HttpServletResponse response;
-    @Mock FilterChain chain;
+    @Mock private JwtAuthenticator authenticator;
+    @Mock private AuthenticationListener authenticationListener;
+    @Mock private AuthenticationController authenticationController;
+    @Mock private ApplicationProperties applicationProperties;
+    @Mock private HttpServletRequest request;
+    @Mock private HttpServletResponse response;
+    @Mock private FilterChain chain;
 
     @Before
     public void setUp()
