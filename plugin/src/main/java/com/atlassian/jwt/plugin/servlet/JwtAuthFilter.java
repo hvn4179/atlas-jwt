@@ -52,8 +52,7 @@ public class JwtAuthFilter implements Filter
             return true;
         }
 
-        // if it does NOT involve JWT then we allow the filter chain to continue being processed,
-        // TODO: but we want to add the WWW-Authenticate header
+        // if it does NOT involve JWT then we allow the filter chain to continue being processed
         if (!JwtUtil.requestContainsJwt(request))
         {
             authenticationListener.authenticationNotAttempted(request, response);
