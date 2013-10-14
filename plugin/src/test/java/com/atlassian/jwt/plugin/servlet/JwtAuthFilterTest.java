@@ -216,6 +216,31 @@ public class JwtAuthFilterTest
         verifyNoMoreInteractions(authenticationListener);
     }
 
+    @Test
+    public void whenWeShouldNotAttemptAuthenticationTheAuthenticatorIsNotInvoked() throws IOException, ServletException
+    {
+        when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(false);
+        filter.doFilter(request, response, chain);
+        verifyZeroInteractions(authenticator);
+    }
+
+    @Test
+    public void whenWeShouldNotAttemptAuthenticationTheRequestPassesThroughTheFilterChain() throws IOException, ServletException
+    {
+        when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(false);
+        filter.doFilter(request, response, chain);
+        verify(chain).doFilter(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
+    }
+
+    @Test
+    public void whenWeShouldNotAttemptAuthenticationTheAuthenticationControllerIsNotifiedThatThereWasNoAttempt() throws IOException, ServletException
+    {
+        when(authenticationController.shouldAttemptAuthentication(request)).thenReturn(false);
+        filter.doFilter(request, response, chain);
+        verify(authenticationListener).authenticationNotAttempted(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
+        verifyNoMoreInteractions(authenticationListener);
+    }
+
     private void doSuccessfulFilter() throws IOException, ServletException
     {
         setUpSuccessWithJwtQueryStringParameter(successResponse());
