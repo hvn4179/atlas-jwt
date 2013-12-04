@@ -113,7 +113,7 @@ public class JwtAuthenticator implements Authenticator
     private Principal authenticate(final HttpServletRequest request, String jwtString) throws NoSuchAlgorithmException, TypeNotInstalledException, IOException, JwtIssuerLacksSharedSecretException, JwtParseException, JwtVerificationException, JwtUnknownIssuerException, JwtUserRejectedException
     {
         Jwt jwt = verifyJwt(jwtString, request);
-        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: principal should be looked up interally from the issuer id
+        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: ACDEV-653: principal should be looked up interally from the issuer id
 
         if (!authenticationController.canLogin(userPrincipal, request))
         {
