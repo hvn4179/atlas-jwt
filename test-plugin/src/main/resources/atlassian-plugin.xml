@@ -20,4 +20,9 @@
         <package>com.atlassian.jwttest.rest</package>
     </rest>
 
+    <servlet-filter key="api-scoping-disabler" class="com.atlassian.jwttest.rest.ApiScopingFilterDisabler"
+                    location="before-decoration" weight="1">
+        <url-pattern>/*</url-pattern>
+    </servlet-filter>
+
 </atlassian-plugin>
