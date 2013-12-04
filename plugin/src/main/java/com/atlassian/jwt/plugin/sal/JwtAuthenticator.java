@@ -26,6 +26,8 @@ public class JwtAuthenticator implements Authenticator
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
+    private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here and Connect's ApiScopingFilter into a lib referenced by both
+
     public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
         this.jwtService = jwtService;
@@ -53,6 +55,7 @@ public class JwtAuthenticator implements Authenticator
 
             if (authenticationController.canLogin(userPrincipal, request))
             {
+                request.setAttribute(ADD_ON_ID_ATTRIBUTE, jwt.getIssuer());
                 return new Result.Success(createMessage("Authentication successful!"), userPrincipal);
             }
             else
@@ -80,6 +83,10 @@ public class JwtAuthenticator implements Authenticator
         {
             return createFailure(e);
         }
+        catch (IllegalArgumentException e)
+        {
+            return createFailure(e);
+        }
         catch (IOException e)
         {
             return createError(e);
@@ -97,6 +104,7 @@ public class JwtAuthenticator implements Authenticator
 
     private static Result.Error createError(Exception e)
     {
+        e.printStackTrace(System.out);
         return createError(e.getLocalizedMessage());
     }
 
@@ -107,6 +115,7 @@ public class JwtAuthenticator implements Authenticator
 
     private static Result.Failure createFailure(Exception e)
     {
+        e.printStackTrace(System.out);
         return createFailure(e.getLocalizedMessage());
     }
 
