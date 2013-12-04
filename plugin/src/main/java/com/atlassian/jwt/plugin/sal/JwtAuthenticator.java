@@ -184,7 +184,6 @@ public class JwtAuthenticator implements Authenticator
         catch (IOException doubleFacePalm)
         {
             log.error("Encountered IOException while trying to report an authentication failure.", doubleFacePalm);
-            doubleFacePalm.printStackTrace();
             response.reset();
             response.setStatus(httpResponseCode); // no error message, but hopefully the response code will still be useful
         }
