@@ -185,20 +185,20 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInServiceUnavailableResponseCode() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithPrincipalWhoCannotLogInResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
     {
         when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
         setUpValidJwtQueryParameter();
         authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_SERVICE_UNAVAILABLE), anyString());
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     @Test
-    public void unknownIssuerResultsInServiceUnavailableResponseCode() throws IOException, NoSuchAlgorithmException
+    public void unknownIssuerResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
     {
         setUpJwtQueryParameter(createValidJwtWithIssuer("bad issuer"));
         authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_SERVICE_UNAVAILABLE), anyString());
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     @Test
@@ -346,18 +346,18 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void missingQueryParamsSigResultsInFailure()
+    public void missingQueryParamsSigResultsInError()
     {
         setUpJwtQueryParameter(createJwtWithoutQuerySignature());
-        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR));
     }
 
     @Test
-    public void missingQueryParamsSigResultsInUnauthorisedResponseCode() throws IOException
+    public void missingQueryParamsSigResultsInBadRequestResponseCode() throws IOException
     {
         setUpJwtQueryParameter(createJwtWithoutQuerySignature());
         authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+        verify(response).sendError(eq(HttpServletResponse.SC_BAD_REQUEST), anyString());
     }
 
     @Test

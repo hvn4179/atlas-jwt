@@ -25,6 +25,7 @@ public class JwtAuthenticator implements Authenticator
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
+    private static final String BAD_CREDENTIALS_MESSAGE = "Your presented credentials do not provide access to this resource."; // protect against phishing by not saying whether the add-on, user or secret was wrong
     private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here and Connect's ApiScopingFilter into a lib referenced by both
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticator.class);
 
@@ -40,8 +41,8 @@ public class JwtAuthenticator implements Authenticator
      * Response codes match OAuth:
      *   parse error / garbled --> 400 bad request
      *   good syntax but purposefully rejected --> 401 unauthorised
-     *   user / issuer refused --> 503 service unavailable
      *   failure to compute a result --> 500 internal server error
+     *   rate limiting (not handled here) --> 503 service unavailable
      *   default --> 403 forbidden
      * @param request {@link HttpServletRequest} to be vetted
      * @param response {@link HttpServletResponse} to be send error code if and only if the authentication is unsuccessful
@@ -89,15 +90,15 @@ public class JwtAuthenticator implements Authenticator
         }
         catch (JwtIssuerLacksSharedSecretException e)
         {
-            return createAndSendServiceUnavilableFailure(e, response);
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
         }
         catch (JwtUnknownIssuerException e)
         {
-            return createAndSendServiceUnavilableFailure(e, response);
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
         }
         catch (JwtUserRejectedException e)
         {
-            return createAndSendServiceUnavilableFailure(e, response);
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
         }
         catch (Exception e)
         {
@@ -145,12 +146,6 @@ public class JwtAuthenticator implements Authenticator
     {
         // the jwt has good syntax but was rejected, and was not rejected due to the user or issuer specifically
         return createAndSendFailure(e, response, HttpServletResponse.SC_UNAUTHORIZED, externallyVisibleMessage);
-    }
-
-    private Result createAndSendServiceUnavilableFailure(Exception e, HttpServletResponse response)
-    {
-        // the user and/or add-on was specifically rejected, so be a little mysterious in the message
-        return createAndSendFailure(e, response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service unavailable. Please contact the system administrator if you believe that this is in error.");
     }
 
     private Result createAndSendForbiddenError(Exception e, HttpServletResponse response)
