@@ -33,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Date;
@@ -42,6 +43,11 @@ import java.util.StringTokenizer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -105,6 +111,11 @@ public class JwtAuthenticatorTest
         {
             final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
 
+            if (!JWT_ISSUER.equals(jwt.getIssuer()))
+            {
+                throw new JwtUnknownIssuerException(jwt.getIssuer());
+            }
+
             return new ApplinkJwt()
             {
                 @Override
@@ -151,6 +162,14 @@ public class JwtAuthenticatorTest
     }
 
     @Test
+    public void validJwtDoesNotResultInSentErrorCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpValidJwtQueryParameter();
+        authenticator.authenticate(request, response);
+        verify(response, never()).sendError(anyInt(), anyString());
+    }
+
+    @Test
     public void validJwtResultsInCorrectPrincipal() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
@@ -165,18 +184,37 @@ public class JwtAuthenticatorTest
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullJwtResultsInException()
+    @Test
+    public void validJwtWithPrincipalWhoCannotLogInResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
+        setUpValidJwtQueryParameter();
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
+    public void unknownIssuerResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createValidJwtWithIssuer("bad issuer"));
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
+    public void nullJwtResultsInInternalServerErrorResponseCode() throws IOException
     {
         setUpJwtQueryParameter(null);
         authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), anyString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void emptyStringJwtResultsInException()
+    @Test
+    public void emptyStringJwtResultsInInternalServerErrorResponseCode() throws IOException
     {
         setUpJwtQueryParameter("");
         authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), anyString());
     }
 
     @Test
@@ -184,6 +222,14 @@ public class JwtAuthenticatorTest
     {
         setUpJwtQueryParameter("just.plain.wrong");
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR));
+    }
+
+    @Test
+    public void garbledJwtResultsInBadRequestResponseCode() throws IOException
+    {
+        setUpJwtQueryParameter("just.plain.wrong");
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_BAD_REQUEST), anyString());
     }
 
     @Test
@@ -196,10 +242,28 @@ public class JwtAuthenticatorTest
     }
 
     @Test
+    public void badJwtSignatureResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        String validJwt = createValidJwt();
+        String badJwt = validJwt.substring(0, validJwt.lastIndexOf('.') + 1) + "bad_signature";
+        setUpJwtQueryParameter(badJwt);
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
     public void expiredJwtResultsInFailure()
     {
         setUpJwtQueryParameter(createExpiredJwt());
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void expiredJwtResultsInUnauthorisedResponseCode() throws IOException
+    {
+        setUpJwtQueryParameter(createExpiredJwt());
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     @Test
@@ -211,11 +275,29 @@ public class JwtAuthenticatorTest
     }
 
     @Test
+    public void tamperingWithTheMethodResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpValidJwtQueryParameter();
+        when(request.getMethod()).thenReturn(METHOD.equals("GET") ? "POST" : "GET"); // important: tamper with the request AFTER setting up the valid JWT query parameter
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
     public void tamperingWithTheUriResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
         when(request.getRequestURI()).thenReturn("/tampered"); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void tamperingWithTheUriResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpValidJwtQueryParameter();
+        when(request.getRequestURI()).thenReturn("/tampered"); // important: tamper with the request AFTER setting up the valid JWT query parameter
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     @Test
@@ -226,6 +308,17 @@ public class JwtAuthenticatorTest
         editedParams.put("new", new String[]{"value"});
         when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void tamperingWithTheQueryParametersResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpValidJwtQueryParameter();
+        Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
+        editedParams.put("new", new String[]{"value"});
+        when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     @Test
@@ -253,10 +346,18 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void missingQueryParamsSigResultsInFailure()
+    public void missingQueryParamsSigResultsInError()
     {
         setUpJwtQueryParameter(createJwtWithoutQuerySignature());
-        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR));
+    }
+
+    @Test
+    public void missingQueryParamsSigResultsInBadRequestResponseCode() throws IOException
+    {
+        setUpJwtQueryParameter(createJwtWithoutQuerySignature());
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_BAD_REQUEST), anyString());
     }
 
     @Test
@@ -264,6 +365,14 @@ public class JwtAuthenticatorTest
     {
         setUpJwtQueryParameter(createJwtWithEmptyStringQuerySignature());
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void emptyStringQueryParamsSigResultsInUnauthorisedResponseCode() throws IOException
+    {
+        setUpJwtQueryParameter(createJwtWithEmptyStringQuerySignature());
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
     private String createJwtWithoutQuerySignature()
@@ -311,8 +420,13 @@ public class JwtAuthenticatorTest
 
     private static JWTClaimsSet createJwtClaimsSetWithoutSignatures()
     {
+        return createJwtClaimsSetWithoutSignatures(JWT_ISSUER);
+    }
+
+    private static JWTClaimsSet createJwtClaimsSetWithoutSignatures(String issuer)
+    {
         JWTClaimsSet claims = new JWTClaimsSet();
-        claims.setIssuer(JWT_ISSUER);
+        claims.setIssuer(issuer);
         Date now = new Date();
         claims.setIssueTime(now);
         claims.setExpirationTime(new Date(now.getTime() + 60 * 1000));
@@ -322,7 +436,12 @@ public class JwtAuthenticatorTest
 
     private String createValidJwt() throws IOException, NoSuchAlgorithmException
     {
-        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
+        return createValidJwtWithIssuer(JWT_ISSUER);
+    }
+
+    private String createValidJwtWithIssuer(String issuer) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures(issuer);
         claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);

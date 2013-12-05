@@ -27,7 +27,14 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
     @Override
     public boolean isValid(String issuer)
     {
-        return null != issuer && null != getApplicationLink(issuer);
+        try
+        {
+            return null != issuer && null != getApplicationLink(issuer);
+        }
+        catch (JwtUnknownIssuerException e)
+        {
+            return false;
+        }
     }
 
     @Override
@@ -50,7 +57,7 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
         return secret;
     }
 
-    private ApplicationLink getApplicationLink(String issuer)
+    private ApplicationLink getApplicationLink(String issuer) throws JwtUnknownIssuerException
     {
         ApplicationLink applicationLink;
 
@@ -62,6 +69,11 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
         {
             log.warn("Encountered exception while finding application link for JWT issuer '{}'", issuer, e);
             throw new IllegalArgumentException(e);
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.debug("Claimed JWT issuer is not valid. Encountered exception while looking up its app link: ", e);
+            throw new JwtUnknownIssuerException(issuer);
         }
 
         return applicationLink;

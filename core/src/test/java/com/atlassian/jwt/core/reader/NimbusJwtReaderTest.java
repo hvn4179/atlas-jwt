@@ -182,7 +182,7 @@ public class NimbusJwtReaderTest
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
-    @Test(expected = JwtInvalidClaimException.class)
+    @Test(expected = JwtMissingClaimException.class)
     public void omittingARequiredClaimResultsInAVerificationException() throws JwtParseException, JwtVerificationException
     {
         String claimName = "expectedClaim";

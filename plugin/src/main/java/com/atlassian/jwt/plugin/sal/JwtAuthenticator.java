@@ -5,14 +5,13 @@ import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
-import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtUnknownIssuerException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.atlassian.sal.api.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,68 +25,104 @@ public class JwtAuthenticator implements Authenticator
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
+    private static final String BAD_CREDENTIALS_MESSAGE = "Your presented credentials do not provide access to this resource."; // protect against phishing by not saying whether the add-on, user or secret was wrong
+    private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here and Connect's ApiScopingFilter into a lib referenced by both
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticator.class);
+
     public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
         this.jwtService = jwtService;
         this.authenticationController = authenticationController;
     }
 
+    /**
+     * Authenticate the incoming request, returning {@link Result.Success} if possible.
+     * On bad input or internal failure return a non-success {@link Result} and return a non-success HTTP response code to {@code response}.
+     * Response codes match OAuth:
+     *   parse error / garbled --> 400 bad request
+     *   good syntax but purposefully rejected --> 401 unauthorised
+     *   failure to compute a result --> 500 internal server error
+     *   rate limiting (not handled here) --> 503 service unavailable
+     *   default --> 403 forbidden
+     * @param request {@link HttpServletRequest} to be vetted
+     * @param response {@link HttpServletResponse} to be send error code if and only if the authentication is unsuccessful
+     * @return {@link Result} representing the success, failure or error of the authentication attempt
+     */
     @Override
     public Result authenticate(HttpServletRequest request, HttpServletResponse response)
     {
-        String jwt = JwtUtil.extractJwt(request);
-        if (jwt != null)
-        {
-            return authenticate(request, jwt);
-        }
-
-        throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
-    }
-
-    private Result authenticate(final HttpServletRequest request, String jwtString)
-    {
         try
         {
-            Jwt jwt = verifyJwt(jwtString, request);
-            Principal userPrincipal = new SimplePrincipal(jwt.getSubject());
+            String jwt = JwtUtil.extractJwt(request);
 
-            if (authenticationController.canLogin(userPrincipal, request))
+            if (null == jwt)
             {
-                return new Result.Success(createMessage("Authentication successful!"), userPrincipal);
+                throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
             }
-            else
-            {
-                return new Result.Failure(createMessage(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request)));
-            }
+
+            return new Result.Success(createMessage("Authentication successful!"), authenticate(request, jwt));
         }
         catch (TypeNotInstalledException e)
         {
-            return createError(e);
+            return createAndSendInternalError(e, response);
         }
-        catch (JwtParseException e)
+        catch (IllegalArgumentException e)
         {
-            return createError(e);
-        }
-        catch (JwtVerificationException e)
-        {
-            return createFailure(e);
-        }
-        catch (JwtIssuerLacksSharedSecretException e)
-        {
-            return createFailure(e);
-        }
-        catch (JwtUnknownIssuerException e)
-        {
-            return createFailure(e);
+            return createAndSendInternalError(e, response);
         }
         catch (IOException e)
         {
-            return createError(e);
+            return createAndSendInternalError(e, response);
         }
         catch (NoSuchAlgorithmException e)
         {
-            return createError(e);
+            return createAndSendInternalError(e, response);
         }
+        catch (JwtParseException e)
+        {
+            // JWT parse exceptions are going to be seen mainly by add-on vendors during development and say things like "invalid character at index 123" or "foo should be a string"
+            return createAndSendBadRequestError(e, response, getBriefMessageFromException(e));
+        }
+        catch (JwtVerificationException e)
+        {
+            // the exception will contain technical details such as "it is expired" or "claim xyz is invalid"
+            return createAndSendUnauthorisedFailure(e, response, getBriefMessageFromException(e));
+        }
+        catch (JwtIssuerLacksSharedSecretException e)
+        {
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
+        }
+        catch (JwtUnknownIssuerException e)
+        {
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
+        }
+        catch (JwtUserRejectedException e)
+        {
+            return createAndSendUnauthorisedFailure(e, response, BAD_CREDENTIALS_MESSAGE);
+        }
+        catch (Exception e)
+        {
+            return createAndSendForbiddenError(e, response);
+        }
+    }
+
+    private static String getBriefMessageFromException(Exception e)
+    {
+        return e.getLocalizedMessage() + (null == e.getCause() ? "" : " (caused by " + e.getCause().getLocalizedMessage() + ")");
+    }
+
+    private Principal authenticate(final HttpServletRequest request, String jwtString) throws NoSuchAlgorithmException, TypeNotInstalledException, IOException, JwtIssuerLacksSharedSecretException, JwtParseException, JwtVerificationException, JwtUnknownIssuerException, JwtUserRejectedException
+    {
+        Jwt jwt = verifyJwt(jwtString, request);
+        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: ACDEV-653: principal should be looked up interally from the issuer id
+
+        if (!authenticationController.canLogin(userPrincipal, request))
+        {
+            throw new JwtUserRejectedException(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request));
+        }
+
+        request.setAttribute(ADD_ON_ID_ATTRIBUTE, jwt.getIssuer());
+        return userPrincipal;
     }
 
     private Jwt verifyJwt(String jwtString, HttpServletRequest request) throws JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
@@ -95,24 +130,58 @@ public class JwtAuthenticator implements Authenticator
         return jwtService.verifyJwt(jwtString, JwtClaimVerifiersBuilder.build(new CanonicalHttpServletRequest(request))).getJwt();
     }
 
-    private static Result.Error createError(Exception e)
+    private Result createAndSendInternalError(Exception e, HttpServletResponse response)
     {
-        return createError(e.getLocalizedMessage());
+        // the internal error could give away runtime details that could be useful in an attack, so don't display it externally
+        return createAndSendError(e, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An internal error occurred. Please check the host product's logs.");
     }
 
-    private static Result.Error createError(String message)
+    private Result createAndSendBadRequestError(Exception e, HttpServletResponse response, String externallyVisibleMessage)
     {
-        return new Result.Error(createMessage(message));
+        // the message will probably be seen by add-on vendors during add-on development
+        return createAndSendError(e, response, HttpServletResponse.SC_BAD_REQUEST, externallyVisibleMessage);
     }
 
-    private static Result.Failure createFailure(Exception e)
+    private Result createAndSendUnauthorisedFailure(Exception e, HttpServletResponse response, String externallyVisibleMessage)
     {
-        return createFailure(e.getLocalizedMessage());
+        // the jwt has good syntax but was rejected, and was not rejected due to the user or issuer specifically
+        return createAndSendFailure(e, response, HttpServletResponse.SC_UNAUTHORIZED, externallyVisibleMessage);
     }
 
-    private static Result.Failure createFailure(String message)
+    private Result createAndSendForbiddenError(Exception e, HttpServletResponse response)
     {
-        return new Result.Failure(createMessage(message));
+        // this is the default error response, so the message is quite general
+        return createAndSendError(e, response, HttpServletResponse.SC_FORBIDDEN, "Access to this resource is forbidden without successful authentication. Please supply valid credentials.");
+    }
+
+    private static Result.Error createAndSendError(Exception e, HttpServletResponse response, int httpResponseCode, String externallyVisibleMessage)
+    {
+        log.debug("Error during JWT authentication: ", e);
+        sendErrorResponse(response, httpResponseCode, externallyVisibleMessage);
+        return new Result.Error(createMessage(e.getLocalizedMessage()));
+    }
+
+    private static Result.Failure createAndSendFailure(Exception e, HttpServletResponse response, int httpResponseCode, String externallyVisibleMessage)
+    {
+        log.debug("Failure during JWT authentication: ", e);
+        sendErrorResponse(response, httpResponseCode, externallyVisibleMessage);
+        return new Result.Failure(createMessage(e.getLocalizedMessage()));
+    }
+
+    private static void sendErrorResponse(HttpServletResponse response, int httpResponseCode, String externallyVisibleMessage)
+    {
+        response.reset();
+
+        try
+        {
+            response.sendError(httpResponseCode, externallyVisibleMessage);
+        }
+        catch (IOException doubleFacePalm)
+        {
+            log.error("Encountered IOException while trying to report an authentication failure.", doubleFacePalm);
+            response.reset();
+            response.setStatus(httpResponseCode); // no error message, but hopefully the response code will still be useful
+        }
     }
 
     private static Message createMessage(final String message)
