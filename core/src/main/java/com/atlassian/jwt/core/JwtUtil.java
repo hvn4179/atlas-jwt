@@ -29,7 +29,7 @@ public class JwtUtil
     /**
      * The encoding used to represent characters as bytes.
      */
-    public static final String ENCODING = "UTF-8";
+    private static final String ENCODING = "UTF-8";
     /**
      * As appears between "value1" and "param2" in the URL "http://server/path?param1=value1&param2=value2".
      */
