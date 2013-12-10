@@ -58,11 +58,6 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
             throw new IllegalArgumentException("Method cannot be empty-string!");
         }
 
-        if (!method.equals(method.toUpperCase()))
-        {
-            throw new IllegalArgumentException(String.format("Method '%s' should be all upper-case!", method));
-        }
-
-        return method;
+        return method.toUpperCase();
     }
 }
