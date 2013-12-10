@@ -19,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 
 import static it.util.HttpResponseConsumers.expectBody;
@@ -67,7 +68,7 @@ public class TestJwtAuthentication extends AbstractPeerTest
                 .subject("admin")
                 .issuedAt(TimeUtil.currentTimeSeconds())
                 .expirationTime(TimeUtil.currentTimePlusNSeconds(60));
-        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest(new HttpGet(url), getContextPath()));
+        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest("GET", URI.create(url).getPath(), getContextPath()));
         return jsonBuilder;
     }
 }

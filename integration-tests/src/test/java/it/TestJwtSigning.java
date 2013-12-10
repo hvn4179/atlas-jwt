@@ -36,7 +36,7 @@ public class TestJwtSigning extends AbstractPeerTest
                 .issuedAt(TimeUtil.currentTimeSeconds())
                 .expirationTime(TimeUtil.currentTimePlusNSeconds(60))
                 .issuer(clientId);
-        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest(new HttpPost(targetUri), getContextPath()));
+        JwtClaimsBuilder.appendHttpRequestClaims(jsonBuilder, new CanonicalHttpUriRequest("POST", targetUri, getContextPath()));
         HttpUtil.post(relayResource(clientId), ImmutableMap.of(
                 "path", targetUri,
                 "method", "POST",
