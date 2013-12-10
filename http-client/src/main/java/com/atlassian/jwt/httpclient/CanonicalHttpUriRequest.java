@@ -4,14 +4,15 @@ import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.core.JwtUtil;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -55,21 +56,14 @@ public class CanonicalHttpUriRequest implements CanonicalHttpRequest
 
     private static Map<String, String[]> constructParameterMap(HttpUriRequest request)
     {
-        List queryParams = new ParameterParser().parse(request.getURI().getQuery(), JwtUtil.QUERY_PARAMS_SEPARATOR);
-        Multimap<String, String> queryParamsMapIntermediate = HashMultimap.create(queryParams.size(), 1); // 1 value per key is close to the truth in most cases
+        List<NameValuePair> queryParams = URLEncodedUtils.parse(request.getURI().getQuery(), Charset.forName(JwtUtil.ENCODING));
 
+        Multimap<String, String> queryParamsMapIntermediate = HashMultimap.create(queryParams.size(), 1); // 1 value per key is close to the truth in most cases
         // efficiently collect { name1 -> { value1, value2, ... }, name2 -> { ... }, ... }
-        for (Object queryParam : queryParams)
+        for (NameValuePair queryParam : queryParams)
         {
-            if (queryParam instanceof NameValuePair)
-            {
-                NameValuePair nameValuePair = (NameValuePair) queryParam;
-                queryParamsMapIntermediate.put(nameValuePair.getName(), nameValuePair.getValue());
-            }
-            else
-            {
-                log.warn("Ignoring query parameter '{}' that is of type '{}' rather than the expected NameValuePair", queryParam, null == queryParam ? null : queryParam.getClass().getName());
-            }
+            NameValuePair nameValuePair = (NameValuePair) queryParam;
+            queryParamsMapIntermediate.put(nameValuePair.getName(), nameValuePair.getValue());
         }
 
         Map<String, String[]> queryParamsMap = new HashMap<String, String[]>(queryParamsMapIntermediate.size());
