@@ -2,10 +2,7 @@ package com.atlassian.jwt.httpclient;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.JwtConstants;
-import com.atlassian.jwt.core.JwtUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -118,29 +115,7 @@ public class TestCanonicalHttpUriRequest
     @BeforeClass
     public static void beforeAllTests() throws UnsupportedEncodingException
     {
-        request = new CanonicalHttpUriRequest(createHttpUriRequest(), CONTEXT_PATH);
-    }
-
-    private static HttpUriRequest createHttpUriRequest() throws UnsupportedEncodingException
-    {
-        StringBuilder queryParams = new StringBuilder();
-
-        for (Map.Entry<String, String[]> param : QUERY_PARAMS.entrySet())
-        {
-            for (String paramValue : param.getValue())
-            {
-                if (queryParams.length() > 0)
-                {
-                    queryParams.append('&');
-                }
-
-                queryParams.append(param.getKey())
-                        .append('=')
-                        .append(paramValue);
-            }
-        }
-
-        return new HttpGet("http://server:port" + RESOURCE_PATH + '?' + JwtUtil.percentEncode(queryParams.toString()));
+        request = new CanonicalHttpUriRequest("GET", RESOURCE_PATH, CONTEXT_PATH, QUERY_PARAMS);
     }
 
     private static Map<String, String[]> createExpectedQueryParameters()
