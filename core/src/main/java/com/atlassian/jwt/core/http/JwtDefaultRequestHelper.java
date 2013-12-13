@@ -1,18 +1,17 @@
 package com.atlassian.jwt.core.http;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-
-import com.atlassian.jwt.JwtConstants;
-import com.google.common.base.Optional;
 import org.apache.commons.lang.StringUtils;
+
+import static com.atlassian.jwt.JwtConstants.JWT_PARAM_NAME;
+import static com.atlassian.jwt.core.http.JwtHttpConstants.AUTHORIZATION_HEADER;
+import static com.atlassian.jwt.core.http.JwtHttpConstants.JWT_AUTH_HEADER_PREFIX;
 
 public class JwtDefaultRequestHelper implements JwtRequestHelper
 {
     private final HttpRequestWrapper requestWrapper;
 
-    public JwtDefaultRequestHelper(HttpRequestWrapper requestWrapper) {
-
+    public JwtDefaultRequestHelper(HttpRequestWrapper requestWrapper)
+    {
         this.requestWrapper = requestWrapper;
     }
 
@@ -29,7 +28,7 @@ public class JwtDefaultRequestHelper implements JwtRequestHelper
 
     private String getJwtParameter()
     {
-        String jwtParam = requestWrapper.getParameter(JwtConstants.JWT_PARAM_NAME).orNull();
+        String jwtParam = requestWrapper.getParameter(JWT_PARAM_NAME);
         return StringUtils.isEmpty(jwtParam) ? null : jwtParam;
     }
 

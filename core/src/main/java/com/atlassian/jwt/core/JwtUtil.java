@@ -3,6 +3,7 @@ package com.atlassian.jwt.core;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.http.JavaxHttpRequestWrapper;
 import com.atlassian.jwt.core.http.JwtDefaultRequestHelper;
+import com.atlassian.jwt.core.http.JwtHttpConstants;
 import com.atlassian.jwt.core.http.JwtRequestHelper;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
@@ -17,9 +18,10 @@ import java.util.Enumeration;
 
 public class JwtUtil
 {
-    public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
+    // sorry Peter :-/
+    public static final String JWT_REQUEST_FLAG = JwtHttpConstants.JWT_REQUEST_FLAG;
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = JwtHttpConstants.AUTHORIZATION_HEADER;
 
     /**
      * The start of a valid Authorization header specifying a JWT message.<p>
@@ -28,7 +30,7 @@ public class JwtUtil
      *      JwtUtil.JWT_AUTH_HEADER_PREFIX + "<insert jwt message here>"
      *  }</pre>
      */
-    public static final String JWT_AUTH_HEADER_PREFIX = "JWT ";
+    public static final String JWT_AUTH_HEADER_PREFIX = JwtHttpConstants.JWT_AUTH_HEADER_PREFIX;
 
     /**
      * The encoding used to represent characters as bytes.

@@ -2,8 +2,10 @@ package com.atlassian.jwt.core.http;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.Enumeration;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 // trying to avoid name conflict with javax.servlet.HttpServletRequestWrapper
 public class JavaxHttpRequestWrapper implements HttpRequestWrapper
@@ -16,15 +18,16 @@ public class JavaxHttpRequestWrapper implements HttpRequestWrapper
     }
 
     @Override
-    public Optional<String> getParameter(String parameterName)
+    public String getParameter(String parameterName)
     {
-        return Optional.fromNullable(request.getParameter(parameterName));
+        return request.getParameter(parameterName);
     }
 
     @Override
     @SuppressWarnings(value = "unchecked")
     public Iterable<String> getHeaderValues(String headerName)
     {
-        return Collections.list(request.getHeaders(headerName));
+        Enumeration headers = request.getHeaders(headerName);
+        return headers != null ? Collections.list(headers) : Collections.emptyList();
     }
 }
