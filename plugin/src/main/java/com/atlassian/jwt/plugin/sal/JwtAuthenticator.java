@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.core.JwtUtil;
+import com.atlassian.jwt.core.http.auth.SimplePrincipal;
 import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;

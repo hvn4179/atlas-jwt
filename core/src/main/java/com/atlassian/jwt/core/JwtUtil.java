@@ -1,20 +1,17 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.core.http.AbstractJwtRequestExtractor;
 import com.atlassian.jwt.core.http.JavaxHttpRequestWrapper;
-import com.atlassian.jwt.core.http.JwtDefaultRequestHelper;
+import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
 import com.atlassian.jwt.core.http.JwtHttpConstants;
-import com.atlassian.jwt.core.http.JwtRequestHelper;
+import com.atlassian.jwt.core.http.JwtRequestExtractor;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
 
 public class JwtUtil
 {
@@ -41,6 +38,8 @@ public class JwtUtil
      */
     public static final char QUERY_PARAMS_SEPARATOR = '&';
 
+    private static JwtRequestExtractor<HttpServletRequest> jwtRequestExtractor = new JavaxJwtRequestExtractor();
+
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
         return extractJwt(request) != null;
@@ -48,7 +47,7 @@ public class JwtUtil
 
     public static String extractJwt(HttpServletRequest request)
     {
-        return new JwtDefaultRequestHelper(new JavaxHttpRequestWrapper(request)).extractJwt();
+        return  jwtRequestExtractor.extractJwt(request);
     }
 
     /**

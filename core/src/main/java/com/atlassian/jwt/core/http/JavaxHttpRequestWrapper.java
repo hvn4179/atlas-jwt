@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import com.atlassian.jwt.CanonicalHttpRequest;
+import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -29,5 +31,11 @@ public class JavaxHttpRequestWrapper implements HttpRequestWrapper
     {
         Enumeration headers = request.getHeaders(headerName);
         return headers != null ? Collections.list(headers) : Collections.emptyList();
+    }
+
+    @Override
+    public CanonicalHttpRequest getCanonicalHttpRequest()
+    {
+        return new CanonicalHttpServletRequest(request);
     }
 }
