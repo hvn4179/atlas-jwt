@@ -1,10 +1,14 @@
 package com.atlassian.jwt.core;
 
 import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.core.http.JavaxHttpRequestWrapper;
+import com.atlassian.jwt.core.http.JwtDefaultRequestHelper;
+import com.atlassian.jwt.core.http.JwtRequestHelper;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -42,38 +46,7 @@ public class JwtUtil
 
     public static String extractJwt(HttpServletRequest request)
     {
-        String jwt = getJwtParameter(request);
-        if (jwt == null)
-        {
-            jwt = getJwtHeaderValue(request);
-        }
-        return jwt;
-    }
-
-    private static String getJwtParameter(HttpServletRequest request)
-    {
-        String jwtParam = request.getParameter(JwtConstants.JWT_PARAM_NAME);
-        return StringUtils.isEmpty(jwtParam) ? null : jwtParam;
-    }
-
-    private static String getJwtHeaderValue(HttpServletRequest request)
-    {
-        Enumeration headers = request.getHeaders(AUTHORIZATION_HEADER);
-
-        if (null != headers)
-        {
-            while (headers.hasMoreElements())
-            {
-                String authzHeader = headers.nextElement().toString().trim();
-                String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
-                if (JWT_AUTH_HEADER_PREFIX.equalsIgnoreCase(first4Chars))
-                {
-                    return authzHeader.substring(4);
-                }
-            }
-        }
-
-        return null;
+        return new JwtDefaultRequestHelper(new JavaxHttpRequestWrapper(request)).extractJwt();
     }
 
     /**

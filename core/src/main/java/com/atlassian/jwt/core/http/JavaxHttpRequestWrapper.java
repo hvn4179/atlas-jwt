@@ -5,11 +5,12 @@ import java.util.Collections;
 
 import com.google.common.base.Optional;
 
-class HttpServletRequestRequestWrapper implements HttpRequestWrapper
+// trying to avoid name conflict with javax.servlet.HttpServletRequestWrapper
+public class JavaxHttpRequestWrapper implements HttpRequestWrapper
 {
     private final HttpServletRequest request;
 
-    public HttpServletRequestRequestWrapper(HttpServletRequest request)
+    public JavaxHttpRequestWrapper(HttpServletRequest request)
     {
         this.request = request;
     }
