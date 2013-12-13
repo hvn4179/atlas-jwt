@@ -11,9 +11,9 @@ public class JwtConstants
     public static final class Claims
     {
         /**
-         * Instructions for computing the query signature parameter ("qsg") from a HTTP request.
+         * Instructions for computing the query hash parameter ("qsh") from a HTTP request.
          * -------------------------------------------------------------------------------------
-         * Overview:  query signature = sign(canonical-request)
+         * Overview:       query hash = hash(canonical-request)
          *          canonical-request = canonical-method + '&' + canonical-URI + '&' + canonical-query-string
          * 1. Compute canonical method.
          *    Simply the upper-case of the method name (e.g. "GET", "PUT").
