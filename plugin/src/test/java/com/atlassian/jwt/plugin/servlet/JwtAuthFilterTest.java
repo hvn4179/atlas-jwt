@@ -35,7 +35,7 @@ public class JwtAuthFilterTest
 
     private Filter filter;
 
-    @Mock private JwtAuthenticator authenticator;
+    @Mock private Authenticator authenticator;
     @Mock private AuthenticationListener authenticationListener;
     @Mock private AuthenticationController authenticationController;
     @Mock private ApplicationProperties applicationProperties;

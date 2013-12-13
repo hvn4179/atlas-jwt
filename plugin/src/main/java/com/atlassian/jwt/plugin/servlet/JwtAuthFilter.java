@@ -17,7 +17,7 @@ public class JwtAuthFilter implements Filter
     private final AuthenticationListener authenticationListener;
     private final AuthenticationController authenticationController;
 
-    public JwtAuthFilter(AuthenticationListener authenticationListener, JwtAuthenticator authenticator, AuthenticationController authenticationController)
+    public JwtAuthFilter(AuthenticationListener authenticationListener, Authenticator authenticator, AuthenticationController authenticationController)
     {
         this.authenticationListener = authenticationListener;
         this.authenticator = authenticator;
