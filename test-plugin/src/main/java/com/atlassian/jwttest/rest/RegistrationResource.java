@@ -1,6 +1,5 @@
 package com.atlassian.jwttest.rest;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationType;
 import com.atlassian.applinks.api.application.generic.GenericApplicationType;
@@ -27,12 +26,14 @@ public class RegistrationResource
     private final MutatingApplicationLinkService applicationLinkService;
     private final TypeAccessor typeAccessor;
     private final JwtPeerService peerService;
+    private final JwtApplinkFinder jwtApplinkFinder;
 
-    public RegistrationResource(MutatingApplicationLinkService applicationLinkService, TypeAccessor typeAccessor, JwtPeerService peerService)
+    public RegistrationResource(MutatingApplicationLinkService applicationLinkService, TypeAccessor typeAccessor, JwtPeerService peerService, JwtApplinkFinder jwtApplinkFinder)
     {
         this.applicationLinkService = applicationLinkService;
         this.typeAccessor = typeAccessor;
         this.peerService = peerService;
+        this.jwtApplinkFinder = jwtApplinkFinder;
     }
 
     @POST
@@ -55,7 +56,7 @@ public class RegistrationResource
     @Path("{id}")
     public Response delete(@PathParam("id") String id) throws Exception
     {
-        ApplicationLink applink = JwtApplinkFinder.find(applicationLinkService, id);
+        ApplicationLink applink = jwtApplinkFinder.find(id);
         if (applink == null)
         {
             return Response.status(Response.Status.NOT_FOUND).entity("No applink with id " + id).build();

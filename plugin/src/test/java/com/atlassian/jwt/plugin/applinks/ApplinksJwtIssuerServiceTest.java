@@ -3,6 +3,7 @@ package com.atlassian.jwt.plugin.applinks;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.jwt.applinks.JwtApplinkConstants;
+import com.atlassian.jwt.applinks.JwtApplinkFinderImpl;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import org.junit.Before;
@@ -108,6 +109,6 @@ public class ApplinksJwtIssuerServiceTest
 
         when(applicationLinkService.getApplicationLinks()).thenReturn(asList(applicationLink, unrelatedNoAuthApplicationLink, unrelatedOAuthApplicationLink));
 
-        applinksJwtIssuerService = new ApplinksJwtIssuerService(applicationLinkService);
+        applinksJwtIssuerService = new ApplinksJwtIssuerService(new JwtApplinkFinderImpl(applicationLinkService));
     }
 }

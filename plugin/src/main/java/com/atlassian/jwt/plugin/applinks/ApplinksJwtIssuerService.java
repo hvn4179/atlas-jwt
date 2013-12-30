@@ -1,7 +1,6 @@
 package com.atlassian.jwt.plugin.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.core.reader.JwtIssuerSharedSecretService;
 import com.atlassian.jwt.core.reader.JwtIssuerValidator;
@@ -12,23 +11,23 @@ import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN
 
 public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSharedSecretService
 {
-    private final ApplicationLinkService applicationLinkService;
+    private final JwtApplinkFinder jwtApplinkFinder;
 
-    public ApplinksJwtIssuerService(ApplicationLinkService applicationLinkService)
+    public ApplinksJwtIssuerService(JwtApplinkFinder jwtApplinkFinder)
     {
-        this.applicationLinkService = applicationLinkService;
+        this.jwtApplinkFinder = jwtApplinkFinder;
     }
 
     @Override
     public boolean isValid(String issuer)
     {
-        return null != issuer && null != JwtApplinkFinder.find(applicationLinkService, issuer);
+        return null != issuer && null != jwtApplinkFinder.find(issuer);
     }
 
     @Override
     public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
-        ApplicationLink applicationLink = null == issuer ? null : JwtApplinkFinder.find(applicationLinkService, issuer);
+        ApplicationLink applicationLink = null == issuer ? null : jwtApplinkFinder.find(issuer);
 
         if (null == applicationLink)
         {
