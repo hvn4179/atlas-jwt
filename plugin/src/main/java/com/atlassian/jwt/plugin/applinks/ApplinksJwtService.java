@@ -7,6 +7,7 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.ApplinkJwt;
+import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.exception.*;
@@ -43,7 +44,7 @@ public class ApplinksJwtService implements JwtService
     public ApplinkJwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
         Jwt verifiedJwt = jwtReaderFactory.getReader(jwt).read(jwt, claimVerifiers);
-        ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(verifiedJwt.getIssuer()));
+        ApplicationLink applicationLink = JwtApplinkFinder.find(applicationLinkService, verifiedJwt.getIssuer());
         return new SimpleApplinkJwt(verifiedJwt, applicationLink);
     }
 

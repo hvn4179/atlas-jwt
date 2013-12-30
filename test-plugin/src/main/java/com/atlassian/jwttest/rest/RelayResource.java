@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.Request;
@@ -62,7 +63,7 @@ public class RelayResource
                     .build();
         }
 
-        ApplicationLink applink = applicationLinkService.getApplicationLink(new ApplicationId(id));
+        ApplicationLink applink = JwtApplinkFinder.find(applicationLinkService, id);
         if (applink == null)
         {
             return Response.status(Response.Status.NOT_FOUND).entity("No applink with id " + id).build();
