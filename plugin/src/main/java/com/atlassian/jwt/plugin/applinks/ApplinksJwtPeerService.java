@@ -36,7 +36,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
 
         if (null == addOnKey)
         {
-            throw new JwtRegistrationFailedException(String.format("Application link '%s' has no '%s' property. It should have been set during add-on installation! Please reinstall or set it manually.",
+            throw new JwtRegistrationFailedException(String.format("Application link '%s' has no '%s' property. It should have been set during add-on installation! Please reinstall the add-on.",
                     applicationLink.getId(), JwtApplinkConstants.PLUGIN_KEY_PROPERTY));
         }
 
