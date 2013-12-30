@@ -2,7 +2,6 @@ package com.atlassian.jwt.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 
 public class JwtApplinkFinder
 {
