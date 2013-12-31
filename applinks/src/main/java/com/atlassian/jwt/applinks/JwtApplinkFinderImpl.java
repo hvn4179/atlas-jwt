@@ -17,7 +17,7 @@ public class JwtApplinkFinderImpl implements JwtApplinkFinder
     {
         if (null == addOnId)
         {
-            throw new IllegalArgumentException("Add-on id cannot be null");
+            throw new NullPointerException("Add-on id cannot be null");
         }
 
         for (ApplicationLink appLink : applicationLinkService.getApplicationLinks())
