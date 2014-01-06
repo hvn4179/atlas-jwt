@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.jwt.SigningAlgorithm;
+import com.atlassian.jwt.applinks.JwtApplinkConstants;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
 import com.atlassian.jwt.plugin.security.SecretGenerator;
@@ -31,6 +32,14 @@ public class ApplinksJwtPeerService implements JwtPeerService
         // generate secure shared secret
         String sharedSecret = SecretGenerator.generateUrlSafeSharedSecret(SigningAlgorithm.HS256);
 
+        Object addOnKey = applicationLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY);
+
+        if (null == addOnKey)
+        {
+            throw new JwtRegistrationFailedException(String.format("Application link '%s' has no '%s' property. It should have been set during add-on installation! Please reinstall the add-on.",
+                    applicationLink.getId(), JwtApplinkConstants.PLUGIN_KEY_PROPERTY));
+        }
+
         // pass shared secret to peer
         try
         {
@@ -38,7 +47,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
                     .createRequest(Request.MethodType.POST, path)
                     .addRequestParameters(
                             "myId", hostApplication.getId().get(),
-                            "yourId", applicationLink.getId().toString(),
+                            "yourId", addOnKey.toString(),
                             "secret", sharedSecret)
                     .execute(new ResponseHandler<Response>()
                     {

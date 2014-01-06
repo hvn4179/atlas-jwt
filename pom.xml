@@ -30,7 +30,6 @@
         <url>https://bitbucket.org/atlassian/atlassian-jwt</url>
     </scm>
 
-    <!-- TODO: create an authentication project in https://ecosystem.atlassian.net -->
     <issueManagement>
         <system>jira</system>
         <url>https://ecosystem.atlassian.net/browse/ACDEV</url>

@@ -1,46 +1,33 @@
 package com.atlassian.jwt.plugin.applinks;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
+import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.core.reader.JwtIssuerSharedSecretService;
 import com.atlassian.jwt.core.reader.JwtIssuerValidator;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN_JWT_SHARED_SECRET;
 
 public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSharedSecretService
 {
-    private static final Logger log = LoggerFactory.getLogger(ApplinksJwtIssuerService.class);
+    private final JwtApplinkFinder jwtApplinkFinder;
 
-    private final ApplicationLinkService applicationLinkService;
-
-    public ApplinksJwtIssuerService(ApplicationLinkService applicationLinkService)
+    public ApplinksJwtIssuerService(JwtApplinkFinder jwtApplinkFinder)
     {
-        this.applicationLinkService = applicationLinkService;
+        this.jwtApplinkFinder = jwtApplinkFinder;
     }
 
     @Override
     public boolean isValid(String issuer)
     {
-        try
-        {
-            return null != issuer && null != getApplicationLink(issuer);
-        }
-        catch (JwtUnknownIssuerException e)
-        {
-            return false;
-        }
+        return null != issuer && null != jwtApplinkFinder.find(issuer);
     }
 
     @Override
     public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
-        ApplicationLink applicationLink = getApplicationLink(issuer);
+        ApplicationLink applicationLink = null == issuer ? null : jwtApplinkFinder.find(issuer);
 
         if (null == applicationLink)
         {
@@ -55,27 +42,5 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
         }
 
         return secret;
-    }
-
-    private ApplicationLink getApplicationLink(String issuer) throws JwtUnknownIssuerException
-    {
-        ApplicationLink applicationLink;
-
-        try
-        {
-            applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(issuer));
-        }
-        catch (TypeNotInstalledException e)
-        {
-            log.warn("Encountered exception while finding application link for JWT issuer '{}'", issuer, e);
-            throw new IllegalArgumentException(e);
-        }
-        catch (IllegalArgumentException e)
-        {
-            log.debug("Claimed JWT issuer is not valid. Encountered exception while looking up its app link: ", e);
-            throw new JwtUnknownIssuerException(issuer);
-        }
-
-        return applicationLink;
     }
 }
