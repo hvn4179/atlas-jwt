@@ -47,4 +47,35 @@ public class JwtConstants
          */
         public static final String QUERY_HASH = "qsh";
     }
+
+    public static final class AppLinks
+    {
+        /**
+         * The name of the property containing the unique identifier of an add-on.
+         */
+        public static final String ADD_ON_ID_PROPERTY_NAME = "plugin-key";
+
+        /**
+         * The name of the property containing the {@link String} value of the add-on's authentication method.
+         */
+        public static final String AUTH_METHOD_PROPERTY_NAME = "atlassian.auth.method";
+
+        /**
+         * The name of the property containing the shared secret used in JWT authentication (if any).
+         */
+        public static final String SHARED_SECRET_PROPERTY_NAME = "atlassian.jwt.shared.secret";
+
+        /**
+         * The value that the {@link #AUTH_METHOD_PROPERTY_NAME} property has if the add-on uses JWT authentication.
+         */
+        public static final String JWT_AUTH_METHOD_NAME = "JWT";
+    }
+
+    public static final class HttpRequests
+    {
+        /**
+         * The name of an attribute set on incoming requests by authentication filters so that later filters can discover the id of the authenticated add-on (if any).
+         */
+        public static final String ADD_ON_ID_ATTRIBUTE_NAME = "Plugin-Key";
+    }
 }

@@ -2,7 +2,7 @@ package com.atlassian.jwt.plugin.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.jwt.applinks.JwtApplinkConstants;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtApplinkFinderImpl;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.UUID;
 
-import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN_JWT_SHARED_SECRET;
+import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -98,14 +98,14 @@ public class ApplinksJwtIssuerServiceTest
     @Before
     public void beforeEachTest()
     {
-        when(unrelatedOAuthApplicationLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY)).thenReturn(OAUTH_ADD_ON_KEY);
+        when(unrelatedOAuthApplicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME)).thenReturn(OAUTH_ADD_ON_KEY);
 
-        when(unrelatedNoAuthApplicationLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY)).thenReturn(NO_AUTH_ADD_ON_KEY);
-        when(unrelatedNoAuthApplicationLink.getProperty(JwtApplinkConstants.AUTH_METHOD_PROPERTY)).thenReturn("OAUTH1"); // TODO: ACDEC-663: share AuthenticationMethod with atlassian-connect's DefaultConnectApplinkManager
+        when(unrelatedNoAuthApplicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME)).thenReturn(NO_AUTH_ADD_ON_KEY);
+        when(unrelatedNoAuthApplicationLink.getProperty(JwtConstants.AppLinks.AUTH_METHOD_PROPERTY_NAME)).thenReturn("OAUTH1");
 
-        when(applicationLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY)).thenReturn(ADD_ON_KEY);
-        when(applicationLink.getProperty(ATLASSIAN_JWT_SHARED_SECRET)).thenReturn(SHARED_SECRET);
-        when(applicationLink.getProperty(JwtApplinkConstants.AUTH_METHOD_PROPERTY)).thenReturn(JwtApplinkConstants.JWT_AUTH_METHOD);
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME)).thenReturn(ADD_ON_KEY);
+        when(applicationLink.getProperty(SHARED_SECRET_PROPERTY_NAME)).thenReturn(SHARED_SECRET);
+        when(applicationLink.getProperty(JwtConstants.AppLinks.AUTH_METHOD_PROPERTY_NAME)).thenReturn(JwtConstants.AppLinks.JWT_AUTH_METHOD_NAME);
 
         when(applicationLinkService.getApplicationLinks()).thenReturn(asList(applicationLink, unrelatedNoAuthApplicationLink, unrelatedOAuthApplicationLink));
 

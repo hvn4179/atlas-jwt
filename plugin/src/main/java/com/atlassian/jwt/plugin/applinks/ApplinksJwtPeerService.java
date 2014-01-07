@@ -5,7 +5,6 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.applinks.JwtApplinkConstants;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
 import com.atlassian.jwt.plugin.security.SecretGenerator;
@@ -14,11 +13,11 @@ import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
 
+import static com.atlassian.jwt.JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME;
+import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
+
 public class ApplinksJwtPeerService implements JwtPeerService
 {
-
-    public static final String ATLASSIAN_JWT_SHARED_SECRET = "atlassian.jwt.shared.secret";
-
     private final InternalHostApplication hostApplication;
 
     public ApplinksJwtPeerService(InternalHostApplication hostApplication)
@@ -32,12 +31,12 @@ public class ApplinksJwtPeerService implements JwtPeerService
         // generate secure shared secret
         String sharedSecret = SecretGenerator.generateUrlSafeSharedSecret(SigningAlgorithm.HS256);
 
-        Object addOnKey = applicationLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY);
+        Object addOnKey = applicationLink.getProperty(ADD_ON_ID_PROPERTY_NAME);
 
         if (null == addOnKey)
         {
             throw new JwtRegistrationFailedException(String.format("Application link '%s' has no '%s' property. It should have been set during add-on installation! Please reinstall the add-on.",
-                    applicationLink.getId(), JwtApplinkConstants.PLUGIN_KEY_PROPERTY));
+                    applicationLink.getId(), ADD_ON_ID_PROPERTY_NAME));
         }
 
         // pass shared secret to peer
@@ -74,13 +73,13 @@ public class ApplinksJwtPeerService implements JwtPeerService
         }
 
         // store the shared secret on the application link
-        applicationLink.putProperty(ATLASSIAN_JWT_SHARED_SECRET, sharedSecret);
+        applicationLink.putProperty(SHARED_SECRET_PROPERTY_NAME, sharedSecret);
     }
 
     @Override
     public void revokeSharedSecret(ApplicationLink applicationLink)
     {
-        applicationLink.removeProperty(ATLASSIAN_JWT_SHARED_SECRET);
+        applicationLink.removeProperty(SHARED_SECRET_PROPERTY_NAME);
     }
 
 }

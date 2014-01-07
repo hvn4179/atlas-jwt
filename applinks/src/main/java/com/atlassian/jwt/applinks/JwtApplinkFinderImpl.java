@@ -3,6 +3,8 @@ package com.atlassian.jwt.applinks;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 
+import static com.atlassian.jwt.JwtConstants.AppLinks.*;
+
 public class JwtApplinkFinderImpl implements JwtApplinkFinder
 {
     private final ApplicationLinkService applicationLinkService;
@@ -22,8 +24,8 @@ public class JwtApplinkFinderImpl implements JwtApplinkFinder
 
         for (ApplicationLink appLink : applicationLinkService.getApplicationLinks())
         {
-            if (addOnId.equals(appLink.getProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY)) &&
-                    JwtApplinkConstants.JWT_AUTH_METHOD.equals(appLink.getProperty(JwtApplinkConstants.AUTH_METHOD_PROPERTY)))
+            if (addOnId.equals(appLink.getProperty(ADD_ON_ID_PROPERTY_NAME)) &&
+                    JWT_AUTH_METHOD_NAME.equals(appLink.getProperty(AUTH_METHOD_PROPERTY_NAME)))
             {
                 return appLink;
             }
