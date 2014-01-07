@@ -16,7 +16,7 @@ import com.atlassian.jwt.writer.JwtWriterFactory;
 
 import java.util.Map;
 
-import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN_JWT_SHARED_SECRET;
+import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
 
 public class ApplinksJwtService implements JwtService
 {
@@ -35,7 +35,7 @@ public class ApplinksJwtService implements JwtService
     @Override
     public boolean isJwtPeer(ApplicationLink applicationLink)
     {
-        return applicationLink.getProperty(ATLASSIAN_JWT_SHARED_SECRET) != null;
+        return applicationLink.getProperty(SHARED_SECRET_PROPERTY_NAME) != null;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ApplinksJwtService implements JwtService
 
     private String requireSharedSecret(ApplicationLink applicationLink)
     {
-        String sharedSecret = (String) applicationLink.getProperty(ATLASSIAN_JWT_SHARED_SECRET);
+        String sharedSecret = (String) applicationLink.getProperty(SHARED_SECRET_PROPERTY_NAME);
         if (sharedSecret == null)
         {
             throw new NotAJwtPeerException(applicationLink);

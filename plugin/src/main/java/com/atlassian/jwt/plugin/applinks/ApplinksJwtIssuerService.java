@@ -7,7 +7,7 @@ import com.atlassian.jwt.core.reader.JwtIssuerValidator;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 
-import static com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService.ATLASSIAN_JWT_SHARED_SECRET;
+import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
 
 public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSharedSecretService
 {
@@ -34,7 +34,7 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
             throw new JwtUnknownIssuerException(String.format("Issuer '%s' does not have an application link", issuer));
         }
 
-        String secret = (String) applicationLink.getProperty(ATLASSIAN_JWT_SHARED_SECRET);
+        String secret = (String) applicationLink.getProperty(SHARED_SECRET_PROPERTY_NAME);
 
         if (null == secret)
         {

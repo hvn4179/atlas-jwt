@@ -6,7 +6,7 @@ import com.atlassian.applinks.api.application.generic.GenericApplicationType;
 import com.atlassian.applinks.spi.link.ApplicationLinkDetails;
 import com.atlassian.applinks.spi.link.MutatingApplicationLinkService;
 import com.atlassian.applinks.spi.util.TypeAccessor;
-import com.atlassian.jwt.applinks.JwtApplinkConstants;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -45,8 +45,8 @@ public class RegistrationResource
         // TODO GenericApplicationTypeImpl should implement GenericApplicationType!
         ApplicationType applicationType = typeAccessor.getApplicationType(GenericApplicationType.class);
         ApplicationLink applink = applicationLinkService.createApplicationLink(applicationType, applinkDetails);
-        applink.putProperty(JwtApplinkConstants.PLUGIN_KEY_PROPERTY, UUID.randomUUID().toString());
-        applink.putProperty(JwtApplinkConstants.AUTH_METHOD_PROPERTY, JwtApplinkConstants.JWT_AUTH_METHOD);
+        applink.putProperty(JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME, UUID.randomUUID().toString());
+        applink.putProperty(JwtConstants.AppLinks.AUTH_METHOD_PROPERTY_NAME, JwtConstants.AppLinks.JWT_AUTH_METHOD_NAME);
         peerService.issueSharedSecret(applink, path);
 
         return Response.ok().build();

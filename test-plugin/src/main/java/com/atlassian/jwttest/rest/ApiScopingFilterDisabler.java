@@ -3,6 +3,8 @@ package com.atlassian.jwttest.rest;
 import javax.servlet.*;
 import java.io.IOException;
 
+import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
+
 /**
  * Removes the request attribute that identifies the add-on so that the ApiScopingFilter does not do authorisation checks.
  * We aren't interested in testing authorisation here, only authentication.
@@ -11,8 +13,6 @@ import java.io.IOException;
  */
 public class ApiScopingFilterDisabler implements Filter
 {
-    private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here, JwtAuthenticator and Connect's ApiScopingFilter into a lib referenced by both
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException
     {
@@ -22,7 +22,7 @@ public class ApiScopingFilterDisabler implements Filter
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
-        request.removeAttribute(ADD_ON_ID_ATTRIBUTE);
+        request.removeAttribute(ADD_ON_ID_ATTRIBUTE_NAME);
         chain.doFilter(request, response);
     }
 
