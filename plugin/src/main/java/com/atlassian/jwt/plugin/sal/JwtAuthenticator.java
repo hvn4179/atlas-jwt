@@ -24,17 +24,14 @@ import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Map;
+import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
 
-// TODO: Peter should we rename this to something like ApplinksJwtAuthenticator? I added an interface by the same name so one of them needs renaming
+// TODO: Peter should we rename this to something like ApplinksJwtAuthenticator? I added an interface by the same name so one of them needs renamingimportimport static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
 public class JwtAuthenticator extends AbstractJwtAuthenticator<HttpServletRequest, HttpServletResponse, Authenticator.Result>
         implements Authenticator
 {
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
-
-    private static final String BAD_CREDENTIALS_MESSAGE = "Your presented credentials do not provide access to this resource."; // protect against phishing by not saying whether the add-on, user or secret was wrong
-    private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here and Connect's ApiScopingFilter into a lib referenced by both
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticator.class);
 
     public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
@@ -46,7 +43,7 @@ public class JwtAuthenticator extends AbstractJwtAuthenticator<HttpServletReques
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
-        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: ACDEV-653: principal should be looked up interally from the issuer id
+        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: ACDEV-653: principal should be looked up internally from the issuer id
 
         if (!authenticationController.canLogin(userPrincipal, request))
         {
