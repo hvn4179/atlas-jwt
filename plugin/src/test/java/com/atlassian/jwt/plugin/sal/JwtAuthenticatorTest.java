@@ -10,7 +10,6 @@ import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -46,9 +45,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthenticatorTest
@@ -109,7 +106,7 @@ public class JwtAuthenticatorTest
         @Override
         public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
+            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET).read(jwtString, claimVerifiers);
 
             if (!JWT_ISSUER.equals(jwt.getIssuer()))
             {

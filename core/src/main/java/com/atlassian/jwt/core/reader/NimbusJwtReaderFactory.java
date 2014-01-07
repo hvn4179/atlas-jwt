@@ -1,9 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
-import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.exception.JwsUnsupportedAlgorithmException;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtParseException;
@@ -18,18 +16,11 @@ import java.text.ParseException;
 
 public class NimbusJwtReaderFactory implements JwtReaderFactory
 {
-    private final JwtConfiguration jwtConfiguration;
     private final JwtIssuerValidator jwtIssuerValidator;
     private final JwtIssuerSharedSecretService jwtIssuerSharedSecretService;
 
     public NimbusJwtReaderFactory(JwtIssuerValidator jwtIssuerValidator, JwtIssuerSharedSecretService jwtIssuerSharedSecretService)
     {
-        this(new SystemPropertyJwtConfiguration(), jwtIssuerValidator, jwtIssuerSharedSecretService);
-    }
-
-    public NimbusJwtReaderFactory(JwtConfiguration jwtConfiguration, JwtIssuerValidator jwtIssuerValidator, JwtIssuerSharedSecretService jwtIssuerSharedSecretService)
-    {
-        this.jwtConfiguration = jwtConfiguration;
         this.jwtIssuerValidator = jwtIssuerValidator;
         this.jwtIssuerSharedSecretService = jwtIssuerSharedSecretService;
     }
@@ -52,7 +43,7 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
 
     private JwtReader macVerifyingReader(String sharedSecret)
     {
-        return new NimbusMacJwtReader(sharedSecret, jwtConfiguration);
+        return new NimbusMacJwtReader(sharedSecret);
     }
 
     private String validateIssuer(SimpleUnverifiedJwt unverifiedJwt) throws JwtUnknownIssuerException

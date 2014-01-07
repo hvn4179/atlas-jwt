@@ -2,7 +2,6 @@ package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.Clock;
-import com.atlassian.jwt.core.JwtConfiguration;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
@@ -22,12 +21,10 @@ public class NimbusJwtReader implements JwtReader
 {
     private final JWSVerifier verifier;
     private final Clock clock;
-    private final JwtConfiguration jwtConfiguration;
 
-    public NimbusJwtReader(JWSVerifier verifier, JwtConfiguration jwtConfiguration, Clock clock)
+    public NimbusJwtReader(JWSVerifier verifier, Clock clock)
     {
         this.verifier = verifier;
-        this.jwtConfiguration = jwtConfiguration;
         this.clock = clock;
     }
 
@@ -83,17 +80,16 @@ public class NimbusJwtReader implements JwtReader
                     "unlimited lifetimes.");
         }
 
-        if (claims.getExpirationTime().getTime() - claims.getIssueTime().getTime() > jwtConfiguration.getMaxJwtLifetime())
-        {
-            throw new JwtInvalidClaimException("The difference between 'exp' and 'iat' must be less than " +
-                    jwtConfiguration.getMaxJwtLifetime() + ".");
-        }
-
         Date now = clock.now();
 
         if (claims.getExpirationTime().before(now))
         {
             throw new JwtExpiredException(claims.getExpirationTime(), now);
+        }
+
+        if (null != claims.getNotBeforeTime() && claims.getNotBeforeTime().after(now))
+        {
+            throw new JwtTooEarlyException(claims.getNotBeforeTime(), now);
         }
 
         for (Map.Entry<String, ? extends JwtClaimVerifier> requiredClaim : requiredClaims.entrySet())
