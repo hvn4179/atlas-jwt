@@ -35,6 +35,10 @@
         <interface>com.atlassian.jwt.applinks.JwtService</interface>
     </component>
 
+    <component key="jwt-applink-finder" class="com.atlassian.jwt.applinks.JwtApplinkFinderImpl" public="true">
+        <interface>com.atlassian.jwt.applinks.JwtApplinkFinder</interface>
+    </component>
+
     <!-- internal components -->
 
     <component key="jwt-authenticator" class="com.atlassian.jwt.plugin.sal.JwtAuthenticator"/>

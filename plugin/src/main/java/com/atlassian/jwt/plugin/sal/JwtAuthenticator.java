@@ -32,7 +32,9 @@ public class JwtAuthenticator extends AbstractJwtAuthenticator<HttpServletReques
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
+    private static final String BAD_CREDENTIALS_MESSAGE = "Your presented credentials do not provide access to this resource."; // protect against phishing by not saying whether the add-on, user or secret was wrong
     private static final String ADD_ON_ID_ATTRIBUTE = "Plugin-Key"; // TODO: extract out of here and Connect's ApiScopingFilter into a lib referenced by both
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticator.class);
 
     public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
@@ -51,7 +53,7 @@ public class JwtAuthenticator extends AbstractJwtAuthenticator<HttpServletReques
             throw new JwtUserRejectedException(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request));
         }
 
-        request.setAttribute(ADD_ON_ID_ATTRIBUTE, jwt.getIssuer());
+        request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
         return userPrincipal;
     }
 
