@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 
+import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.http.auth.AuthenticationResultHandler;
 import com.atlassian.sal.api.auth.Authenticator.Result;
 import com.atlassian.sal.api.message.Message;
@@ -44,7 +45,7 @@ public class JavaxAuthenticationResultHandler implements AuthenticationResultHan
     }
 
     @Override
-    public Result success(String message, Principal principal)
+    public Result success(String message, Principal principal, Jwt authenticatedJwt)
     {
         return new Result.Success(createMessage(message), principal);
     }

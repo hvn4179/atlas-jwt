@@ -3,6 +3,8 @@ package com.atlassian.jwt.core.http.auth;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
+import com.atlassian.jwt.Jwt;
+
 public interface AuthenticationResultHandler<R, S>
 {
     S createAndSendInternalError(Exception e, R response, String externallyVisibleMessage);
@@ -13,5 +15,5 @@ public interface AuthenticationResultHandler<R, S>
 
     S createAndSendForbiddenError(Exception e, R response);
 
-    S success(String message, Principal principal);
+    S success(String message, Principal principal, Jwt authenticatedJwt);
 }

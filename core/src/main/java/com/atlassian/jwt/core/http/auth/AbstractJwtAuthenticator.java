@@ -52,14 +52,16 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     {
         try
         {
-            String jwt = jwtExtractor.extractJwt(request);
+            String jwtString = jwtExtractor.extractJwt(request);
 
-            if (null == jwt)
+            if (null == jwtString)
             {
                 throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
             }
 
-            return authenticationResultHandler.success("Authentication successful!", authenticate(request, jwt));
+            Jwt authenticatedJwt = verifyJwt(jwtString, request);
+            Principal principal = authenticate(request, authenticatedJwt);
+            return authenticationResultHandler.success("Authentication successful!", principal, authenticatedJwt);
         }
         // TODO: Will need to add this to the sal version
 //        catch (TypeNotInstalledException e)
@@ -111,12 +113,6 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
         return e.getLocalizedMessage() + (null == e.getCause() ? "" : " (caused by " + e.getCause().getLocalizedMessage() + ")");
     }
 
-    private Principal authenticate(final REQ request, String jwtString) throws NoSuchAlgorithmException, IOException, JwtIssuerLacksSharedSecretException, JwtParseException, JwtVerificationException, JwtUnknownIssuerException, JwtUserRejectedException
-    {
-        Jwt jwt = verifyJwt(jwtString, request);
-        return authenticate(request, jwt);
-    }
-
     protected abstract Principal authenticate(REQ request, Jwt jwt) throws JwtUserRejectedException;
 
     private Jwt verifyJwt(String jwtString, REQ request) throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
@@ -129,11 +125,6 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     private S createAndSendInternalError(Exception e, RES response)
     {
         return authenticationResultHandler.createAndSendInternalError(e, response, "An internal error occurred. Please check the host product's logs.");
-    }
-
-    private S createAndSendBadRequestError(Exception e, RES response, String externallyVisibleMessage)
-    {
-        return authenticationResultHandler.createAndSendBadRequestError(e, response, externallyVisibleMessage);
     }
 
 }
