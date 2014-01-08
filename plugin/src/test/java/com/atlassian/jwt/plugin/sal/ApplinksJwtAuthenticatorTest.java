@@ -48,7 +48,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JwtAuthenticatorTest
+public class ApplinksJwtAuthenticatorTest
 {
     private static final String END_USER_ACCOUNT_NAME = "end user";
     private static final Principal END_USER_PRINCIPAL = new Principal()
@@ -92,7 +92,7 @@ public class JwtAuthenticatorTest
     private static final int PORT = 80;
 
     @InjectMocks
-    private JwtAuthenticator authenticator;
+    private ApplinksJwtAuthenticator authenticator;
 
     @Mock AuthenticationController authenticationController;
     private final JwtService jwtService = new JwtService()
@@ -141,7 +141,7 @@ public class JwtAuthenticatorTest
     @Before
     public void setUp() throws IOException
     {
-        authenticator = new JwtAuthenticator(jwtService, authenticationController);
+        authenticator = new ApplinksJwtAuthenticator(jwtService, authenticationController);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);

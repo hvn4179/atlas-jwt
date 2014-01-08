@@ -26,14 +26,13 @@ import java.security.Principal;
 import java.util.Map;
 import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
 
-// TODO: Peter should we rename this to something like ApplinksJwtAuthenticator? I added an interface by the same name so one of them needs renamingimportimport static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
-public class JwtAuthenticator extends AbstractJwtAuthenticator<HttpServletRequest, HttpServletResponse, Authenticator.Result>
+public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServletRequest, HttpServletResponse, Authenticator.Result>
         implements Authenticator
 {
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
 
-    public JwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
+    public ApplinksJwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
     {
         super(new JavaxJwtRequestExtractor(), new JavaxAuthenticationResultHandler());
         this.jwtService = jwtService;

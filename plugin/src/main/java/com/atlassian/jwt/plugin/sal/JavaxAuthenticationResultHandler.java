@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class JavaxAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
 {
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticator.class);
+    private static final Logger log = LoggerFactory.getLogger(ApplinksJwtAuthenticator.class);
 
     @Override
     public Result createAndSendInternalError(Exception e, HttpServletResponse response, String externallyVisibleMessage)
