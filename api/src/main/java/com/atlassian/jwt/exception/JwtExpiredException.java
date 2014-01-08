@@ -9,8 +9,8 @@ import java.util.Date;
  */
 public class JwtExpiredException extends JwtVerificationException
 {
-    public JwtExpiredException(Date expiredAt, Date now)
+    public JwtExpiredException(Date expiredAt, Date now, final int leewaySeconds)
     {
-        super(String.format("Expired at %s and time is now %s", expiredAt, now));
+        super(String.format("Expired at %s and time is now %s (%d seconds leeway is allowed)", expiredAt, now, leewaySeconds));
     }
 }

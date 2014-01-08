@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.HmacJwtSigner;
 import com.atlassian.jwt.core.StaticClock;
@@ -35,15 +36,17 @@ public class NimbusJwtReaderTest
     public void canReadCorrectly() throws Exception
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1, // just barely on the good side of the "now" boundary
                 "iat", TEN_MINS_EARLIER,
+                "nbf", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS, // just barely on the good side of the "exp" boundary
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
         String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
                 "iat", TEN_MINS_EARLIER,
+                "nbf", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
@@ -87,7 +90,7 @@ public class NimbusJwtReaderTest
     public void expiredJwtIsRejected() throws Exception
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS, // the earliest time to be rejected
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
@@ -103,7 +106,7 @@ public class NimbusJwtReaderTest
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe",
-                "nbf", TEN_MINS_EARLIER
+                "nbf", TIMESTAMP - 1
         );
         String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
@@ -111,27 +114,27 @@ public class NimbusJwtReaderTest
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe",
-                "nbf", TEN_MINS_EARLIER
+                "nbf", TIMESTAMP - 1
         );
     }
 
     @Test
-    public void notBeforeTimeThatIsRightNowIsAccepted() throws ParseException, JwtParseException, JwtVerificationException
+    public void notBeforeTimeThatIsRightNowPlusLeewayIsAccepted() throws ParseException, JwtParseException, JwtVerificationException
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1, // just on the good side of the "nbf" boundary
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe",
-                "nbf", TIMESTAMP
+                "nbf", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS // the latest time to be accepted
         );
         String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
         assertJsonContainsOnly(payload,
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe",
-                "nbf", TIMESTAMP
+                "nbf", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS
         );
     }
 
@@ -139,11 +142,37 @@ public class NimbusJwtReaderTest
     public void notBeforeTimeThatIsInTheFutureIsRejected() throws JwtParseException, JwtVerificationException
     {
         String jwt = signer.jsonToHmacSha256Jwt(
-                "exp", TIMESTAMP,
+                "exp", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 2, // just on the good side of the "nbf" boundary
                 "iat", TEN_MINS_EARLIER,
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe",
-                "nbf", TIMESTAMP + 1
+                "nbf", TIMESTAMP + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1 // the earliest time to be rejected
+        );
+        createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
+    }
+
+    @Test(expected = JwtInvalidClaimException.class)
+    public void equalExpiryAndNotBeforeTimesAreRejected() throws JwtParseException, JwtVerificationException
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "iat", TEN_MINS_EARLIER,
+                "exp", TIMESTAMP,
+                "nbf", TIMESTAMP,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
+    }
+
+    @Test(expected = JwtInvalidClaimException.class)
+    public void expiryTimeBeforeNotBeforeTimeIsRejected() throws JwtParseException, JwtVerificationException
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "iat", TEN_MINS_EARLIER,
+                "exp", TIMESTAMP,
+                "nbf", TIMESTAMP + 1,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
         );
         createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
     }
@@ -208,7 +237,7 @@ public class NimbusJwtReaderTest
     }
 
     @Test(expected = JwtInvalidClaimException.class)
-    public void anInCorrectValueForARequiredClaimResultsInAVerificationException() throws JwtParseException, JwtVerificationException
+    public void anIncorrectValueForARequiredClaimResultsInAVerificationException() throws JwtParseException, JwtVerificationException
     {
         String claimName = "expectedClaim";
         String jwt = signer.jsonToHmacSha256Jwt(

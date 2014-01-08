@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.Clock;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.exception.*;
@@ -14,6 +15,7 @@ import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -81,15 +83,31 @@ public class NimbusJwtReader implements JwtReader
         }
 
         Date now = clock.now();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.SECOND, -JwtConstants.TIME_CLAIM_LEEWAY_SECONDS);
+        Date nowMinusLeeway = calendar.getTime();
+        calendar.setTime(now);
+        calendar.add(Calendar.SECOND, JwtConstants.TIME_CLAIM_LEEWAY_SECONDS);
+        Date nowPlusLeeway = calendar.getTime();
 
-        if (claims.getExpirationTime().before(now))
+        if (null != claims.getNotBeforeTime())
         {
-            throw new JwtExpiredException(claims.getExpirationTime(), now);
+            // sanity check: if the token is invalid before, on and after a given time then it is always invalid and the issuer has made a mistake
+            if (!claims.getExpirationTime().after(claims.getNotBeforeTime()))
+            {
+                throw new JwtInvalidClaimException(String.format("The expiration time must be after the not-before time but exp=%s and nbf=%s", claims.getExpirationTime(), claims.getNotBeforeTime()));
+            }
+
+            if (claims.getNotBeforeTime().after(nowPlusLeeway))
+            {
+                throw new JwtTooEarlyException(claims.getNotBeforeTime(), now, JwtConstants.TIME_CLAIM_LEEWAY_SECONDS);
+            }
         }
 
-        if (null != claims.getNotBeforeTime() && claims.getNotBeforeTime().after(now))
+        if (claims.getExpirationTime().before(nowMinusLeeway))
         {
-            throw new JwtTooEarlyException(claims.getNotBeforeTime(), now);
+            throw new JwtExpiredException(claims.getExpirationTime(), now, JwtConstants.TIME_CLAIM_LEEWAY_SECONDS);
         }
 
         for (Map.Entry<String, ? extends JwtClaimVerifier> requiredClaim : requiredClaims.entrySet())

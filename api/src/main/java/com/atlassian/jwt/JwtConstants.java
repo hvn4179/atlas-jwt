@@ -8,6 +8,13 @@ public class JwtConstants
      */
     public static final String JWT_PARAM_NAME = "jwt";
 
+    /**
+     * The JWT spec says that implementers "MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew".
+     * Calculations of the current time for the purposes of accepting or rejecting time-based claims (e.g. "exp" and "nbf") will allow for the current time
+     * being plus or minus this leeway, resulting in some time-based claims that are marginally before or after the current time being accepted instead of rejected.
+     */
+    public static final int TIME_CLAIM_LEEWAY_SECONDS = 30;
+
     public static final class Claims
     {
         /**
