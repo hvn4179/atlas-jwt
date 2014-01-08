@@ -10,7 +10,6 @@ import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.core.SystemPropertyJwtConfiguration;
 import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -46,9 +45,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthenticatorTest
@@ -109,7 +106,7 @@ public class JwtAuthenticatorTest
         @Override
         public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET, new SystemPropertyJwtConfiguration()).read(jwtString, claimVerifiers);
+            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET).read(jwtString, claimVerifiers);
 
             if (!JWT_ISSUER.equals(jwt.getIssuer()))
             {
@@ -252,16 +249,40 @@ public class JwtAuthenticatorTest
     }
 
     @Test
-    public void expiredJwtResultsInFailure()
+    public void expiredJwtResultsInFailure() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         setUpJwtQueryParameter(createExpiredJwt());
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     @Test
-    public void expiredJwtResultsInUnauthorisedResponseCode() throws IOException
+    public void expiredJwtResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
     {
         setUpJwtQueryParameter(createExpiredJwt());
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
+    public void almostExpiredJwtResultsInSuccess() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createExpiredClaims();
+        claims.setExpirationTime(new Date(claims.getExpirationTime().getTime() + 1000));
+        setUpJwtQueryParameter(createExpiredJwt());
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void notBeforeTimeInTheFutureResultsInFailure() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createJwtWithNotBeforeTimeInTheFuture());
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void notBeforeTimeInTheFutureResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createJwtWithNotBeforeTimeInTheFuture());
         authenticator.authenticate(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
@@ -387,14 +408,26 @@ public class JwtAuthenticatorTest
         return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
-    private String createExpiredJwt()
+    private String createJwtWithNotBeforeTimeInTheFuture() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures();
+        JWTClaimsSet claims = createValidJwtClaimsSet();
+        claims.setNotBeforeTime(new Date(System.currentTimeMillis() + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS * 1000 + 1000));
+        return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
+    }
+
+    private String createExpiredJwt() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        return JWT_WRITER.jsonToJwt(createExpiredClaims().toJSONObject().toJSONString());
+    }
+
+    private JWTClaimsSet createExpiredClaims() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createValidJwtClaimsSet();
         Date now = new Date();
-        Date expirationTime = new Date(now.getTime() - 1);
+        Date expirationTime = new Date(now.getTime() - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS * 1000 - 1000);
         claims.setExpirationTime(expirationTime);
         claims.setIssueTime(new Date(expirationTime.getTime() - 1));
-        return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
+        return claims;
     }
 
     private void setUpValidJwtQueryParameter() throws IOException, NoSuchAlgorithmException
@@ -430,6 +463,7 @@ public class JwtAuthenticatorTest
         Date now = new Date();
         claims.setIssueTime(now);
         claims.setExpirationTime(new Date(now.getTime() + 60 * 1000));
+        claims.setNotBeforeTime(now);
         claims.setSubject(END_USER_ACCOUNT_NAME);
         return claims;
     }
@@ -441,9 +475,20 @@ public class JwtAuthenticatorTest
 
     private String createValidJwtWithIssuer(String issuer) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures(issuer);
-        claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
+        JWTClaimsSet claims = createValidJwtClaimsSet(issuer);
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
+    }
+
+    private JWTClaimsSet createValidJwtClaimsSet() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        return createValidJwtClaimsSet(JWT_ISSUER);
+    }
+
+    private JWTClaimsSet createValidJwtClaimsSet(String issuer) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures(issuer);
+        claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
+        return claims;
     }
 }
