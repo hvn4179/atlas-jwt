@@ -108,19 +108,20 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
         }
     }
 
+    protected abstract Jwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers)
+            throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException;
+
+    protected abstract Principal authenticate(REQ request, Jwt jwt) throws JwtUserRejectedException;
+
     private static String getBriefMessageFromException(Exception e)
     {
         return e.getLocalizedMessage() + (null == e.getCause() ? "" : " (caused by " + e.getCause().getLocalizedMessage() + ")");
     }
 
-    protected abstract Principal authenticate(REQ request, Jwt jwt) throws JwtUserRejectedException;
-
     private Jwt verifyJwt(String jwtString, REQ request) throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
     {
         return verifyJwt(jwtString, JwtClaimVerifiersBuilder.build(jwtExtractor.getCanonicalHttpRequest(request)));
     }
-
-    protected abstract Jwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException;
 
     private S createAndSendInternalError(Exception e, RES response)
     {

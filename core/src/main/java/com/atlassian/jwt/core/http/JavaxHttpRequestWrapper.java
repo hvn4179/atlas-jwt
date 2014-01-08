@@ -9,6 +9,9 @@ import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+/**
+ * An implementation of HttpRequestWrapper for javax.servlet.http.HttpServletRequest
+ */
 // trying to avoid name conflict with javax.servlet.HttpServletRequestWrapper
 public class JavaxHttpRequestWrapper implements HttpRequestWrapper
 {

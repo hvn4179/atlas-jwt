@@ -12,7 +12,7 @@ import com.atlassian.sal.api.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JavaxAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
+public class ApplinksAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
 {
     private static final Logger log = LoggerFactory.getLogger(ApplinksJwtAuthenticator.class);
 

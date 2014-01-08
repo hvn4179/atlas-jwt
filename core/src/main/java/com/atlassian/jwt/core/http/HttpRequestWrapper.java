@@ -3,8 +3,10 @@ package com.atlassian.jwt.core.http;
 import javax.annotation.Nullable;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
-import com.google.common.base.Optional;
 
+/**
+ * A small abstraction over Http requests that allows reuse in non javax.servlet frameworks like Play
+ */
 public interface HttpRequestWrapper
 {
     @Nullable
