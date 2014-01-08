@@ -14,9 +14,10 @@ import static com.atlassian.jwt.JwtConstants.HttpRequests;
 
 public class JwtUtil
 {
-    @Deprecated //
+    @Deprecated // use HttpRequests.JWT_REQUEST_FLAG
     public static final String JWT_REQUEST_FLAG = HttpRequests.JWT_REQUEST_FLAG;
 
+    @Deprecated // use HttpRequests.AUTHORIZATION_HEADER
     public static final String AUTHORIZATION_HEADER = HttpRequests.AUTHORIZATION_HEADER;
 
     /**
@@ -26,6 +27,7 @@ public class JwtUtil
      *      JwtUtil.JWT_AUTH_HEADER_PREFIX + "<insert jwt message here>"
      *  }</pre>
      */
+    @Deprecated // use HttpRequests.JWT_AUTH_HEADER_PREFIX
     public static final String JWT_AUTH_HEADER_PREFIX = HttpRequests.JWT_AUTH_HEADER_PREFIX;
 
     /**
