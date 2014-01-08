@@ -273,6 +273,21 @@ public class JwtAuthenticatorTest
     }
 
     @Test
+    public void notBeforeTimeInTheFutureResultsInFailure() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createJwtWithNotBeforeTimeInTheFuture());
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void notBeforeTimeInTheFutureResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createJwtWithNotBeforeTimeInTheFuture());
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
     public void tamperingWithTheMethodResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
@@ -393,6 +408,13 @@ public class JwtAuthenticatorTest
         return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
     }
 
+    private String createJwtWithNotBeforeTimeInTheFuture() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createValidJwtClaimsSet();
+        claims.setNotBeforeTime(new Date(System.currentTimeMillis() + JwtConstants.TIME_CLAIM_LEEWAY_SECONDS * 1000 + 1000));
+        return JWT_WRITER.jsonToJwt(claims.toJSONObject().toJSONString());
+    }
+
     private String createExpiredJwt() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         return JWT_WRITER.jsonToJwt(createExpiredClaims().toJSONObject().toJSONString());
@@ -441,6 +463,7 @@ public class JwtAuthenticatorTest
         Date now = new Date();
         claims.setIssueTime(now);
         claims.setExpirationTime(new Date(now.getTime() + 60 * 1000));
+        claims.setNotBeforeTime(now);
         claims.setSubject(END_USER_ACCOUNT_NAME);
         return claims;
     }
