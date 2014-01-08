@@ -1,7 +1,6 @@
 package com.atlassian.jwt.plugin.servlet;
 
 import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
 import com.atlassian.sal.api.auth.Authenticator;
@@ -10,6 +9,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_REQUEST_FLAG;
 
 public class JwtAuthFilter implements Filter
 {
@@ -81,7 +82,7 @@ public class JwtAuthFilter implements Filter
 
     private void markAsJwtRequest(HttpServletRequest request)
     {
-        request.setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
+        request.setAttribute(JWT_REQUEST_FLAG, true);
     }
 
     @Override

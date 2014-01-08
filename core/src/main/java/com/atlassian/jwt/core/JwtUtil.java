@@ -1,9 +1,6 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.core.http.AbstractJwtRequestExtractor;
-import com.atlassian.jwt.core.http.JavaxHttpRequestWrapper;
 import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
-import com.atlassian.jwt.core.http.JwtHttpConstants;
 import com.atlassian.jwt.core.http.JwtRequestExtractor;
 import org.apache.commons.codec.binary.Hex;
 
@@ -13,12 +10,14 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static com.atlassian.jwt.JwtConstants.HttpRequests;
+
 public class JwtUtil
 {
-    // sorry Peter :-/
-    public static final String JWT_REQUEST_FLAG = JwtHttpConstants.JWT_REQUEST_FLAG;
+    @Deprecated //
+    public static final String JWT_REQUEST_FLAG = HttpRequests.JWT_REQUEST_FLAG;
 
-    public static final String AUTHORIZATION_HEADER = JwtHttpConstants.AUTHORIZATION_HEADER;
+    public static final String AUTHORIZATION_HEADER = HttpRequests.AUTHORIZATION_HEADER;
 
     /**
      * The start of a valid Authorization header specifying a JWT message.<p>
@@ -27,7 +26,7 @@ public class JwtUtil
      *      JwtUtil.JWT_AUTH_HEADER_PREFIX + "<insert jwt message here>"
      *  }</pre>
      */
-    public static final String JWT_AUTH_HEADER_PREFIX = JwtHttpConstants.JWT_AUTH_HEADER_PREFIX;
+    public static final String JWT_AUTH_HEADER_PREFIX = HttpRequests.JWT_AUTH_HEADER_PREFIX;
 
     /**
      * The encoding used to represent characters as bytes.

@@ -1,8 +1,6 @@
 package com.atlassian.jwt.plugin.servlet;
 
 import com.atlassian.jwt.JwtConstants;
-import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.AuthenticationListener;
@@ -25,6 +23,9 @@ import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
+import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_AUTH_HEADER_PREFIX;
+import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_REQUEST_FLAG;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,7 +86,7 @@ public class JwtAuthFilterTest
         when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
         doSuccessfulFilter();
 
-        verify(request).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
+        verify(request).setAttribute(JWT_REQUEST_FLAG, true);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class JwtAuthFilterTest
         setUpSuccessThoughJwtAuthHeader();
         filter.doFilter(request, response, chain);
 
-        verify(request).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
+        verify(request).setAttribute(JWT_REQUEST_FLAG, true);
     }
 
     @Test
@@ -103,13 +104,13 @@ public class JwtAuthFilterTest
         setUpSuccessWithoutJwt();
         filter.doFilter(request, response, chain);
 
-        verify(request, never()).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
+        verify(request, never()).setAttribute(JWT_REQUEST_FLAG, true);
     }
 
     @Test
     public void authenticationControllerIsNotifiedWhenAuthenticationIsSuccessfulAndJwtAuthHeaderIsValid() throws IOException, ServletException
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         Authenticator.Result.Success success = successResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(success);
         filter.doFilter(request, response, chain);
@@ -121,7 +122,7 @@ public class JwtAuthFilterTest
     @Test
     public void filterChainContinuesWhenAuthenticationIsSuccessfulAndJwtAuthHeaderIsValid() throws IOException, ServletException
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(successResponse());
         filter.doFilter(request, response, chain);
 
@@ -249,14 +250,14 @@ public class JwtAuthFilterTest
 
     private void setUpSuccessThoughJwtAuthHeader()
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         setUpSuccessWithoutJwt();
     }
 
     private Enumeration<String> validJwtAuthHeaders()
     {
         Vector<String> authHeaders = new Vector<String>();
-        authHeaders.add(JwtUtil.JWT_AUTH_HEADER_PREFIX + MOCK_JWT);
+        authHeaders.add(JWT_AUTH_HEADER_PREFIX + MOCK_JWT);
         return authHeaders.elements();
     }
 
