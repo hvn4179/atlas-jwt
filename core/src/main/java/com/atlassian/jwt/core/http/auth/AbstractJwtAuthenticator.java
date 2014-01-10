@@ -19,7 +19,7 @@ import com.atlassian.jwt.reader.JwtClaimVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+//import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthenticator<REQ, RES, S>
 {
@@ -34,6 +34,14 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     {
         this.jwtExtractor = checkNotNull(jwtExtractor);
         this.authenticationResultHandler = checkNotNull(authenticationResultHandler);
+    }
+
+    // cause we can't include anything useful like guava wo getting into OSGI hell
+    private static <T> T checkNotNull(T reference) {
+        if (reference == null) {
+            throw new NullPointerException();
+        }
+        return reference;
     }
 
     /**

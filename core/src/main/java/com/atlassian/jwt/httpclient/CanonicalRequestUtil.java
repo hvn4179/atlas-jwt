@@ -1,11 +1,12 @@
 package com.atlassian.jwt.httpclient;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 
-
 import com.atlassian.jwt.CanonicalHttpRequest;
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public class CanonicalRequestUtil
 {
@@ -13,10 +14,10 @@ public class CanonicalRequestUtil
     // Likely too large to be a useful toString
     public static String toVerboseString(CanonicalHttpRequest request)
     {
-        return Objects.toStringHelper(request)
-                .add("method", request.getMethod())
-                .add("relativePath", request.getRelativePath())
-                .add("parameterMap", mapToString(request.getParameterMap()))
+        return new ToStringBuilder(request, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("method", request.getMethod())
+                .append("relativePath", request.getRelativePath())
+                .append("parameterMap", mapToString(request.getParameterMap()))
                 .toString();
     }
 
@@ -32,7 +33,7 @@ public class CanonicalRequestUtil
             if (value != null)
             {
                 sb.append("(");
-                Joiner.on(",").appendTo(sb, value);
+                appendTo(sb, Arrays.asList(value), ",");
                 sb.append(")");
             }
             sb.append(','); // I know being lazy
@@ -41,5 +42,24 @@ public class CanonicalRequestUtil
         return sb.append(']')
                 .toString();
     }
+
+    // borrowed from guava Join so can avoid guava dependency and OSGI fun
+    private static StringBuilder appendTo(StringBuilder appendable, Iterable<?> parts, CharSequence separator)
+    {
+        Iterator<?> iterator = parts.iterator();
+        if (iterator.hasNext()) {
+            appendable.append(toString(iterator.next()));
+            while (iterator.hasNext()) {
+                appendable.append(separator);
+                appendable.append(toString(iterator.next()));
+            }
+        }
+        return appendable;
+    }
+
+    private static CharSequence toString(Object part) {
+        return (part instanceof CharSequence) ? (CharSequence) part : part.toString();
+    }
+
 
 }
