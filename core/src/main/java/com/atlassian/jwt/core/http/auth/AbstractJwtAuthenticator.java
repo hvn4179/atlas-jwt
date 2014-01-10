@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Map;
 
+import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.http.JwtRequestExtractor;
 import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
@@ -13,9 +14,12 @@ import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 import com.atlassian.jwt.exception.JwtUserRejectedException;
 import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.httpclient.CanonicalRequestUtil;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthenticator<REQ, RES, S>
 {
@@ -28,8 +32,8 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     public AbstractJwtAuthenticator(JwtRequestExtractor<REQ> jwtExtractor,
                                     AuthenticationResultHandler<RES, S> authenticationResultHandler)
     {
-        this.jwtExtractor = jwtExtractor;
-        this.authenticationResultHandler = authenticationResultHandler;
+        this.jwtExtractor = checkNotNull(jwtExtractor);
+        this.authenticationResultHandler = checkNotNull(authenticationResultHandler);
     }
 
     /**
@@ -120,7 +124,9 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
 
     private Jwt verifyJwt(String jwtString, REQ request) throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
     {
-        return verifyJwt(jwtString, JwtClaimVerifiersBuilder.build(jwtExtractor.getCanonicalHttpRequest(request)));
+        CanonicalHttpRequest canonicalHttpRequest = jwtExtractor.getCanonicalHttpRequest(request);
+        log.debug("Canonical request is: " + CanonicalRequestUtil.toVerboseString(canonicalHttpRequest));
+        return verifyJwt(jwtString, JwtClaimVerifiersBuilder.build(canonicalHttpRequest));
     }
 
     private S createAndSendInternalError(Exception e, RES response)
