@@ -14,19 +14,6 @@ import static com.atlassian.jwt.JwtConstants.HttpRequests;
 
 public class JwtUtil
 {
-    @Deprecated // use HttpRequests.AUTHORIZATION_HEADER
-    public static final String AUTHORIZATION_HEADER = HttpRequests.AUTHORIZATION_HEADER;
-
-    /**
-     * The start of a valid Authorization header specifying a JWT message.<p>
-     * Note the space at the end of the prefix; the header's format is:
-     *  <pre>{@code
-     *      JwtUtil.JWT_AUTH_HEADER_PREFIX + "<insert jwt message here>"
-     *  }</pre>
-     */
-    @Deprecated // use HttpRequests.JWT_AUTH_HEADER_PREFIX
-    public static final String JWT_AUTH_HEADER_PREFIX = HttpRequests.JWT_AUTH_HEADER_PREFIX;
-
     /**
      * The encoding used to represent characters as bytes.
      */

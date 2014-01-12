@@ -85,8 +85,6 @@ public class JwtConstants
          */
         public static final String ADD_ON_ID_ATTRIBUTE_NAME = "Plugin-Key";
 
-        public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
-
         public static final String AUTHORIZATION_HEADER = "Authorization";
 
         /**
