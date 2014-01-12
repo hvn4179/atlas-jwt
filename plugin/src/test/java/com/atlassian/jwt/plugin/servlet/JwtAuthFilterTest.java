@@ -80,33 +80,6 @@ public class JwtAuthFilterTest
     }
 
     @Test
-    public void requestIsFlaggedAsJwtIfJwtQueryStringParameterIsPresent() throws IOException, ServletException
-    {
-        when(request.getParameter(JwtConstants.JWT_PARAM_NAME)).thenReturn(MOCK_JWT);
-        doSuccessfulFilter();
-
-        verify(request).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
-    }
-
-    @Test
-    public void requestIsFlaggedAsJwtIfJwtAuthorizationHeaderIsPresent() throws IOException, ServletException
-    {
-        setUpSuccessThoughJwtAuthHeader();
-        filter.doFilter(request, response, chain);
-
-        verify(request).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
-    }
-
-    @Test
-    public void requestIsNotFlaggedAsJwtIfNeitherJwtQueryStringParameterNorAuthHeaderArePresent() throws IOException, ServletException
-    {
-        setUpSuccessWithoutJwt();
-        filter.doFilter(request, response, chain);
-
-        verify(request, never()).setAttribute(JwtUtil.JWT_REQUEST_FLAG, true);
-    }
-
-    @Test
     public void authenticationControllerIsNotifiedWhenAuthenticationIsSuccessfulAndJwtAuthHeaderIsValid() throws IOException, ServletException
     {
         when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());

@@ -13,8 +13,6 @@ import java.util.Enumeration;
 
 public class JwtUtil
 {
-    public static final String JWT_REQUEST_FLAG = "com.atlassian.jwt.is-jwt-request";
-
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     /**
