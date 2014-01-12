@@ -75,14 +75,8 @@ public class JwtAuthFilter implements Filter
         }
 
         authenticationListener.authenticationSuccess(result, request, response);
-        markAsJwtRequest(request);
 
         return true;
-    }
-
-    private void markAsJwtRequest(HttpServletRequest request)
-    {
-        request.setAttribute(JWT_REQUEST_FLAG, true);
     }
 
     @Override
