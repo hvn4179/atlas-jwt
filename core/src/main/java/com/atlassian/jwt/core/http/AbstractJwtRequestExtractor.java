@@ -1,15 +1,18 @@
 package com.atlassian.jwt.core.http;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.atlassian.jwt.CanonicalHttpRequest;
-import com.atlassian.jwt.JwtConstants;
 import org.apache.commons.lang.StringUtils;
 
 import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
 import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_AUTH_HEADER_PREFIX;
 import static com.atlassian.jwt.JwtConstants.JWT_PARAM_NAME;
 
+/**
+ * An abstract implementation of JwtRequestExtractor that supports jwt as a request parameter (called 'jwt') and as
+ * an Authorization header. Subclasses need to override #wrapRequest
+ *
+ * @param <REQ> the type of request that the extractor works with
+ */
 public abstract class AbstractJwtRequestExtractor<REQ> implements JwtRequestExtractor<REQ>
 {
     @Override
@@ -25,6 +28,11 @@ public abstract class AbstractJwtRequestExtractor<REQ> implements JwtRequestExtr
     }
 
 
+    /**
+     * Override to create the appropriate wrapper for the request
+     * @param request the request
+     * @return the wrapped request
+     */
     protected abstract HttpRequestWrapper wrapRequest(REQ request);
 
     private static class JwtDefaultRequestHelper

@@ -19,8 +19,12 @@ import com.atlassian.jwt.reader.JwtClaimVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import static com.google.common.base.Preconditions.checkNotNull;
-
+/**
+ * Abstract implementation of JwtAuthenticator that provides the core handling of extracting and validating the Jwt plus
+ * authenticating the principal. Includes detailed handling of error cases.
+ *
+ * Subclasses need to implement the jwt verification and user authentication
+ */
 public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthenticator<REQ, RES, S>
 {
     private static final String BAD_CREDENTIALS_MESSAGE = "Your presented credentials do not provide access to this resource."; // protect against phishing by not saying whether the add-on, user or secret was wrong
@@ -37,8 +41,10 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     }
 
     // cause we can't include anything useful like guava wo getting into OSGI hell
-    private static <T> T checkNotNull(T reference) {
-        if (reference == null) {
+    private static <T> T checkNotNull(T reference)
+    {
+        if (reference == null)
+        {
             throw new NullPointerException();
         }
         return reference;
@@ -75,11 +81,6 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
             Principal principal = authenticate(request, authenticatedJwt);
             return authenticationResultHandler.success("Authentication successful!", principal, authenticatedJwt);
         }
-        // TODO: Will need to add this to the sal version
-//        catch (TypeNotInstalledException e)
-//        {
-//            return createAndSendInternalError(e, response);
-//        }
         catch (IllegalArgumentException e)
         {
             return createAndSendInternalError(e, response);
