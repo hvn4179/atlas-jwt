@@ -9,7 +9,9 @@ import com.atlassian.jwt.CanonicalHttpRequest;
 public interface JwtRequestExtractor<REQ>
 {
     /**
-     * Extracts a JWT string from the given request
+     * Extracts a JWT string from the given request. The JWT string may be provided either as a request parameter (called 'jwt') or as
+     * an Authorization header. If both are provided then the request parameter takes precedence.
+
      * @param request the request
      * @return the JWT String or null if no JWT in the request
      */
