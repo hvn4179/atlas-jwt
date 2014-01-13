@@ -62,7 +62,7 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
      * default --> 403 forbidden
      *
      * @param request  {@link javax.servlet.http.HttpServletRequest} to be vetted
-     * @param response {@link javax.servlet.http.HttpServletResponse} to be send error code if and only if the authentication is unsuccessful
+     * @param response {@link javax.servlet.http.HttpServletResponse} to be sent error code if and only if the authentication is unsuccessful
      * @return {@link S} representing the success, failure or error of the authentication attempt
      */
     @Override
@@ -74,7 +74,7 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
 
             if (null == jwtString)
             {
-                throw new IllegalArgumentException("This Authenticator works only with requests containing JWTs");
+                throw new IllegalArgumentException("Cannot authenticate a request without a JWT token");
             }
 
             Jwt authenticatedJwt = verifyJwt(jwtString, request);
