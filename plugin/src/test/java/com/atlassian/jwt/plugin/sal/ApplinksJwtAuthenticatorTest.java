@@ -9,7 +9,6 @@ import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.JwtUtil;
 import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
@@ -40,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyInt;
@@ -48,7 +48,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JwtAuthenticatorTest
+public class ApplinksJwtAuthenticatorTest
 {
     private static final String END_USER_ACCOUNT_NAME = "end user";
     private static final Principal END_USER_PRINCIPAL = new Principal()
@@ -92,7 +92,7 @@ public class JwtAuthenticatorTest
     private static final int PORT = 80;
 
     @InjectMocks
-    private JwtAuthenticator authenticator;
+    private ApplinksJwtAuthenticator authenticator;
 
     @Mock AuthenticationController authenticationController;
     private final JwtService jwtService = new JwtService()
@@ -141,11 +141,11 @@ public class JwtAuthenticatorTest
     @Before
     public void setUp() throws IOException
     {
-        authenticator = new JwtAuthenticator(jwtService, authenticationController);
+        authenticator = new ApplinksJwtAuthenticator(jwtService, authenticationController);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(new StringTokenizer(""));
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(new StringTokenizer(""));
         when(request.getParameterMap()).thenReturn(PARAMETERS_WITHOUT_JWT);
         when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(true);
     }

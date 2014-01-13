@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.sal;
+package com.atlassian.jwt.core.http.auth;
 
 import java.security.Principal;
 

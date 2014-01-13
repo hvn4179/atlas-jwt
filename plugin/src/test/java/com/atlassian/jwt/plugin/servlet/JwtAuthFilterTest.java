@@ -1,19 +1,5 @@
 package com.atlassian.jwt.plugin.servlet;
 
-import com.atlassian.jwt.JwtConstants;
-import com.atlassian.jwt.core.JwtUtil;
-import com.atlassian.jwt.plugin.sal.JwtAuthenticator;
-import com.atlassian.sal.api.ApplicationProperties;
-import com.atlassian.sal.api.auth.AuthenticationController;
-import com.atlassian.sal.api.auth.AuthenticationListener;
-import com.atlassian.sal.api.auth.Authenticator;
-import com.atlassian.sal.api.message.Message;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +11,28 @@ import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import static org.mockito.Mockito.*;
+import com.atlassian.jwt.JwtConstants;
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.auth.AuthenticationController;
+import com.atlassian.sal.api.auth.AuthenticationListener;
+import com.atlassian.sal.api.auth.Authenticator;
+import com.atlassian.sal.api.message.Message;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
+import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_AUTH_HEADER_PREFIX;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthFilterTest
@@ -35,7 +42,7 @@ public class JwtAuthFilterTest
 
     private Filter filter;
 
-    @Mock private JwtAuthenticator authenticator;
+    @Mock private Authenticator authenticator;
     @Mock private AuthenticationListener authenticationListener;
     @Mock private AuthenticationController authenticationController;
     @Mock private ApplicationProperties applicationProperties;
@@ -82,7 +89,7 @@ public class JwtAuthFilterTest
     @Test
     public void authenticationControllerIsNotifiedWhenAuthenticationIsSuccessfulAndJwtAuthHeaderIsValid() throws IOException, ServletException
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         Authenticator.Result.Success success = successResponse();
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(success);
         filter.doFilter(request, response, chain);
@@ -94,7 +101,7 @@ public class JwtAuthFilterTest
     @Test
     public void filterChainContinuesWhenAuthenticationIsSuccessfulAndJwtAuthHeaderIsValid() throws IOException, ServletException
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(successResponse());
         filter.doFilter(request, response, chain);
 
@@ -222,14 +229,14 @@ public class JwtAuthFilterTest
 
     private void setUpSuccessThoughJwtAuthHeader()
     {
-        when(request.getHeaders(JwtUtil.AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
+        when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(validJwtAuthHeaders());
         setUpSuccessWithoutJwt();
     }
 
     private Enumeration<String> validJwtAuthHeaders()
     {
         Vector<String> authHeaders = new Vector<String>();
-        authHeaders.add(JwtUtil.JWT_AUTH_HEADER_PREFIX + MOCK_JWT);
+        authHeaders.add(JWT_AUTH_HEADER_PREFIX + MOCK_JWT);
         return authHeaders.elements();
     }
 

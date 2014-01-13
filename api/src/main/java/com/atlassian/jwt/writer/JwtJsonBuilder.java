@@ -59,6 +59,12 @@ public interface JwtJsonBuilder
     JwtJsonBuilder type(@Nonnull String typ);
 
     /**
+     * Sets the 'qsh' parameter
+     */
+    @Nonnull
+    JwtJsonBuilder queryHash(@Nonnull String qsh);
+
+    /**
      * Adds an arbitrary claim.
      *
      * @param name the claim's name.

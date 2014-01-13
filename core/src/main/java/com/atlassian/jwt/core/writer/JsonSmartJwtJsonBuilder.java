@@ -85,6 +85,15 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
 
     @Nonnull
     @Override
+    public JwtJsonBuilder queryHash(@Nonnull String qsh)
+    {
+        json.put("qsh", qsh);
+        return this;
+    }
+
+
+    @Nonnull
+    @Override
     public JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj)
     {
         json.put(name, obj);

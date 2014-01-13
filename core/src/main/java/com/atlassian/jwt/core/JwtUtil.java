@@ -1,29 +1,19 @@
 package com.atlassian.jwt.core;
 
-import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
+import com.atlassian.jwt.core.http.JwtRequestExtractor;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
+
+import static com.atlassian.jwt.JwtConstants.HttpRequests;
 
 public class JwtUtil
 {
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-
-    /**
-     * The start of a valid Authorization header specifying a JWT message.<p>
-     * Note the space at the end of the prefix; the header's format is:
-     *  <pre>{@code
-     *      JwtUtil.JWT_AUTH_HEADER_PREFIX + "<insert jwt message here>"
-     *  }</pre>
-     */
-    public static final String JWT_AUTH_HEADER_PREFIX = "JWT ";
-
     /**
      * The encoding used to represent characters as bytes.
      */
@@ -33,6 +23,8 @@ public class JwtUtil
      */
     public static final char QUERY_PARAMS_SEPARATOR = '&';
 
+    private static JwtRequestExtractor<HttpServletRequest> jwtRequestExtractor = new JavaxJwtRequestExtractor();
+
     public static boolean requestContainsJwt(HttpServletRequest request)
     {
         return extractJwt(request) != null;
@@ -40,38 +32,7 @@ public class JwtUtil
 
     public static String extractJwt(HttpServletRequest request)
     {
-        String jwt = getJwtParameter(request);
-        if (jwt == null)
-        {
-            jwt = getJwtHeaderValue(request);
-        }
-        return jwt;
-    }
-
-    private static String getJwtParameter(HttpServletRequest request)
-    {
-        String jwtParam = request.getParameter(JwtConstants.JWT_PARAM_NAME);
-        return StringUtils.isEmpty(jwtParam) ? null : jwtParam;
-    }
-
-    private static String getJwtHeaderValue(HttpServletRequest request)
-    {
-        Enumeration headers = request.getHeaders(AUTHORIZATION_HEADER);
-
-        if (null != headers)
-        {
-            while (headers.hasMoreElements())
-            {
-                String authzHeader = headers.nextElement().toString().trim();
-                String first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
-                if (JWT_AUTH_HEADER_PREFIX.equalsIgnoreCase(first4Chars))
-                {
-                    return authzHeader.substring(4);
-                }
-            }
-        }
-
-        return null;
+        return  jwtRequestExtractor.extractJwt(request);
     }
 
     /**

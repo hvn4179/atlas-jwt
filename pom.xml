@@ -6,7 +6,6 @@
         <module>api</module>
         <module>core</module>
         <module>applinks</module>
-        <module>http-client</module>
         <module>plugin</module>
         <module>test-plugin</module>
         <module>integration-tests</module>
@@ -64,6 +63,20 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <pluginManagement>

@@ -41,7 +41,7 @@
 
     <!-- internal components -->
 
-    <component key="jwt-authenticator" class="com.atlassian.jwt.plugin.sal.JwtAuthenticator"/>
+    <component key="jwt-authenticator" class="com.atlassian.jwt.plugin.sal.ApplinksJwtAuthenticator"/>
 
     <component key="applinks-jwt-issuer-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtIssuerService">
         <interface>com.atlassian.jwt.core.reader.JwtIssuserValidator</interface>
