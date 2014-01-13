@@ -32,6 +32,9 @@ public class JavaxHttpRequestWrapper implements HttpRequestWrapper
     @SuppressWarnings(value = "unchecked")
     public Iterable<String> getHeaderValues(String headerName)
     {
+        /*
+         * TODO: consider moving to CanonicalHttpRequest as part of ACDEV-375 / ACDEV-374
+         */
         Enumeration headers = request.getHeaders(headerName);
         return headers != null ? Collections.list(headers) : Collections.emptyList();
     }
