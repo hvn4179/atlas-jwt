@@ -20,6 +20,6 @@ public class JwtClaimsBuilder
      */
     public static void appendHttpRequestClaims(JwtJsonBuilder jsonBuilder, CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        jsonBuilder.claim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(request));
+        jsonBuilder.queryHash(HttpRequestCanonicalizer.computeCanonicalRequestHash(request));
     }
 }
