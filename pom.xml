@@ -6,7 +6,6 @@
         <module>api</module>
         <module>core</module>
         <module>applinks</module>
-        <module>http-client</module>
         <module>plugin</module>
         <module>test-plugin</module>
         <module>integration-tests</module>
