@@ -5,7 +5,6 @@ import com.atlassian.jwt.exception.JwtMissingClaimException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class JwtClaimEqualityVerifier implements JwtClaimVerifier
 {
@@ -25,9 +24,14 @@ public class JwtClaimEqualityVerifier implements JwtClaimVerifier
     {
         this.claimExistenceVerifier.verify(claim);
 
-        if (!Objects.equals(expectedValue, claim))
+        if (isMismatch(claim))
         {
             throw new JwtInvalidClaimException(String.format("Expecting claim '%s' to have value '%s' but instead it has the value '%s'", claimName, expectedValue, claim));
         }
+    }
+
+    private boolean isMismatch(Object claim)
+    {
+        return null == expectedValue ? null != claim : !expectedValue.equals(claim);
     }
 }
