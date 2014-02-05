@@ -48,6 +48,11 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
+        if (null != jwt.getSubject())
+        {
+            LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", jwt.getSubject(), request.getRequestURI(), jwt.getIssuer()));
+        }
+
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
         return getPrincipal(jwt.getIssuer());
     }
