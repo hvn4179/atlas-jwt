@@ -76,6 +76,11 @@ public class JwtConstants
          * The value that the {@link #AUTH_METHOD_PROPERTY_NAME} property has if the add-on uses JWT authentication.
          */
         public static final String JWT_AUTH_METHOD_NAME = "JWT";
+
+        /**
+         * The key of the user assigned to this add-on.
+         */
+        public static final String ADD_ON_USER_KEY_PROPERTY_NAME = "user.key";
     }
 
     public static final class HttpRequests
