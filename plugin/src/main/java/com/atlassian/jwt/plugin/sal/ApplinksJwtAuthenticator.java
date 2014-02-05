@@ -80,7 +80,7 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
 
         if (null == addOnUserKey)
         {
-            LOG.warn(String.format("Application link '%s' for JWT issuer '%s' has no '%s' property. Incoming requests from this issuer will be assigned no Principal and will be able to access only public resources.",
+            LOG.warn(String.format("Application link '%s' for JWT issuer '%s' has no '%s' property. Incoming requests from this issuer will be authenticated as an anonymous request.",
                     applicationLink.getId(), jwtIssuer, JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME));
         }
         else
