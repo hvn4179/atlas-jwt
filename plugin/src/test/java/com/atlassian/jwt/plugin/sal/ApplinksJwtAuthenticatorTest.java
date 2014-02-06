@@ -25,7 +25,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -93,14 +92,13 @@ public class ApplinksJwtAuthenticatorTest
     private static final String HOST = "host";
     private static final int PORT = 80;
 
-    @InjectMocks
     private ApplinksJwtAuthenticator authenticator;
 
     private @Mock AuthenticationController authenticationController;
     private @Mock JwtApplinkFinder jwtApplinkFinder;
     private @Mock ApplicationLink applicationLink;
 
-    private final JwtService jwtService = new JwtService()
+    private final static JwtService jwtService = new JwtService()
     {
         @Override
         public boolean isJwtPeer(ApplicationLink applicationLink)

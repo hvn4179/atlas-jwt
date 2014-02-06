@@ -40,9 +40,9 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
     public ApplinksJwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController, JwtApplinkFinder jwtApplinkFinder)
     {
         super(new JavaxJwtRequestExtractor(), new ApplinksAuthenticationResultHandler());
-        this.jwtService = jwtService;
-        this.authenticationController = authenticationController;
-        this.jwtApplinkFinder = jwtApplinkFinder;
+        this.jwtService = checkNotNull(jwtService);
+        this.authenticationController = checkNotNull(authenticationController);
+        this.jwtApplinkFinder = checkNotNull(jwtApplinkFinder);
     }
 
     @Override
