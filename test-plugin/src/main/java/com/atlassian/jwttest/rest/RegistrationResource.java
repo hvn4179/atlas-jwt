@@ -47,6 +47,7 @@ public class RegistrationResource
         ApplicationLink applink = applicationLinkService.createApplicationLink(applicationType, applinkDetails);
         applink.putProperty(JwtConstants.AppLinks.ADD_ON_ID_PROPERTY_NAME, UUID.randomUUID().toString());
         applink.putProperty(JwtConstants.AppLinks.AUTH_METHOD_PROPERTY_NAME, JwtConstants.AppLinks.JWT_AUTH_METHOD_NAME);
+        applink.putProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME, "admin");
         peerService.issueSharedSecret(applink, path);
 
         return Response.ok().build();

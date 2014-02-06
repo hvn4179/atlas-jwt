@@ -1,23 +1,19 @@
 package com.atlassian.jwt.core.http.auth;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.util.Map;
-
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.http.JwtRequestExtractor;
 import com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder;
-import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
-import com.atlassian.jwt.exception.JwtParseException;
-import com.atlassian.jwt.exception.JwtUnknownIssuerException;
-import com.atlassian.jwt.exception.JwtUserRejectedException;
-import com.atlassian.jwt.exception.JwtVerificationException;
+import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalRequestUtil;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.Map;
 
 /**
  * Abstract implementation of JwtAuthenticator that provides the core handling of extracting and validating the Jwt plus
@@ -41,7 +37,7 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     }
 
     // cause we can't include anything useful like guava wo getting into OSGI hell
-    private static <T> T checkNotNull(T reference)
+    protected static <T> T checkNotNull(T reference)
     {
         if (reference == null)
         {

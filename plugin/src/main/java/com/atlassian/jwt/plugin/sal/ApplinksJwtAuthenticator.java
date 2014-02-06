@@ -1,7 +1,10 @@
 package com.atlassian.jwt.plugin.sal;
 
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
+import com.atlassian.jwt.JwtConstants;
+import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
 import com.atlassian.jwt.core.http.auth.AbstractJwtAuthenticator;
@@ -10,6 +13,8 @@ import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +22,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Map;
+
 import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
 
 /**
@@ -27,26 +33,28 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
 {
     private final JwtService jwtService;
     private final AuthenticationController authenticationController;
+    private final JwtApplinkFinder jwtApplinkFinder;
 
-    public ApplinksJwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController)
+    private static final Logger LOG = LoggerFactory.getLogger(ApplinksJwtAuthenticator.class);
+
+    public ApplinksJwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController, JwtApplinkFinder jwtApplinkFinder)
     {
         super(new JavaxJwtRequestExtractor(), new ApplinksAuthenticationResultHandler());
-        this.jwtService = jwtService;
-        this.authenticationController = authenticationController;
+        this.jwtService = checkNotNull(jwtService);
+        this.authenticationController = checkNotNull(authenticationController);
+        this.jwtApplinkFinder = checkNotNull(jwtApplinkFinder);
     }
 
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
-        Principal userPrincipal = new SimplePrincipal(jwt.getSubject()); // TODO: ACDEV-653: principal should be looked up internally from the issuer id
-
-        if (!authenticationController.canLogin(userPrincipal, request))
+        if (null != jwt.getSubject())
         {
-            throw new JwtUserRejectedException(String.format("User [%s] and request [%s] are not a valid login combination", userPrincipal.getName(), request));
+            LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", jwt.getSubject(), request.getRequestURI(), jwt.getIssuer()));
         }
 
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
-        return userPrincipal;
+        return getPrincipal(jwt.getIssuer());
     }
 
     @Override
@@ -58,10 +66,36 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         }
         catch (TypeNotInstalledException e)
         {
-            // TODO: Peter: TypeNotInstalledException is in applinks which the base class can't depend on.
-            // This is the best I could come up with. Thoughts?
+            // TypeNotInstalledException is in applinks which the base class can't depend on.
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
+    private Principal getPrincipal(String jwtIssuer)
+    {
+        Principal userPrincipal = null; // default to being able to see only public resources
+
+        ApplicationLink applicationLink = jwtApplinkFinder.find(jwtIssuer);
+        Object addOnUserKey = applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME);
+
+        if (null == addOnUserKey)
+        {
+            LOG.warn(String.format("Application link '%s' for JWT issuer '%s' has no '%s' property. Incoming requests from this issuer will be authenticated as an anonymous request.",
+                    applicationLink.getId(), jwtIssuer, JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME));
+        }
+        else
+        {
+            if (addOnUserKey instanceof String)
+            {
+                userPrincipal = new SimplePrincipal((String)addOnUserKey);
+            }
+            else
+            {
+                throw new IllegalStateException(String.format("ApplicationLink '%s' for JWT issuer '%s' has the non-String user key '%s'. The user key must be a String: please correct it by editing the database or, if the issuer is a Connect add-on, by re-installing it.",
+                        applicationLink.getId(), jwtIssuer, addOnUserKey));
+            }
+        }
+
+        return userPrincipal;
+    }
 }

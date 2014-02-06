@@ -6,6 +6,7 @@ import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.ApplinkJwt;
+import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
@@ -24,7 +25,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -50,13 +50,14 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ApplinksJwtAuthenticatorTest
 {
+    private static final String ADD_ON_USER_KEY = "add-on user key";
     private static final String END_USER_ACCOUNT_NAME = "end user";
-    private static final Principal END_USER_PRINCIPAL = new Principal()
+    private static final Principal ADD_ON_PRINCIPAL = new Principal()
     {
         @Override
         public String getName()
         {
-            return END_USER_ACCOUNT_NAME;
+            return ADD_ON_USER_KEY;
         }
 
         @Override
@@ -91,11 +92,13 @@ public class ApplinksJwtAuthenticatorTest
     private static final String HOST = "host";
     private static final int PORT = 80;
 
-    @InjectMocks
     private ApplinksJwtAuthenticator authenticator;
 
-    @Mock AuthenticationController authenticationController;
-    private final JwtService jwtService = new JwtService()
+    private @Mock AuthenticationController authenticationController;
+    private @Mock JwtApplinkFinder jwtApplinkFinder;
+    private @Mock ApplicationLink applicationLink;
+
+    private final static JwtService jwtService = new JwtService()
     {
         @Override
         public boolean isJwtPeer(ApplicationLink applicationLink)
@@ -141,13 +144,15 @@ public class ApplinksJwtAuthenticatorTest
     @Before
     public void setUp() throws IOException
     {
-        authenticator = new ApplinksJwtAuthenticator(jwtService, authenticationController);
+        authenticator = new ApplinksJwtAuthenticator(jwtService, authenticationController, jwtApplinkFinder);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
         when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(new StringTokenizer(""));
         when(request.getParameterMap()).thenReturn(PARAMETERS_WITHOUT_JWT);
-        when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(true);
+        when(jwtApplinkFinder.find(JWT_ISSUER)).thenReturn(applicationLink);
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(ADD_ON_USER_KEY);
+        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(true);
     }
 
     @Test
@@ -170,24 +175,7 @@ public class ApplinksJwtAuthenticatorTest
     public void validJwtResultsInCorrectPrincipal() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
-    }
-
-    @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException, NoSuchAlgorithmException
-    {
-        when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
-        setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
-    }
-
-    @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
-    {
-        when(authenticationController.canLogin(END_USER_PRINCIPAL, request)).thenReturn(false);
-        setUpValidJwtQueryParameter();
-        authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
     }
 
     @Test
