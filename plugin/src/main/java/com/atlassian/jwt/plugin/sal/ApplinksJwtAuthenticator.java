@@ -54,7 +54,7 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         }
 
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
-        return getPrincipal(jwt.getIssuer());
+        return getPrincipal(jwt.getIssuer(), request);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         }
     }
 
-    private Principal getPrincipal(String jwtIssuer)
+    private Principal getPrincipal(String jwtIssuer, HttpServletRequest request) throws JwtUserRejectedException
     {
         Principal userPrincipal = null; // default to being able to see only public resources
 
@@ -88,6 +88,13 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
             if (addOnUserKey instanceof String)
             {
                 userPrincipal = new SimplePrincipal((String)addOnUserKey);
+
+                // if the add-on's user has been disabled then we explicitly deny access so that admins and our add-on
+                // lifecycle code can instantly prevent an add-on from making any calls (e.g. when an add-on is disabled)
+                if (!authenticationController.canLogin(userPrincipal, request))
+                {
+                    throw new JwtUserRejectedException(String.format("The user '%s' is disabled or does not exist", addOnUserKey));
+                }
             }
             else
             {

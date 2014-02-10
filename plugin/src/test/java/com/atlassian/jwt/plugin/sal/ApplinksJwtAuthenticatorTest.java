@@ -384,6 +384,23 @@ public class ApplinksJwtAuthenticatorTest
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
     }
 
+    @Test
+    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException, NoSuchAlgorithmException
+    {
+        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void validJwtWithPrincipalWhoCannotLogInResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
+        setUpValidJwtQueryParameter();
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
     private String createJwtWithoutQuerySignature()
     {
         return JWT_WRITER.jsonToJwt(createJwtClaimsSetWithoutSignatures().toJSONObject().toJSONString());
