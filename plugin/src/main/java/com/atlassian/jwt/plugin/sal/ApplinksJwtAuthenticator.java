@@ -2,6 +2,8 @@ package com.atlassian.jwt.plugin.sal;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
+import com.atlassian.crowd.embedded.api.CrowdService;
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
@@ -11,7 +13,6 @@ import com.atlassian.jwt.core.http.auth.AbstractJwtAuthenticator;
 import com.atlassian.jwt.core.http.auth.SimplePrincipal;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
-import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,17 +33,17 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         implements Authenticator
 {
     private final JwtService jwtService;
-    private final AuthenticationController authenticationController;
     private final JwtApplinkFinder jwtApplinkFinder;
+    private final CrowdService crowdService;
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplinksJwtAuthenticator.class);
 
-    public ApplinksJwtAuthenticator(JwtService jwtService, AuthenticationController authenticationController, JwtApplinkFinder jwtApplinkFinder)
+    public ApplinksJwtAuthenticator(JwtService jwtService, JwtApplinkFinder jwtApplinkFinder, CrowdService crowdService)
     {
         super(new JavaxJwtRequestExtractor(), new ApplinksAuthenticationResultHandler());
         this.jwtService = checkNotNull(jwtService);
-        this.authenticationController = checkNotNull(authenticationController);
         this.jwtApplinkFinder = checkNotNull(jwtApplinkFinder);
+        this.crowdService = checkNotNull(crowdService);
     }
 
     @Override
@@ -87,14 +88,21 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         {
             if (addOnUserKey instanceof String)
             {
-                userPrincipal = new SimplePrincipal((String)addOnUserKey);
+                String userKeyString = (String) addOnUserKey;
+                User user = crowdService.getUser(userKeyString);
 
                 // if the add-on's user has been disabled then we explicitly deny access so that admins and our add-on
                 // lifecycle code can instantly prevent an add-on from making any calls (e.g. when an add-on is disabled)
-                if (!authenticationController.canLogin(userPrincipal, request))
+                if (null == user)
                 {
-                    throw new JwtUserRejectedException(String.format("The user '%s' is disabled or does not exist", addOnUserKey));
+                    throw new JwtUserRejectedException(String.format("The user '%s' does not exist", userKeyString));
                 }
+                else if (!user.isActive())
+                {
+                    throw new JwtUserRejectedException(String.format("The user '%s' is inactive", userKeyString));
+                }
+
+                userPrincipal = new SimplePrincipal(userKeyString);
             }
             else
             {
