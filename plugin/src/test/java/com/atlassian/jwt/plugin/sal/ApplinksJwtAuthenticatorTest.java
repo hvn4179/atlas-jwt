@@ -2,6 +2,8 @@ package com.atlassian.jwt.plugin.sal;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
+import com.atlassian.crowd.embedded.api.CrowdService;
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
@@ -16,7 +18,6 @@ import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.writer.JwtWriter;
-import com.atlassian.sal.api.auth.AuthenticationController;
 import com.atlassian.sal.api.auth.Authenticator;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -94,9 +95,10 @@ public class ApplinksJwtAuthenticatorTest
 
     private ApplinksJwtAuthenticator authenticator;
 
-    private @Mock AuthenticationController authenticationController;
+    private @Mock CrowdService crowdService;
     private @Mock JwtApplinkFinder jwtApplinkFinder;
     private @Mock ApplicationLink applicationLink;
+    private @Mock User addOnUser;
 
     private final static JwtService jwtService = new JwtService()
     {
@@ -144,7 +146,7 @@ public class ApplinksJwtAuthenticatorTest
     @Before
     public void setUp() throws IOException
     {
-        authenticator = new ApplinksJwtAuthenticator(jwtService, authenticationController, jwtApplinkFinder);
+        authenticator = new ApplinksJwtAuthenticator(jwtService, jwtApplinkFinder, crowdService);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
@@ -152,7 +154,8 @@ public class ApplinksJwtAuthenticatorTest
         when(request.getParameterMap()).thenReturn(PARAMETERS_WITHOUT_JWT);
         when(jwtApplinkFinder.find(JWT_ISSUER)).thenReturn(applicationLink);
         when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(ADD_ON_USER_KEY);
-        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(true);
+        when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(addOnUser);
+        when(addOnUser.isActive()).thenReturn(true);
     }
 
     @Test
@@ -385,17 +388,34 @@ public class ApplinksJwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInFailure() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithPrincipalWhoDoesNotExistResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
-        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
+        when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(null);
         setUpValidJwtQueryParameter();
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
 
     @Test
-    public void validJwtWithPrincipalWhoCannotLogInResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithPrincipalWhoDoesNotExistResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
     {
-        when(authenticationController.canLogin(ADD_ON_PRINCIPAL, request)).thenReturn(false);
+        when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(null);
+        setUpValidJwtQueryParameter();
+        authenticator.authenticate(request, response);
+        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
+    public void validJwtWithInactivePrincipalResultsInFailure() throws IOException, NoSuchAlgorithmException
+    {
+        when(addOnUser.isActive()).thenReturn(false);
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
+    }
+
+    @Test
+    public void validJwtWithInactivePrincipalResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
+    {
+        when(addOnUser.isActive()).thenReturn(false);
         setUpValidJwtQueryParameter();
         authenticator.authenticate(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
