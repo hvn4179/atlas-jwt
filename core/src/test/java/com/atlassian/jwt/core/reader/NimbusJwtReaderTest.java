@@ -250,6 +250,24 @@ public class NimbusJwtReaderTest
         createNimbusHmac256JwtReader().read(jwt, requiredClaims);
     }
 
+    @Test(expected = JwtInvalidClaimException.class)
+    public void canCoerceIntegersCorrectly() throws Exception
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", String.valueOf(TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1),
+                "iat", String.valueOf(TEN_MINS_EARLIER),
+                "nbf", String.valueOf(TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS),
+                "iss", "joe"
+        );
+        String payload = createNimbusHmac256JwtReader().read(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
+        assertJsonContainsOnly(payload,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
+                "iat", TEN_MINS_EARLIER,
+                "nbf", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS,
+                "iss", "joe"
+        );
+    }
+
     private JwtReader createNimbusHmac256JwtReader()
     {
         return new NimbusMacJwtReader(SECRET_KEY, CLOCK);
