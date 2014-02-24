@@ -15,12 +15,14 @@ import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.Arrays.asList;
 
 public class NimbusJwtReader implements JwtReader
 {
+    private static final String UNEXPECTED_TYPE_MESSAGE_PREFIX = "Unexpected type of JSON object member with key ";
+    private static final Set<String> NUMERIC_CLAIM_NAMES = new HashSet<String>(asList("exp", "iat", "nbf"));
     private final JWSVerifier verifier;
     private final Clock clock;
 
@@ -73,6 +75,19 @@ public class NimbusJwtReader implements JwtReader
         }
         catch (ParseException e)
         {
+            // if possible, provide a hint to the add-on developer
+            if (e.getMessage().startsWith(UNEXPECTED_TYPE_MESSAGE_PREFIX))
+            {
+                String claimName = e.getMessage().replace(UNEXPECTED_TYPE_MESSAGE_PREFIX, "").replaceAll("\"", "");
+
+                if (NUMERIC_CLAIM_NAMES.contains(claimName))
+                {
+                    throw new JwtInvalidClaimException(String.format("Expecting claim '%s' to be numeric but it is a string", claimName), e);
+                }
+
+                throw new JwtParseException("Perhaps a claim is of the wrong type (e.g. expecting integer but found string): " + e.getMessage(), e);
+            }
+
             throw new JwtParseException(e);
         }
 
