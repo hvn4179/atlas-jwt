@@ -14,6 +14,7 @@ import com.atlassian.jwt.core.http.auth.SimplePrincipal;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.sal.api.auth.Authenticator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,16 +51,17 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
-        Principal principal = null;
+        Principal principal;
+        String subject = jwt.getSubject();
         if (allowImpersonation())
         {
-            principal = new SimplePrincipal(jwt.getSubject());
+            principal = (subject == null || subject.length() == 0) ? null : new SimplePrincipal(subject);
         }
         else
         {
-            if (null != jwt.getSubject())
+            if (null != subject)
             {
-                LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", jwt.getSubject(), request.getRequestURI(), jwt.getIssuer()));
+                LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", subject, request.getRequestURI(), jwt.getIssuer()));
             }
             principal = getPrincipalFromApplink(jwt.getIssuer(), request);
         }

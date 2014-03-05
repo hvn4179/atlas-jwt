@@ -44,6 +44,7 @@ import java.util.StringTokenizer;
 import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -439,6 +440,22 @@ public class ApplinksJwtAuthenticatorTest
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
     }
 
+    @Test
+    public void validJwtWithImpersonationSetButNoSubject() throws IOException, NoSuchAlgorithmException
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    @Test
+    public void validJwtWithImpersonationSetButEmptySubject() throws IOException, NoSuchAlgorithmException
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
     private String createJwtWithoutQuerySignature()
     {
         return JWT_WRITER.jsonToJwt(createJwtClaimsSetWithoutSignatures().toJSONObject().toJSONString());
@@ -496,10 +513,10 @@ public class ApplinksJwtAuthenticatorTest
 
     private static JWTClaimsSet createJwtClaimsSetWithoutSignatures()
     {
-        return createJwtClaimsSetWithoutSignatures(JWT_ISSUER);
+        return createJwtClaimsSetWithoutSignatures(JWT_ISSUER, END_USER_ACCOUNT_NAME);
     }
 
-    private static JWTClaimsSet createJwtClaimsSetWithoutSignatures(String issuer)
+    private static JWTClaimsSet createJwtClaimsSetWithoutSignatures(String issuer, String subject)
     {
         JWTClaimsSet claims = new JWTClaimsSet();
         claims.setIssuer(issuer);
@@ -507,30 +524,43 @@ public class ApplinksJwtAuthenticatorTest
         claims.setIssueTime(now);
         claims.setExpirationTime(new Date(now.getTime() + 60 * 1000));
         claims.setNotBeforeTime(now);
-        claims.setSubject(END_USER_ACCOUNT_NAME);
+        if (subject != null)
+        {
+            claims.setSubject(subject);
+        }
         return claims;
     }
 
     private String createValidJwt() throws IOException, NoSuchAlgorithmException
     {
-        return createValidJwtWithIssuer(JWT_ISSUER);
+        return createValidJwt(JWT_ISSUER, END_USER_ACCOUNT_NAME);
     }
 
-    private String createValidJwtWithIssuer(String issuer) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    private String createValidJwtWithIssuer(String issuer) throws IOException, NoSuchAlgorithmException
     {
-        JWTClaimsSet claims = createValidJwtClaimsSet(issuer);
+        return createValidJwt(issuer, END_USER_ACCOUNT_NAME);
+    }
+
+    private String createValidJwtWithSubject(String subject) throws IOException, NoSuchAlgorithmException
+    {
+        return createValidJwt(JWT_ISSUER, subject);
+    }
+
+    private String createValidJwt(String issuer, String subject) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        JWTClaimsSet claims = createValidJwtClaimsSet(issuer, subject);
         String jsonString = claims.toJSONObject().toJSONString();
         return JWT_WRITER.jsonToJwt(jsonString);
     }
 
     private JWTClaimsSet createValidJwtClaimsSet() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        return createValidJwtClaimsSet(JWT_ISSUER);
+        return createValidJwtClaimsSet(JWT_ISSUER, END_USER_ACCOUNT_NAME);
     }
 
-    private JWTClaimsSet createValidJwtClaimsSet(String issuer) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    private JWTClaimsSet createValidJwtClaimsSet(String issuer, String subject) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures(issuer);
+        JWTClaimsSet claims = createJwtClaimsSetWithoutSignatures(issuer, subject);
         claims.setClaim(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(new CanonicalHttpServletRequest(request)));
         return claims;
     }
