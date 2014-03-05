@@ -81,6 +81,11 @@ public class JwtConstants
          * The key of the user assigned to this add-on.
          */
         public static final String ADD_ON_USER_KEY_PROPERTY_NAME = "user.key";
+
+        /**
+         * System property which determines if impersonation is allowed, by using the JWT token's <code>sub</code> claim
+         */
+        public static final String SYS_PROP_ALLOW_IMPERSONATION = "atlassian.jwt.impersonation.allowed";
     }
 
     public static final class HttpRequests

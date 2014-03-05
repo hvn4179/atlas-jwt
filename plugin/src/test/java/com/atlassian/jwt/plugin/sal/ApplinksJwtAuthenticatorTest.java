@@ -23,6 +23,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.apache.commons.lang.NotImplementedException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -143,9 +144,12 @@ public class ApplinksJwtAuthenticatorTest
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
 
+    boolean impersonationEnabled;
+
     @Before
     public void setUp() throws IOException
     {
+        impersonationEnabled = Boolean.getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
         authenticator = new ApplinksJwtAuthenticator(jwtService, jwtApplinkFinder, crowdService);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
@@ -156,6 +160,12 @@ public class ApplinksJwtAuthenticatorTest
         when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(ADD_ON_USER_KEY);
         when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(addOnUser);
         when(addOnUser.isActive()).thenReturn(true);
+    }
+
+    @After
+    public void cleanup()
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, Boolean.toString(impersonationEnabled));
     }
 
     @Test
@@ -317,7 +327,7 @@ public class ApplinksJwtAuthenticatorTest
     {
         setUpValidJwtQueryParameter();
         Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
-        editedParams.put("new", new String[]{"value"});
+        editedParams.put("new", new String[] { "value" });
         when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
@@ -419,6 +429,14 @@ public class ApplinksJwtAuthenticatorTest
         setUpValidJwtQueryParameter();
         authenticator.authenticate(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    @Test
+    public void validJwtWithImpersonationSetUsesSubjectClaim() throws IOException, NoSuchAlgorithmException
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
     }
 
     private String createJwtWithoutQuerySignature()
