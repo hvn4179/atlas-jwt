@@ -14,6 +14,7 @@ import com.atlassian.jwt.core.http.auth.SimplePrincipal;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.sal.api.auth.Authenticator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import java.security.Principal;
 import java.util.Map;
 
 import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
+import static java.lang.Boolean.getBoolean;
 
 /**
  * A JwtAuthenticator for requests associated with an ApplicationLink (i.e. for requests between two linked applications)
@@ -49,13 +51,22 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
-        if (null != jwt.getSubject())
+        Principal principal;
+        String subject = jwt.getSubject();
+        if (allowImpersonation())
         {
-            LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", jwt.getSubject(), request.getRequestURI(), jwt.getIssuer()));
+            principal = (subject == null || subject.length() == 0) ? null : new SimplePrincipal(subject);
         }
-
+        else
+        {
+            if (null != subject)
+            {
+                LOG.warn(String.format("Ignoring subject claim '%s' on incoming request '%s' from JWT issuer '%s'", subject, request.getRequestURI(), jwt.getIssuer()));
+            }
+            principal = getPrincipalFromApplink(jwt.getIssuer(), request);
+        }
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
-        return getPrincipal(jwt.getIssuer(), request);
+        return principal;
     }
 
     @Override
@@ -72,7 +83,7 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         }
     }
 
-    private Principal getPrincipal(String jwtIssuer, HttpServletRequest request) throws JwtUserRejectedException
+    private Principal getPrincipalFromApplink(String jwtIssuer, HttpServletRequest request) throws JwtUserRejectedException
     {
         Principal userPrincipal = null; // default to being able to see only public resources
 
@@ -112,5 +123,10 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         }
 
         return userPrincipal;
+    }
+
+    public boolean allowImpersonation()
+    {
+        return getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
     }
 }

@@ -53,6 +53,8 @@ public class JwtConstants
          *    E.g. The SHA-256 hash of "foo" is "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".
          */
         public static final String QUERY_HASH = "qsh";
+
+        public static final String SUBJECT = "sub";
     }
 
     public static final class AppLinks
@@ -81,6 +83,11 @@ public class JwtConstants
          * The key of the user assigned to this add-on.
          */
         public static final String ADD_ON_USER_KEY_PROPERTY_NAME = "user.key";
+
+        /**
+         * System property which determines if impersonation is allowed, by using the JWT token's <code>sub</code> claim
+         */
+        public static final String SYS_PROP_ALLOW_IMPERSONATION = "atlassian.jwt.impersonation.allowed";
     }
 
     public static final class HttpRequests
