@@ -48,9 +48,16 @@ public class HttpRequestCanonicalizer
         return JwtUtil.computeSha256Hash(canonicalize(request));
     }
 
-    private static String canonicalizeUri(CanonicalHttpRequest request)
+    private static String canonicalizeUri(CanonicalHttpRequest request) throws UnsupportedEncodingException
     {
         String path = StringUtils.defaultIfBlank(StringUtils.removeEnd(request.getRelativePath(), "/"), "/");
+        final String separatorAsString = String.valueOf(CANONICAL_REQUEST_PART_SEPARATOR);
+
+        // If the separator is not URL encoded then the following URLs have the same query-string-hash:
+        //   https://djtest9.jira-dev.com/rest/api/2/project&a=b?x=y
+        //   https://djtest9.jira-dev.com/rest/api/2/project?a=b&x=y
+        path = path.replaceAll(separatorAsString, JwtUtil.percentEncode(separatorAsString));
+
         return path.startsWith("/") ? path : "/" + path;
     }
 
