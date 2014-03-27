@@ -328,7 +328,7 @@ public class ApplinksJwtAuthenticatorTest
     {
         setUpValidJwtQueryParameter();
         Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
-        editedParams.put("new", new String[] { "value" });
+        editedParams.put("new", new String[]{"value"});
         when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
@@ -433,27 +433,184 @@ public class ApplinksJwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtWithImpersonationSetUsesSubjectClaim() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithImpersonationEnabledAndPreferredUsesSubjectClaimWhenAppLinkSpecifiesUser() throws IOException, NoSuchAlgorithmException
     {
-        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        enableAndPreferImpersonation();
         setUpValidJwtQueryParameter();
         assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
     }
 
     @Test
-    public void validJwtWithImpersonationSetButNoSubject() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithImpersonationEnabledAndPreferredUsesSubjectClaimWhenAppLinkDoesNotSpecifyUser() throws IOException, NoSuchAlgorithmException
     {
-        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        enableAndPreferImpersonation();
+        setUpValidJwtQueryParameter();
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledButNotPreferredUsesAppLinkUserWhenAppLinkSpecifiesUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableImpersonation();
+        preferNoImpersonation();
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledButNotPreferredUsesSubjectClaimWhenAppLinkDoesNotSpecifyUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableImpersonation();
+        preferNoImpersonation();
+        setUpValidJwtQueryParameter();
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledButPreferenceUnspecifiedUsesAppLinkUserWhenAppLinkSpecifiesUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableImpersonation();
+        specifyNoImpersonationPreference();
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledButPreferenceUnspecifiedUsesSubjectClaimWhenAppLinkDoesNotSpecifyUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableImpersonation();
+        specifyNoImpersonationPreference();
+        setUpValidJwtQueryParameter();
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledAndPreferredButNoSubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableAndPreferImpersonation();
         setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledAndPreferredButEmptySubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        enableAndPreferImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledAndNotPreferredAndSubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        preferNoImpersonation();
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledButPreferredAndSubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        preferImpersonation();
+        setUpValidJwtQueryParameter();
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledAndNoSubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledAndEmptySubjectUsesAppLinkUser() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledAndSubjectAndNoAppLinkUserFallsBackToAnonymous() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        setUpValidJwtQueryParameter();
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
         assertNull(authenticator.authenticate(request, response).getPrincipal());
     }
 
     @Test
-    public void validJwtWithImpersonationSetButEmptySubject() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithImpersonationDisabledAndNoSubjectAndNoAppLinkUserFallsBackToAnonymous() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    @Test
+    public void validJwtWithImpersonationDisabledAndEmptySubjectAndNoAppLinkUserFallsBackToAnonymous() throws IOException, NoSuchAlgorithmException
+    {
+        disableImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledAndPreferredAndNoSubjectAndNoAppLinkUserFallsBackToAnonymous() throws IOException, NoSuchAlgorithmException
+    {
+        enableAndPreferImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    @Test
+    public void validJwtWithImpersonationEnabledAndPreferredAndEmptySubjectAndNoAppLinkUserFallsBackToAnonymous() throws IOException, NoSuchAlgorithmException
+    {
+        enableAndPreferImpersonation();
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(null);
+        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    private static void enableAndPreferImpersonation()
+    {
+        enableImpersonation();
+        preferImpersonation();
+    }
+
+    private static void disableImpersonation()
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "false");
+    }
+
+    private static void enableImpersonation()
     {
         System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
-        setUpJwtQueryParameter(createValidJwtWithSubject(""));
-        assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    private static void preferImpersonation()
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_PREFER_IMPERSONATION, "true");
+    }
+
+    private static void preferNoImpersonation()
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_PREFER_IMPERSONATION, "false");
+    }
+
+    private static void specifyNoImpersonationPreference()
+    {
+        System.clearProperty(JwtConstants.AppLinks.SYS_PROP_PREFER_IMPERSONATION);
     }
 
     private String createJwtWithoutQuerySignature()

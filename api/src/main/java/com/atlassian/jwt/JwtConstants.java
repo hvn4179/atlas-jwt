@@ -87,7 +87,12 @@ public class JwtConstants
         /**
          * System property which determines if impersonation is allowed, by using the JWT token's <code>sub</code> claim
          */
-        public static final String SYS_PROP_ALLOW_IMPERSONATION = "atlassian.jwt.impersonation.allowed";
+        public static final String SYS_PROP_ALLOW_IMPERSONATION = "atlassian.connect.userimpersonation.enabled";
+
+        /**
+         * System property which determines if impersonation is preferred to utilizing an add-on user (in the case where the add-on user and <code>sub</code> claim both exist).
+         */
+        public static final String SYS_PROP_PREFER_IMPERSONATION = "atlassian.connect.userimpersonation.preferred";
     }
 
     public static final class HttpRequests

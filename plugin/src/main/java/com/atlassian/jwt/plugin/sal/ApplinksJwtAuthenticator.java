@@ -14,7 +14,6 @@ import com.atlassian.jwt.core.http.auth.SimplePrincipal;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.sal.api.auth.Authenticator;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +47,35 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
         this.crowdService = checkNotNull(crowdService);
     }
 
+    // impersonation allowed & preferred => get from request, falling back to getting the add-on user
+    // impersonation allowed & ! preferred => get the add-on user, falling back to the request
+    // impersonation not allowed => get the add-on user
     @Override
     protected Principal authenticate(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
         Principal principal;
         String subject = jwt.getSubject();
+
         if (allowImpersonation())
         {
-            principal = (subject == null || subject.length() == 0) ? null : new SimplePrincipal(subject);
+            if (preferImpersonation())
+            {
+                principal = getPrincipalFromSubject(subject);
+
+                if (null == principal)
+                {
+                    principal = getPrincipalFromApplink(jwt.getIssuer(), request);
+                }
+            }
+            else
+            {
+                principal = getPrincipalFromApplink(jwt.getIssuer(), request);
+
+                if (null == principal)
+                {
+                    principal = getPrincipalFromSubject(subject);
+                }
+            }
         }
         else
         {
@@ -65,8 +85,14 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
             }
             principal = getPrincipalFromApplink(jwt.getIssuer(), request);
         }
+
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
         return principal;
+    }
+
+    private SimplePrincipal getPrincipalFromSubject(String subject)
+    {
+        return (subject == null || subject.length() == 0) ? null : new SimplePrincipal(subject);
     }
 
     @Override
@@ -128,5 +154,10 @@ public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServl
     public boolean allowImpersonation()
     {
         return getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
+    }
+
+    public boolean preferImpersonation()
+    {
+        return getBoolean(JwtConstants.AppLinks.SYS_PROP_PREFER_IMPERSONATION);
     }
 }
