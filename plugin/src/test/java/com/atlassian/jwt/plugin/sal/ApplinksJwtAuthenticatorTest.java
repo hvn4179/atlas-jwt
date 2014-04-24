@@ -151,7 +151,7 @@ public class ApplinksJwtAuthenticatorTest
     public void setUp() throws IOException
     {
         impersonationEnabled = Boolean.getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
-        authenticator = new ApplinksJwtAuthenticator(jwtService, jwtApplinkFinder, crowdService);
+        authenticator = new ApplinksJwtAuthenticator(jwtService);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
@@ -441,19 +441,37 @@ public class ApplinksJwtAuthenticatorTest
     }
 
     @Test
-    public void validJwtWithImpersonationSetButNoSubject() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithImpersonationSetButNoSubjectAndNoAppLink() throws IOException, NoSuchAlgorithmException
     {
         System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
         setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        when(jwtApplinkFinder.find(JWT_ISSUER)).thenReturn(null);
         assertNull(authenticator.authenticate(request, response).getPrincipal());
     }
 
     @Test
-    public void validJwtWithImpersonationSetButEmptySubject() throws IOException, NoSuchAlgorithmException
+    public void validJwtWithImpersonationSetButNoSubjectAndValidAppLink() throws IOException, NoSuchAlgorithmException
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        setUpJwtQueryParameter(createValidJwtWithSubject(null));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_PRINCIPAL.getName()));
+    }
+
+    @Test
+    public void validJwtWithImpersonationSetButEmptySubjectAndNoAppLink() throws IOException, NoSuchAlgorithmException
     {
         System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
         setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        when(jwtApplinkFinder.find(JWT_ISSUER)).thenReturn(null);
         assertNull(authenticator.authenticate(request, response).getPrincipal());
+    }
+
+    @Test
+    public void validJwtWithImpersonationSetButEmptySubjectAndValidAppLink() throws IOException, NoSuchAlgorithmException
+    {
+        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
+        setUpJwtQueryParameter(createValidJwtWithSubject(""));
+        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_PRINCIPAL.getName()));
     }
 
     private String createJwtWithoutQuerySignature()

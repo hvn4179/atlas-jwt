@@ -15,6 +15,8 @@ public class JwtConstants
      */
     public static final int TIME_CLAIM_LEEWAY_SECONDS = 30;
 
+    public static final String HAS_AGENCY_PROPERTY_NAME = "connect.scope.agent";
+
     public static final class Claims
     {
         /**
@@ -98,6 +100,8 @@ public class JwtConstants
          */
         public static final String ADD_ON_ID_ATTRIBUTE_NAME = "Plugin-Key";
 
+        public static final String JWT_SUBJECT_ATTRIBUTE_NAME = "jwt.subject";
+
         public static final String AUTHORIZATION_HEADER = "Authorization";
 
         /**
@@ -108,6 +112,5 @@ public class JwtConstants
          *  }</pre>
          */
         public static final String JWT_AUTH_HEADER_PREFIX = "JWT ";
-
     }
 }
