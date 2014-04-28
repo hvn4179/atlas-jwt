@@ -51,7 +51,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplinksJwtAuthenticatorTest
+public class JwtAuthenticatorImplTest
 {
     private static final String ADD_ON_USER_KEY = "add-on user key";
     private static final String END_USER_ACCOUNT_NAME = "end user";
@@ -95,7 +95,7 @@ public class ApplinksJwtAuthenticatorTest
     private static final String HOST = "host";
     private static final int PORT = 80;
 
-    private ApplinksJwtAuthenticator authenticator;
+    private JwtAuthenticatorImpl authenticator;
 
     private @Mock CrowdService crowdService;
     private @Mock JwtApplinkFinder jwtApplinkFinder;
@@ -151,7 +151,7 @@ public class ApplinksJwtAuthenticatorTest
     public void setUp() throws IOException
     {
         impersonationEnabled = Boolean.getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
-        authenticator = new ApplinksJwtAuthenticator(jwtService);
+        authenticator = new JwtAuthenticatorImpl(jwtService);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);

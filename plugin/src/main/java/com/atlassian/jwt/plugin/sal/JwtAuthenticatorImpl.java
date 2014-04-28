@@ -21,12 +21,12 @@ import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_SUBJECT_ATTRIBUTE_
 /**
  * A JwtAuthenticator for requests associated with an ApplicationLink (i.e. for requests between two linked applications)
  */
-public class ApplinksJwtAuthenticator extends AbstractJwtAuthenticator<HttpServletRequest, HttpServletResponse, Authenticator.Result>
+public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRequest, HttpServletResponse, Authenticator.Result>
         implements Authenticator
 {
     private final JwtService jwtService;
 
-    public ApplinksJwtAuthenticator(JwtService jwtService)
+    public JwtAuthenticatorImpl(JwtService jwtService)
     {
         super(new JavaxJwtRequestExtractor(), new ApplinksAuthenticationResultHandler());
         this.jwtService = checkNotNull(jwtService);
