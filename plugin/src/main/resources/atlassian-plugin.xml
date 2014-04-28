@@ -11,7 +11,6 @@
     <component-import key="authentication-controller" interface="com.atlassian.sal.api.auth.AuthenticationController"/>
     <component-import key="authentication-listener" interface="com.atlassian.sal.api.auth.AuthenticationListener"/>
     <component-import key="internal-host-application" interface="com.atlassian.applinks.host.spi.InternalHostApplication"/>
-    <component-import key="user-manager" interface="com.atlassian.sal.api.user.UserManager"/>
     <component-import key="oauth-consumer-store" interface="com.atlassian.oauth.serviceprovider.ServiceProviderConsumerStore"/>
     <component-import key="oauth-token-store" interface="com.atlassian.oauth.serviceprovider.ServiceProviderTokenStore"/>
 

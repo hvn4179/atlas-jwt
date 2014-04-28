@@ -99,7 +99,6 @@
                             com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
                             com.atlassian.sal.api.message,
                             com.atlassian.sal.api.net,
-                            com.atlassian.sal.api.user,
                             com.atlassian.security.random,
                             com.google.common.collect,
                             javax.crypto,
