@@ -71,15 +71,4 @@ public class JwtUtil
         digest.update(hashInputBytes, 0, hashInputBytes.length);
         return new String(Hex.encodeHex(digest.digest()));
     }
-
-    /**
-     * Map an add-on key to the unique identifier of its three-legged-auth grants from users.
-     * @param addOnKey unique identifier of the Connect add-on
-     * @return {@link String} that uniquely identifies three-legged-auth grants from users within this product instance
-     */
-    public static String getThreeLeggedAuthKey(String addOnKey)
-    {
-        // ideally this would live in a lib accessible to both atlassian-connect and atlassian-jwt
-        return "tla_" + addOnKey;
-    }
 }

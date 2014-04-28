@@ -72,9 +72,7 @@ public class JwtAuthFilter implements Filter
             return false;
         }
 
-        //authenticationListener.authenticationSuccess(result, request, response);
         authenticationListener.authenticationNotAttempted(request, response);
-
         return true;
     }
 
