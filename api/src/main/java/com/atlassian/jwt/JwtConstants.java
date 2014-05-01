@@ -33,6 +33,7 @@ public class JwtConstants
          *    will prepend the context path "/jira" to the originally requested path "/getsomething".)
          *    Empty-string is not permitted; use "/" instead.
          *    Do not suffix with a '/' character unless it is the only character.
+         *    Url-encode any '&' characters in the path.
          *    E.g. in "http://server:80/some/path/?param=value" the canonical URI is "/some/path"
          *     and in "http://server:80" the canonical URI is "/".
          * 4. Append the character '&'.
