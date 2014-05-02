@@ -1,10 +1,5 @@
 package com.atlassian.jwt.plugin.sal;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.Principal;
-
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.http.auth.AuthenticationResultHandler;
 import com.atlassian.sal.api.auth.Authenticator.Result;
@@ -12,12 +7,17 @@ import com.atlassian.sal.api.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.Principal;
+
 /**
  * Handles Authentication results for requests relating to an ApplicationLink
  */
 public class ApplinksAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
 {
-    private static final Logger log = LoggerFactory.getLogger(ApplinksJwtAuthenticator.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticatorImpl.class);
 
     @Override
     public Result createAndSendInternalError(Exception e, HttpServletResponse response, String externallyVisibleMessage)

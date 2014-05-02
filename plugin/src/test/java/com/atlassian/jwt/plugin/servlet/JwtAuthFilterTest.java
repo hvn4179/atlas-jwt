@@ -1,16 +1,5 @@
 package com.atlassian.jwt.plugin.servlet;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.Principal;
-import java.util.Enumeration;
-import java.util.Vector;
-
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.AuthenticationController;
@@ -23,16 +12,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
 import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_AUTH_HEADER_PREFIX;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.isA;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthFilterTest
@@ -68,7 +61,7 @@ public class JwtAuthFilterTest
         setUpSuccessWithJwtQueryStringParameter(success);
         filter.doFilter(request, response, chain);
 
-        verify(authenticationListener).authenticationSuccess(eq(success), isA(HttpServletRequest.class), isA(HttpServletResponse.class));
+        verify(authenticationListener).authenticationNotAttempted(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
         verifyNoMoreInteractions(authenticationListener);
     }
 
@@ -94,7 +87,7 @@ public class JwtAuthFilterTest
         when(authenticator.authenticate(isA(HttpServletRequest.class), isA(HttpServletResponse.class))).thenReturn(success);
         filter.doFilter(request, response, chain);
 
-        verify(authenticationListener).authenticationSuccess(eq(success), isA(HttpServletRequest.class), isA(HttpServletResponse.class));
+        verify(authenticationListener).authenticationNotAttempted(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
         verifyNoMoreInteractions(authenticationListener);
     }
 

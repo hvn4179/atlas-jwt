@@ -10,8 +10,6 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static com.atlassian.jwt.JwtConstants.HttpRequests;
-
 public class JwtUtil
 {
     /**
