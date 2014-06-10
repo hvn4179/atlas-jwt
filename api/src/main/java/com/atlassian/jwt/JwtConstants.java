@@ -15,8 +15,6 @@ public class JwtConstants
      */
     public static final int TIME_CLAIM_LEEWAY_SECONDS = 30;
 
-    public static final String HAS_AGENCY_PROPERTY_NAME = "connect.scope.agent";
-
     public static final class Claims
     {
         /**

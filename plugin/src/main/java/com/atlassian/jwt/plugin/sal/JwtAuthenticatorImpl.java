@@ -49,7 +49,7 @@ public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRe
         catch (TypeNotInstalledException e)
         {
             // TypeNotInstalledException is in applinks which the base class can't depend on.
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage(), e);
         }
     }
 }
