@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.util.Map;
 
 /**
@@ -74,8 +73,8 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
             }
 
             Jwt authenticatedJwt = verifyJwt(jwtString, request);
-            Principal principal = authenticate(request, authenticatedJwt);
-            return authenticationResultHandler.success("Authentication successful!", principal, authenticatedJwt);
+            tagRequest(request, authenticatedJwt);
+            return authenticationResultHandler.success("Authentication successful!", null, authenticatedJwt);
         }
         catch (IllegalArgumentException e)
         {
@@ -120,7 +119,8 @@ public abstract class AbstractJwtAuthenticator<REQ, RES, S> implements JwtAuthen
     protected abstract Jwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers)
             throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException;
 
-    protected abstract Principal authenticate(REQ request, Jwt jwt) throws JwtUserRejectedException;
+    // set attributes on the request to be read by subsequent filters
+    protected abstract void tagRequest(REQ request, Jwt jwt) throws JwtUserRejectedException;
 
     private static String getBriefMessageFromException(Exception e)
     {

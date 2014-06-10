@@ -42,16 +42,16 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import static com.atlassian.jwt.JwtConstants.HttpRequests.AUTHORIZATION_HEADER;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplinksJwtAuthenticatorTest
+public class JwtAuthenticatorImplTest
 {
     private static final String ADD_ON_USER_KEY = "add-on user key";
     private static final String END_USER_ACCOUNT_NAME = "end user";
@@ -95,7 +95,7 @@ public class ApplinksJwtAuthenticatorTest
     private static final String HOST = "host";
     private static final int PORT = 80;
 
-    private ApplinksJwtAuthenticator authenticator;
+    private JwtAuthenticatorImpl authenticator;
 
     private @Mock CrowdService crowdService;
     private @Mock JwtApplinkFinder jwtApplinkFinder;
@@ -151,7 +151,7 @@ public class ApplinksJwtAuthenticatorTest
     public void setUp() throws IOException
     {
         impersonationEnabled = Boolean.getBoolean(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION);
-        authenticator = new ApplinksJwtAuthenticator(jwtService, jwtApplinkFinder, crowdService);
+        authenticator = new JwtAuthenticatorImpl(jwtService);
 
         setUpRequestUrl(request, PROTOCOL, HOST, PORT, URI);
         when(request.getMethod()).thenReturn(METHOD);
@@ -189,7 +189,7 @@ public class ApplinksJwtAuthenticatorTest
     public void validJwtResultsInCorrectPrincipal() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(ADD_ON_USER_KEY));
+        assertThat(authenticator.authenticate(request, response).getPrincipal(), is(nullValue()));
     }
 
     @Test
@@ -328,7 +328,7 @@ public class ApplinksJwtAuthenticatorTest
     {
         setUpValidJwtQueryParameter();
         Map<String, String[]> editedParams = new HashMap<String, String[]>(PARAMETERS_WITHOUT_JWT);
-        editedParams.put("new", new String[] { "value" });
+        editedParams.put("new", new String[]{"value"});
         when(request.getParameterMap()).thenReturn(editedParams); // important: tamper with the request AFTER setting up the valid JWT query parameter
         assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
     }
@@ -396,64 +396,6 @@ public class ApplinksJwtAuthenticatorTest
         setUpJwtQueryParameter(createJwtWithEmptyStringQuerySignature());
         authenticator.authenticate(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
-    }
-
-    @Test
-    public void validJwtWithPrincipalWhoDoesNotExistResultsInFailure() throws IOException, NoSuchAlgorithmException
-    {
-        when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(null);
-        setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
-    }
-
-    @Test
-    public void validJwtWithPrincipalWhoDoesNotExistResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
-    {
-        when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(null);
-        setUpValidJwtQueryParameter();
-        authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
-    }
-
-    @Test
-    public void validJwtWithInactivePrincipalResultsInFailure() throws IOException, NoSuchAlgorithmException
-    {
-        when(addOnUser.isActive()).thenReturn(false);
-        setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.FAILED));
-    }
-
-    @Test
-    public void validJwtWithInactivePrincipalResultsInUnauthorisedResponseCode() throws IOException, NoSuchAlgorithmException
-    {
-        when(addOnUser.isActive()).thenReturn(false);
-        setUpValidJwtQueryParameter();
-        authenticator.authenticate(request, response);
-        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
-    }
-
-    @Test
-    public void validJwtWithImpersonationSetUsesSubjectClaim() throws IOException, NoSuchAlgorithmException
-    {
-        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
-        setUpValidJwtQueryParameter();
-        assertThat(authenticator.authenticate(request, response).getPrincipal().getName(), is(END_USER_ACCOUNT_NAME));
-    }
-
-    @Test
-    public void validJwtWithImpersonationSetButNoSubject() throws IOException, NoSuchAlgorithmException
-    {
-        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
-        setUpJwtQueryParameter(createValidJwtWithSubject(null));
-        assertNull(authenticator.authenticate(request, response).getPrincipal());
-    }
-
-    @Test
-    public void validJwtWithImpersonationSetButEmptySubject() throws IOException, NoSuchAlgorithmException
-    {
-        System.setProperty(JwtConstants.AppLinks.SYS_PROP_ALLOW_IMPERSONATION, "true");
-        setUpJwtQueryParameter(createValidJwtWithSubject(""));
-        assertNull(authenticator.authenticate(request, response).getPrincipal());
     }
 
     private String createJwtWithoutQuerySignature()

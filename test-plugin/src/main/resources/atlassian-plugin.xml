@@ -13,7 +13,6 @@
     <component-import key="jwt-applink-finder" interface="com.atlassian.jwt.applinks.JwtApplinkFinder"/>
     <component-import key="jwt-peer-service" interface="com.atlassian.jwt.applinks.JwtPeerService"/>
     <component-import key="jwt-service" interface="com.atlassian.jwt.applinks.JwtService"/>
-    <component-import key="user-manager" interface="com.atlassian.sal.api.user.UserManager"/>
 
     <!-- REST -->
 
@@ -23,6 +22,16 @@
 
     <servlet-filter key="api-scoping-disabler" class="com.atlassian.jwttest.rest.ApiScopingFilterDisabler"
                     location="before-decoration" weight="1">
+        <url-pattern>/*</url-pattern>
+    </servlet-filter>
+
+    <servlet-filter key="request-subject-scraper" class="com.atlassian.jwttest.rest.RequestSubjectScraper"
+                    location="before-decoration">
+        <url-pattern>/*</url-pattern>
+    </servlet-filter>
+
+    <servlet-filter key="request-subject-resetter" class="com.atlassian.jwttest.rest.RequestSubjectResetter"
+                    location="before-login">
         <url-pattern>/*</url-pattern>
     </servlet-filter>
 
