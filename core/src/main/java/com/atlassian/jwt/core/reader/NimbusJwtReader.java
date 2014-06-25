@@ -32,15 +32,29 @@ public class NimbusJwtReader implements JwtReader
         this.clock = clock;
     }
 
-    @Nonnull
     @Override
-    public Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException {
+    @Nonnull
+    public Jwt readUnverified(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    {
+        return read(jwt, requiredClaims, false);
+    }
+
+    @Override
+    @Nonnull
+    public Jwt readAndVerify(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    {
         return read(jwt, requiredClaims, true);
     }
 
+    @Deprecated
     @Nonnull
     @Override
-    public Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims, final boolean verify) throws JwtParseException, JwtVerificationException
+    public Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    {
+        return read(jwt, requiredClaims, true);
+    }
+
+    private Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims, final boolean verify) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 

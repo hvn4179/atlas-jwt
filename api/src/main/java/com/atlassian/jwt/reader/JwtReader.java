@@ -15,6 +15,19 @@ import java.util.Map;
 public interface JwtReader
 {
     /**
+     * Parses the encoded JWT message from {@link String} and on success returns the decoded {@link Jwt}.
+     * Does not attempt signature verification. (Useful if e.g. you need to know something from the JWT in order to determine the key.)
+     *
+     * @param jwt            a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
+     * @param requiredClaims claims that must be present, the specified values
+     * @return a verified {@link Jwt}
+     * @throws JwtParseException        if the JWT string was malformed
+     * @throws JwtVerificationException if the JWT string was well-formed but failed verification
+     */
+    @Nonnull
+    Jwt readUnverified(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
+
+    /**
      * Parses the encoded JWT message from {@link String}, verifies its signature (if there is one) and on success returns the decoded {@link Jwt}.
      *
      * @param jwt            a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
@@ -24,18 +37,18 @@ public interface JwtReader
      * @throws JwtVerificationException if the JWT string was well-formed but failed verification
      */
     @Nonnull
-    Jwt read(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
+    Jwt readAndVerify(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
 
     /**
-     * Same as {@link #read(String, java.util.Map)} } but with an additional parameter to allow a client to skip verification.
+     * Parses the encoded JWT message from {@link String}, verifies its signature (if there is one) and on success returns the decoded {@link Jwt}.
      *
      * @param jwt            a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
      * @param requiredClaims claims that must be present, the specified values
-     * @param verify         if false, skips verification
      * @return a verified {@link Jwt}
      * @throws JwtParseException        if the JWT string was malformed
      * @throws JwtVerificationException if the JWT string was well-formed but failed verification
      */
+    @Deprecated
     @Nonnull
-    Jwt read(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims, boolean verify) throws JwtParseException, JwtVerificationException;
+    Jwt read(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
 }

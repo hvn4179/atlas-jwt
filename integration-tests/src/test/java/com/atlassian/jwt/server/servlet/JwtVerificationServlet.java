@@ -61,7 +61,7 @@ public class JwtVerificationServlet extends HttpServlet
         try
         {
             JwtReader reader = readerFactory.getReader(jwtString);
-            jwt = reader.read(jwtString, JwtClaimVerifiersBuilder.build(new CanonicalHttpServletRequest(req)));
+            jwt = reader.readAndVerify(jwtString, JwtClaimVerifiersBuilder.build(new CanonicalHttpServletRequest(req)));
         }
         catch (Exception e)
         {

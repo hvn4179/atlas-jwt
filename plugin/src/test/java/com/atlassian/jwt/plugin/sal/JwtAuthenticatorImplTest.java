@@ -113,7 +113,7 @@ public class JwtAuthenticatorImplTest
         @Override
         public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
-            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET).read(jwtString, claimVerifiers);
+            final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET).readAndVerify(jwtString, claimVerifiers);
 
             if (!JWT_ISSUER.equals(jwt.getIssuer()))
             {
