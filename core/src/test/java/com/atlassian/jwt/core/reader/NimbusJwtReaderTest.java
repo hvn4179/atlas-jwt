@@ -52,6 +52,26 @@ public class NimbusJwtReaderTest
         );
     }
 
+    @Test
+    public void sharedSecretIsIgnoredForNonVerifyingMode() throws Exception
+    {
+        String jwt = signer.jsonToHmacSha256Jwt(
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1, // just barely on the good side of the "now" boundary
+                "iat", TEN_MINS_EARLIER,
+                "nbf", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS, // just barely on the good side of the "exp" boundary
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+        final String payload = new NimbusMacJwtReader("wrong secret", CLOCK).read(jwt, NO_REQUIRED_CLAIMS, false).getJsonPayload();
+        assertJsonContainsOnly(payload,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
+                "iat", TEN_MINS_EARLIER,
+                "nbf", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS,
+                "\"http:\\/\\/example.com\\/is_root\"", true,
+                "iss", "joe"
+        );
+    }
+
     @Test(expected = JwtInvalidClaimException.class)
     public void iatIsRequired() throws Exception
     {

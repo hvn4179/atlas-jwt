@@ -34,36 +34,30 @@ public class NimbusJwtReader implements JwtReader
 
     @Nonnull
     @Override
-    public Jwt read(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    public Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException {
+        return read(jwt, requiredClaims, true);
+    }
+
+    @Nonnull
+    @Override
+    public Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims, final boolean verify) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
-        // Parse back and check signature
-        try
+        if (verify)
         {
-            jwsObject = JWSObject.parse(jwt);
-
+            jwsObject = verify(jwt);
         }
-        catch (ParseException e)
+        else
         {
-            throw new JwtParseException(e);
-        }
-
-        boolean verifiedSignature;
-
-        try
-        {
-            verifiedSignature = jwsObject.verify(verifier);
-
-        }
-        catch (JOSEException e)
-        {
-            throw new JwtSignatureMismatchException(e);
-        }
-
-        if (!verifiedSignature)
-        {
-            throw new JwtSignatureMismatchException(jwt);
+            try
+            {
+                jwsObject = JWSObject.parse(jwt);
+            }
+            catch (ParseException e)
+            {
+                throw new JwtParseException(e);
+            }
         }
 
         JSONObject jsonPayload = jwsObject.getPayload().toJSONObject();
@@ -131,5 +125,26 @@ public class NimbusJwtReader implements JwtReader
         }
 
         return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());
+    }
+
+    private JWSObject verify(@Nonnull final String jwt) throws JwtParseException, JwtVerificationException {
+        try
+        {
+            final JWSObject jwsObject = JWSObject.parse(jwt);
+
+            if (!jwsObject.verify(verifier)) {
+                throw new JwtSignatureMismatchException(jwt);
+            }
+
+            return jwsObject;
+        }
+        catch (ParseException e)
+        {
+            throw new JwtParseException(e);
+        }
+        catch (JOSEException e)
+        {
+            throw new JwtSignatureMismatchException(e);
+        }
     }
 }
