@@ -13,7 +13,7 @@ import java.util.Map;
 public class JwtClaimVerifiersBuilder
 {
     /**
-     * Tell {@link com.atlassian.jwt.reader.JwtReader}.read() that no custom claims are mandatory.
+     * Tell {@link com.atlassian.jwt.reader.JwtReader}.readAndVerify() that no custom claims are mandatory.
      */
     public static final Map<String, JwtClaimVerifier> NO_REQUIRED_CLAIMS = Collections.emptyMap();
 

@@ -66,7 +66,7 @@ public class NimbusJwtReaderFactoryTest
         String payload = createPayload(VALID_ISSUER);
         Jwt expected = new SimpleJwt(VALID_ISSUER, SUBJECT, payload);
         String jwt = createJwtFromPayload(SUPPORTED_ALGORITHM, payload);
-        assertThat(factory.getReader(jwt).read(jwt, NO_REQUIRED_CLAIMS), is(expected));
+        assertThat(factory.getReader(jwt).readAndVerify(jwt, NO_REQUIRED_CLAIMS), is(expected));
     }
 
     @Test(expected = JwtParseException.class)
