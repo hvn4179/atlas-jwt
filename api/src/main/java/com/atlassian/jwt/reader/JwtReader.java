@@ -40,7 +40,10 @@ public interface JwtReader
     Jwt readAndVerify(@Nonnull String jwt, @Nonnull Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException;
 
     /**
+     *
      * Parses the encoded JWT message from {@link String}, verifies its signature (if there is one) and on success returns the decoded {@link Jwt}.
+     * Deprecated because verification is not actually required in order to read the contents of a JWT.
+     * Use {@link #readAndVerify(String, java.util.Map)} or {@link #readUnverified(String, java.util.Map)} instead.
      *
      * @param jwt            a JSON Web Token, (see <a href="http://tools.ietf.org/html/draft-jones-json-web-token-10#section-3.1">example</a>)
      * @param requiredClaims claims that must be present, the specified values
