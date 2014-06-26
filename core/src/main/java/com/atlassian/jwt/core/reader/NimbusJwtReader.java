@@ -34,9 +34,9 @@ public class NimbusJwtReader implements JwtReader
 
     @Override
     @Nonnull
-    public Jwt readUnverified(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims) throws JwtParseException, JwtVerificationException
+    public Jwt readUnverified(@Nonnull final String jwt) throws JwtParseException, JwtVerificationException
     {
-        return read(jwt, requiredClaims, false);
+        return read(jwt, null, false);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class NimbusJwtReader implements JwtReader
         return read(jwt, requiredClaims, true);
     }
 
-    private Jwt read(@Nonnull final String jwt, @Nonnull final Map<String, ? extends JwtClaimVerifier> requiredClaims, final boolean verify) throws JwtParseException, JwtVerificationException
+    private Jwt read(@Nonnull final String jwt, final Map<String, ? extends JwtClaimVerifier> requiredClaims, final boolean verify) throws JwtParseException, JwtVerificationException
     {
         JWSObject jwsObject;
 
@@ -133,9 +133,12 @@ public class NimbusJwtReader implements JwtReader
             throw new JwtExpiredException(claims.getExpirationTime(), now, JwtConstants.TIME_CLAIM_LEEWAY_SECONDS);
         }
 
-        for (Map.Entry<String, ? extends JwtClaimVerifier> requiredClaim : requiredClaims.entrySet())
+        if (requiredClaims != null)
         {
-            requiredClaim.getValue().verify(claims.getClaim(requiredClaim.getKey()));
+            for (Map.Entry<String, ? extends JwtClaimVerifier> requiredClaim : requiredClaims.entrySet())
+            {
+                requiredClaim.getValue().verify(claims.getClaim(requiredClaim.getKey()));
+            }
         }
 
         return new SimpleJwt(claims.getIssuer(), claims.getSubject(), jsonPayload.toString());

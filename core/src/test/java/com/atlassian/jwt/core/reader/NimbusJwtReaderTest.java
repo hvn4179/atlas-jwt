@@ -62,7 +62,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        final String payload = new NimbusMacJwtReader("wrong secret", CLOCK).readUnverified(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
+        final String payload = new NimbusMacJwtReader("wrong secret", CLOCK).readUnverified(jwt).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
                 "iat", TEN_MINS_EARLIER,
