@@ -57,11 +57,16 @@ public class NimbusJwtWriterTest
         RSAPrivateKey privateKey = KeyUtils.readRsaKeyFromPem(new InputStreamReader(in)).right().get();
 
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
-        String json = "{\"iss\":\"joe\",\n"
-                + " \"sub\":\"bloggs\"}";
+        String json = "{\"iss\":\"joe\","
+                + "\"exp\":1410416897,"
+                + "\"iat\":1410416297}";
 
-        String jwtGeneratedOnline = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLCJzdWIiOiJibG9nZ3MifQ.zAw073_t1VE2I44sHmSLL3UuLgwfMmm4tR0vGN5RuaJarPU84Ig3KPlqaD6dNx51xc0ZyEQSj_B0rn_gSukR1dmpPoNB_zu_77nGcIbpwwLapLsFy2utGAIVZnK5bZ2-MVPtVNruNyYUwLGKLDR4DGue1SgUc9nzaK099hcYwIo";
+        String jwt = jwtWriter.jsonToJwt(json);
+        String jwtGeneratedOnline = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLCJleHAiOjE0MTA0MTY4OTcsImlhdCI6MTQxMDQxNjI5N30.u1R_9RsuKfRXd2jBUqj_Xv0reVV0brSarxCkb0uZ2nsc40oM69WWtut3zHD12KIa_fJ3-LvGzpHH2nFZ9Ft2ZvP69_prOCM2mOQUE5aXEAtFPxhODqos_7Y9E7b4EUy1ahUUbLcS4Gu5ioMObkWz5Rb5sFTKKGo7eMskPmtBhV4";
 
-        assertThat(jwtWriter.jsonToJwt(json), is(jwtGeneratedOnline));
+        System.out.println("jwt local: " + jwt);
+        System.out.println("jwtonline: " + jwtGeneratedOnline);
+
+        assertThat(jwt, is(jwtGeneratedOnline));
     }
 }
