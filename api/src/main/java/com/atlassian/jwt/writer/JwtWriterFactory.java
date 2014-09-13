@@ -15,6 +15,6 @@ public interface JwtWriterFactory
     @Nonnull
     JwtWriter macSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull String sharedSecret);
 
-    @Nonnull
-    JwtWriter rsSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull RSAPrivateKey privateKey);
+//    @Nonnull
+//    JwtWriter rsSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull RSAPrivateKey privateKey);
 }

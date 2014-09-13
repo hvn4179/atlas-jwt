@@ -1,6 +1,5 @@
 package com.atlassian.jwt.core.writer;
 
-import com.atlassian.fugue.Either;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.HmacJwtSigner;
 import com.atlassian.jwt.core.keys.KeyUtils;
@@ -8,7 +7,6 @@ import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -54,7 +52,7 @@ public class NimbusJwtWriterTest
     public void compareWrittenRs256TokenToTokenGeneratedOnline() throws Exception
     {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME);
-        RSAPrivateKey privateKey = KeyUtils.readRsaKeyFromPem(new InputStreamReader(in)).right().get();
+        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(new InputStreamReader(in)).right().get();
 
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
         String json = "{\"iss\":\"joe\","
@@ -63,10 +61,6 @@ public class NimbusJwtWriterTest
 
         String jwt = jwtWriter.jsonToJwt(json);
         String jwtGeneratedOnline = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLCJleHAiOjE0MTA0MTY4OTcsImlhdCI6MTQxMDQxNjI5N30.u1R_9RsuKfRXd2jBUqj_Xv0reVV0brSarxCkb0uZ2nsc40oM69WWtut3zHD12KIa_fJ3-LvGzpHH2nFZ9Ft2ZvP69_prOCM2mOQUE5aXEAtFPxhODqos_7Y9E7b4EUy1ahUUbLcS4Gu5ioMObkWz5Rb5sFTKKGo7eMskPmtBhV4";
-
-        System.out.println("jwt local: " + jwt);
-        System.out.println("jwtonline: " + jwtGeneratedOnline);
-
         assertThat(jwt, is(jwtGeneratedOnline));
     }
 }

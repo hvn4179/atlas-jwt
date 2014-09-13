@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.keys;
 
 import com.atlassian.fugue.Either;
+import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -16,11 +17,13 @@ public class KeyUtilsTest
     public static final String PRIVATE_KEY_PEM_FILE_NAME = "private.pem";
     public static final String PRIVATE_KEY_BOGUS_PEM_FILE_NAME = "private-bogus.pem";
 
+    KeyUtils keyUtils = new KeyUtils();
+
     @Test
     public void testReadingPrivateKeyFromPemReader() throws Exception
     {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_PEM_FILE_NAME);
-        Either<Exception, RSAPrivateKey> result = KeyUtils.readRsaKeyFromPem(new InputStreamReader(in));
+        Either<JwtCannotRetrieveKeyException, RSAPrivateKey> result = keyUtils.readRsaPrivateKeyFromPem(new InputStreamReader(in));
 
         assertTrue(result.isRight());
 
@@ -40,8 +43,9 @@ public class KeyUtilsTest
     public void testReadingBadPrivateKeyFromPemReaderFailsGracefully() throws Exception
     {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_BOGUS_PEM_FILE_NAME);
-        Either<Exception, RSAPrivateKey> result = KeyUtils.readRsaKeyFromPem(new InputStreamReader(in));
+        Either<JwtCannotRetrieveKeyException, RSAPrivateKey> result = keyUtils.readRsaPrivateKeyFromPem(new InputStreamReader(in));
 
         assertTrue(result.isLeft());
+        assertEquals("Error reading private key", result.left().get().getMessage());
     }
 }

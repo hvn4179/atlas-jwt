@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.keys;
 
 import com.atlassian.fugue.Either;
+import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 
@@ -15,7 +16,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
  */
 public class KeyUtils
 {
-    public static Either<Exception, RSAPrivateKey> readRsaKeyFromPem(Reader reader) throws Exception {
+    public Either<JwtCannotRetrieveKeyException, RSAPrivateKey> readRsaPrivateKeyFromPem(Reader reader) {
         PEMParser pemParser = new PEMParser(reader);
         try
         {
@@ -32,15 +33,7 @@ public class KeyUtils
             return Either.right(privateKey);
         } catch (Exception e)
         {
-            return Either.left(e);
+            return Either.left(new JwtCannotRetrieveKeyException("Error reading private key",  e));
         }
-    }
-
-    public static RSAPrivateKey readRsaKeyFromPem(File file) {
-        return null;
-    }
-
-    public static RSAPrivateKey readRsaKeyFromString(String string) {
-        return null;
     }
 }

@@ -21,8 +21,8 @@ public class NimbusJwtWriterFactory implements JwtWriterFactory
         return new NimbusJwtWriter(algorithm, new MACSigner(sharedSecret));
     }
 
-    public JwtWriter rsSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull RSAPrivateKey privateKey)
-    {
-        return new NimbusJwtWriter(algorithm, new RSASSASigner(privateKey));
-    }
+//    public JwtWriter rsSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull RSAPrivateKey privateKey)
+//    {
+//        return new NimbusJwtWriter(algorithm, new RSASSASigner(privateKey));
+//    }
 }
