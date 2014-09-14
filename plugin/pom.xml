@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.jwt</groupId>
         <artifactId>jwt-parent</artifactId>
-        <version>1.2.2-asym-jwt</version>
+        <version>1.2.2-asym-jwt-SNAPSHOT</version>
     </parent>
 
     <artifactId>jwt-plugin</artifactId>
