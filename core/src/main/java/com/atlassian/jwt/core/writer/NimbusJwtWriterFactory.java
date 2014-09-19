@@ -1,6 +1,7 @@
 package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.SigningAlgorithm;
+import com.atlassian.jwt.SigningInfo;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.jwt.writer.JwtWriterFactory;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -14,6 +15,31 @@ import java.security.interfaces.RSAPrivateKey;
  */
 public class NimbusJwtWriterFactory implements JwtWriterFactory
 {
+    private NimbusJwtWriterFactoryHelper factoryHelper;
+
+    static class NimbusJwtWriterFactoryHelper
+    {
+        NimbusJwtWriter makeMacJwtWriter(SigningAlgorithm algorithm, MACSigner macSigner)
+        {
+            return new NimbusJwtWriter(algorithm, macSigner);
+        }
+
+        NimbusJwtWriter makeRsJwtWriter(SigningAlgorithm algorithm, RSASSASigner rsaSigner)
+        {
+            return new NimbusJwtWriter(algorithm, rsaSigner);
+        }
+    }
+
+    public NimbusJwtWriterFactory()
+    {
+        this(new NimbusJwtWriterFactoryHelper());
+    }
+
+    public NimbusJwtWriterFactory(NimbusJwtWriterFactoryHelper factoryHelper)
+    {
+        this.factoryHelper = factoryHelper;
+    }
+
     @Nonnull
     @Override
     public JwtWriter macSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull String sharedSecret)
@@ -21,8 +47,16 @@ public class NimbusJwtWriterFactory implements JwtWriterFactory
         return new NimbusJwtWriter(algorithm, new MACSigner(sharedSecret));
     }
 
-//    public JwtWriter rsSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull RSAPrivateKey privateKey)
-//    {
-//        return new NimbusJwtWriter(algorithm, new RSASSASigner(privateKey));
-//    }
+    @Override
+    public JwtWriter signingWriter(@Nonnull SigningInfo signingInfo)
+    {
+        if (signingInfo.getSharedSecret().isPresent())
+        {
+            return factoryHelper.makeMacJwtWriter(signingInfo.getSigningAlgorithm(), new MACSigner(signingInfo.getSharedSecret().get()));
+        }
+        else
+        {
+            return factoryHelper.makeRsJwtWriter(signingInfo.getSigningAlgorithm(), new RSASSASigner(signingInfo.getPrivateKey().get()));
+        }
+    }
 }
