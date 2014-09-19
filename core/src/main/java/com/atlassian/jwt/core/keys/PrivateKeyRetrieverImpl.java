@@ -1,12 +1,10 @@
 package com.atlassian.jwt.core.keys;
 
 
-import com.atlassian.fugue.Either;
 import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +32,7 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
     }
 
     @Override
-    public Either<JwtCannotRetrieveKeyException, RSAPrivateKey> getPrivateKey()
+    public RSAPrivateKey getPrivateKey() throws JwtCannotRetrieveKeyException
     {
         if (type == keyLocationType.CLASSPATH_RESOURCE)
         {
@@ -50,19 +48,19 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
         }
     }
 
-    private Either<JwtCannotRetrieveKeyException, RSAPrivateKey> getPrivateKeyFromClasspathResource()
+    private RSAPrivateKey getPrivateKeyFromClasspathResource() throws JwtCannotRetrieveKeyException
     {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(location);
 
         if (in == null)
         {
-            return Either.left(new JwtCannotRetrieveKeyException("Could not load classpath resource " + location));
+            throw new JwtCannotRetrieveKeyException("Could not load classpath resource " + location);
         }
 
         return keyUtils.readRsaPrivateKeyFromPem(new InputStreamReader(in));
     }
 
-    private Either<JwtCannotRetrieveKeyException, RSAPrivateKey> getPrivateKeyFromFile()
+    private RSAPrivateKey getPrivateKeyFromFile() throws JwtCannotRetrieveKeyException
     {
         FileReader reader = null;
         try
@@ -71,7 +69,11 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
             reader = new FileReader(location);
         } catch (IOException e)
         {
-            return Either.left(new JwtCannotRetrieveKeyException("Private key file not found: " + location, e));
+            throw new JwtCannotRetrieveKeyException("Private key file not found: " + location, e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(reader);
         }
         return keyUtils.readRsaPrivateKeyFromPem(reader);
     }

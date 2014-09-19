@@ -52,7 +52,7 @@ public class NimbusJwtWriterTest
     public void compareWrittenRs256TokenToTokenGeneratedOnline() throws Exception
     {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME);
-        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(new InputStreamReader(in)).right().get();
+        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(new InputStreamReader(in));
 
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
         String json = "{\"iss\":\"joe\","
