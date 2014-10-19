@@ -67,7 +67,7 @@ public class ApplinksJwtService implements JwtService
     }
 
     @Override
-    public String issueJwt(String jsonPayload, String secret) throws NotAJwtPeerException, JwtSigningException
+    public String issueJwt(String jsonPayload, String secret) throws JwtSigningException
     {
         return getJwtWriter(secret).jsonToJwt(jsonPayload);
     }

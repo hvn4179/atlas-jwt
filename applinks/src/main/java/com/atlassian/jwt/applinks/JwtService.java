@@ -65,16 +65,12 @@ public interface JwtService
     String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException;
 
     /**
-     * Generate a JWT for the supplied payload, suitable for authenticating with the specified
-     * {@link ApplicationLink linked application}. Use {@link #isJwtPeer(ApplicationLink)} to check whether the
-     * {@link ApplicationLink linked application} is a bone fide JWT peer before calling this method.
+     * Generate a JWT for the supplied payload, suitable for authenticating with the specified {@link String secret}.
      *
      * @param jsonPayload     a JSON payload
      * @param secret the shared-secret or private-key used to sign
      * @return the JWT
-     * @throws NotAJwtPeerException if this server does not have a JWT relationship with the
-     *                              {@link ApplicationLink linked application} indicated in the JWT.
      * @throws JwtSigningException  if a problem was encountered while generating the JWT
      */
-    String issueJwt(String jsonPayload, String secret) throws NotAJwtPeerException, JwtSigningException;
+    String issueJwt(String jsonPayload, String secret) throws JwtSigningException;
 }
