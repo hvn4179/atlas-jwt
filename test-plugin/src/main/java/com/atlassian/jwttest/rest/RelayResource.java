@@ -3,6 +3,7 @@ package com.atlassian.jwttest.rest;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -10,7 +11,12 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
 
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -66,7 +72,7 @@ public class RelayResource
         {
             return Response.status(Response.Status.NOT_FOUND).entity("No applink with id " + id).build();
         }
-        String jwt = jwtService.issueJwt(payload, applink);
+        String jwt = jwtService.issueJwt(payload, (String)applink.getProperty(JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME));
         if (jwtAsQueryParam)
         {
             path += (path.contains("?") ? "&" : "?") + "jwt=" + jwt;

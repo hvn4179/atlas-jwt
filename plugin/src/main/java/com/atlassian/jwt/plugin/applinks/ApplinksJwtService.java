@@ -8,7 +8,11 @@ import com.atlassian.jwt.applinks.ApplinkJwt;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
 import com.atlassian.jwt.applinks.JwtService;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
+import com.atlassian.jwt.exception.JwtParseException;
+import com.atlassian.jwt.exception.JwtSigningException;
+import com.atlassian.jwt.exception.JwtUnknownIssuerException;
+import com.atlassian.jwt.exception.JwtVerificationException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.atlassian.jwt.writer.JwtWriter;
@@ -62,9 +66,20 @@ public class ApplinksJwtService implements JwtService
         return getJwtWriter(applicationLink).jsonToJwt(jsonPayload);
     }
 
+    @Override
+    public String issueJwt(String jsonPayload, String secret) throws JwtSigningException
+    {
+        return getJwtWriter(secret).jsonToJwt(jsonPayload);
+    }
+
     private JwtWriter getJwtWriter(ApplicationLink applicationLink)
     {
+        return getJwtWriter(requireSharedSecret(applicationLink));
+    }
+
+    private JwtWriter getJwtWriter(String sharedSecret)
+    {
         return jwtWriterFactory
-                .macSigningWriter(SigningAlgorithm.HS256, requireSharedSecret(applicationLink));
+                .macSigningWriter(SigningAlgorithm.HS256, sharedSecret);
     }
 }

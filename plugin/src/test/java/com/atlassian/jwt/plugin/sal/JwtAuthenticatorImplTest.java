@@ -14,7 +14,11 @@ import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
-import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
+import com.atlassian.jwt.exception.JwtParseException;
+import com.atlassian.jwt.exception.JwtSigningException;
+import com.atlassian.jwt.exception.JwtUnknownIssuerException;
+import com.atlassian.jwt.exception.JwtVerificationException;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 import com.atlassian.jwt.writer.JwtWriter;
@@ -138,6 +142,12 @@ public class JwtAuthenticatorImplTest
 
         @Override
         public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
+        {
+            throw new NotImplementedException();
+        }
+
+        @Override
+        public String issueJwt(String jsonPayload, String secret) throws NotAJwtPeerException, JwtSigningException
         {
             throw new NotImplementedException();
         }
