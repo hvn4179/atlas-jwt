@@ -1,8 +1,10 @@
 package com.atlassian.jwt.core.writer;
 
 
+import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.SigningInfo;
+import com.atlassian.jwt.SymmetricSigningInfo;
 import com.google.common.base.Optional;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -27,18 +29,20 @@ public class NimbusJwtWriterFactoryTest
     RSAPrivateKey privateKey;
 
     @Mock
-    SigningInfo signingInfo;
+    SymmetricSigningInfo symmetricSigningInfo;
+
+    @Mock
+    AsymmetricSigningInfo asymmetricSigningInfo;
 
     @Test
     public void verifyCorrectCreationOfRsJwtWriter()
     {
-        when(signingInfo.getSigningAlgorithm()).thenReturn(SigningAlgorithm.RS256);
-        when(signingInfo.getPrivateKey()).thenReturn(Optional.of(privateKey));
-        when(signingInfo.getSharedSecret()).thenReturn(Optional.<String>absent());
+        when(asymmetricSigningInfo.getSigningAlgorithm()).thenReturn(SigningAlgorithm.RS256);
+        when(asymmetricSigningInfo.getPrivateKey()).thenReturn(privateKey);
 
         NimbusJwtWriterFactory factory = new NimbusJwtWriterFactory(mockFactoryHelper);
 
-        factory.signingWriter(signingInfo);
+        factory.signingWriter(asymmetricSigningInfo);
 
         verify(mockFactoryHelper).makeRsJwtWriter(eq(SigningAlgorithm.RS256), any(RSASSASigner.class));
         verify(mockFactoryHelper, never()).makeMacJwtWriter(any(SigningAlgorithm.class), any(MACSigner.class));
@@ -47,13 +51,13 @@ public class NimbusJwtWriterFactoryTest
     @Test
     public void verifyCorrectCreationOfMacJwtWriter()
     {
-        when(signingInfo.getSigningAlgorithm()).thenReturn(SigningAlgorithm.HS256);
-        when(signingInfo.getSharedSecret()).thenReturn(Optional.of("shared secret"));
-        when(signingInfo.getPrivateKey()).thenReturn(Optional.<RSAPrivateKey>absent());
+        when(symmetricSigningInfo.getSigningAlgorithm()).thenReturn(SigningAlgorithm.HS256);
+        when(symmetricSigningInfo.getSharedSecret()).thenReturn("shared secret");
+
 
         NimbusJwtWriterFactory factory = new NimbusJwtWriterFactory(mockFactoryHelper);
 
-        factory.signingWriter(signingInfo);
+        factory.signingWriter(symmetricSigningInfo);
 
         verify(mockFactoryHelper).makeMacJwtWriter(eq(SigningAlgorithm.HS256), any(MACSigner.class));
         verify(mockFactoryHelper, never()).makeRsJwtWriter(any(SigningAlgorithm.class), any(RSASSASigner.class));

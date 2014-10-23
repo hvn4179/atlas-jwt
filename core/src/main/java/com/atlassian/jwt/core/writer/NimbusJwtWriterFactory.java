@@ -1,7 +1,9 @@
 package com.atlassian.jwt.core.writer;
 
+import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.SigningInfo;
+import com.atlassian.jwt.SymmetricSigningInfo;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.atlassian.jwt.writer.JwtWriterFactory;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -48,15 +50,14 @@ public class NimbusJwtWriterFactory implements JwtWriterFactory
     }
 
     @Override
-    public JwtWriter signingWriter(@Nonnull SigningInfo signingInfo)
+    public JwtWriter signingWriter(@Nonnull SymmetricSigningInfo signingInfo)
     {
-        if (signingInfo.getSharedSecret().isPresent())
-        {
-            return factoryHelper.makeMacJwtWriter(signingInfo.getSigningAlgorithm(), new MACSigner(signingInfo.getSharedSecret().get()));
-        }
-        else
-        {
-            return factoryHelper.makeRsJwtWriter(signingInfo.getSigningAlgorithm(), new RSASSASigner(signingInfo.getPrivateKey().get()));
-        }
+        return factoryHelper.makeMacJwtWriter(signingInfo.getSigningAlgorithm(), new MACSigner(signingInfo.getSharedSecret()));
+    }
+
+    @Override
+    public JwtWriter signingWriter(@Nonnull AsymmetricSigningInfo signingInfo)
+    {
+        return factoryHelper.makeRsJwtWriter(signingInfo.getSigningAlgorithm(), new RSASSASigner(signingInfo.getPrivateKey()));
     }
 }

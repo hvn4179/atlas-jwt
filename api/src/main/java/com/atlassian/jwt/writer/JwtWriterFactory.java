@@ -1,7 +1,9 @@
 package com.atlassian.jwt.writer;
 
+import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.SigningInfo;
+import com.atlassian.jwt.SymmetricSigningInfo;
 
 import javax.annotation.Nonnull;
 
@@ -16,5 +18,8 @@ public interface JwtWriterFactory
     JwtWriter macSigningWriter(@Nonnull SigningAlgorithm algorithm, @Nonnull String sharedSecret);
 
     @Nonnull
-    JwtWriter signingWriter(@Nonnull SigningInfo signingInfo);
+    JwtWriter signingWriter(@Nonnull SymmetricSigningInfo signingInfo);
+
+    @Nonnull
+    JwtWriter signingWriter(@Nonnull AsymmetricSigningInfo signingInfo);
 }
