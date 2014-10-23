@@ -13,7 +13,7 @@
 
     <groupId>com.atlassian.jwt</groupId>
     <artifactId>jwt-parent</artifactId>
-    <version>1.2.2-asym-jwt-3-SNAPSHOT</version>
+    <version>1.2.3-SNAPSHOT</version>
     <name>Atlassian JWT Parent</name>
     <description>Library that provides support for JWT authentication.</description>
     <packaging>pom</packaging>

@@ -5,7 +5,11 @@ import com.atlassian.applinks.api.ApplicationType;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
-import com.atlassian.jwt.exception.*;
+import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
+import com.atlassian.jwt.exception.JwtParseException;
+import com.atlassian.jwt.exception.JwtSigningException;
+import com.atlassian.jwt.exception.JwtUnknownIssuerException;
+import com.atlassian.jwt.exception.JwtVerificationException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
 import java.util.Map;
@@ -54,6 +58,19 @@ public interface JwtService
      * @throws NotAJwtPeerException if this server does not have a JWT relationship with the
      *                              {@link ApplicationLink linked application} indicated in the JWT.
      * @throws JwtSigningException  if a problem was encountered while generating the JWT
+     *
+     * @deprecated migrate to {@link #issueJwt(String, String)}
      */
+    @Deprecated
     String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException;
+
+    /**
+     * Generate a JWT for the supplied payload, suitable for authenticating with the specified {@link String secret}.
+     *
+     * @param jsonPayload     a JSON payload
+     * @param secret the shared-secret or private-key used to sign
+     * @return the JWT
+     * @throws JwtSigningException  if a problem was encountered while generating the JWT
+     */
+    String issueJwt(String jsonPayload, String secret) throws JwtSigningException;
 }
