@@ -6,9 +6,6 @@ import com.atlassian.jwt.SymmetricSigningInfo;
 import javax.annotation.Nonnull;
 import java.security.interfaces.RSAPrivateKey;
 
-/**
- * Created by aroodt on 23/10/2014.
- */
 public class SimpleSymmetricSigningInfo implements SymmetricSigningInfo
 {
     private final SigningAlgorithm signingAlgorithm;
