@@ -6,8 +6,6 @@ import java.util.Enumeration;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.httpclient.CanonicalHttpServletRequest;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 /**
  * An implementation of HttpRequestWrapper for javax.servlet.http.HttpServletRequest

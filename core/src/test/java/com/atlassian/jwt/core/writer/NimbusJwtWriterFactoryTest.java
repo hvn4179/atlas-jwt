@@ -3,9 +3,7 @@ package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.SigningInfo;
 import com.atlassian.jwt.SymmetricSigningInfo;
-import com.google.common.base.Optional;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import org.junit.Test;
