@@ -44,7 +44,7 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
         }
         else
         {
-            return null;
+            throw new JwtCannotRetrieveKeyException("Unsupported key location type " + type);
         }
     }
 
