@@ -25,6 +25,8 @@ public class NimbusUtil
         {
             case HS256:
                 return JWSAlgorithm.HS256;
+            case RS256:
+                return JWSAlgorithm.RS256;
             default:
                 throw new IllegalArgumentException("Unrecognised " + SigningAlgorithm.class.getSimpleName() + ": " + algorithm);
         }

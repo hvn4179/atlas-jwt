@@ -13,7 +13,7 @@ import java.util.Arrays;
  */
 public enum SigningAlgorithm
 {
-    HS256; // HMAC SHA-256
+    HS256, RS256; // HMAC SHA-256, RSASSA-PKCS-v1_5
 
     public static SigningAlgorithm forName(String alg) throws JwsUnsupportedAlgorithmException
     {
@@ -31,5 +31,10 @@ public enum SigningAlgorithm
     public boolean requiresSharedSecret()
     {
         return equals(HS256);
+    }
+
+    public boolean requiresKeyPair()
+    {
+        return equals(RS256);
     }
 }

@@ -2,11 +2,16 @@ package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.HmacJwtSigner;
+import com.atlassian.jwt.core.keys.KeyUtils;
 import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.crypto.MACSigner;
-import org.junit.Before;
+import com.nimbusds.jose.crypto.RSASSASigner;
 import org.junit.Test;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.interfaces.RSAPrivateKey;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,20 +19,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class NimbusJwtWriterTest
 {
     private static final SigningAlgorithm ALGORITHM = SigningAlgorithm.HS256;
-    private static final String PASSWORD = "secret";
+    private static final String SHARED_SECRET = "secret";
 
-    private JwtWriter writer;
-
-    @Before
-    public void before()
-    {
-        writer = new NimbusJwtWriter(ALGORITHM, new MACSigner(PASSWORD));
-    }
+    private static final String PRIVATE_KEY_FILE_NAME = "private.pem";
 
     // manually verified by running the generated JWT through Google jsontoken
     @Test
     public void compareWrittenTokenToGoogleJsonToken() throws JwtSigningException
     {
+        JwtWriter writer = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(SHARED_SECRET));
         String json = "{\"iss\":\"joe\",\n"
                 + " \"exp\":1300819380,\n"
                 + " \"http://example.com/is_root\":true}";
@@ -39,10 +39,28 @@ public class NimbusJwtWriterTest
     @Test
     public void compareWrittenTokenToAltImplToken() throws JwtSigningException
     {
+        JwtWriter writer = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(SHARED_SECRET));
         String json = "{\"iss\":\"joe\",\n"
                 + " \"exp\":1300819380,\n"
                 + " \"http://example.com/is_root\":true}";
-        String jwt = new HmacJwtSigner(PASSWORD).jsonToHmacSha256Jwt(json);
+        String jwt = new HmacJwtSigner(SHARED_SECRET).jsonToHmacSha256Jwt(json);
         assertThat(writer.jsonToJwt(json), is(jwt));
+    }
+
+    // compare token that NimbusJwtWriter generates to token generated online at http://kjur.github.io/jsjws/tool_jwt.html
+    @Test
+    public void compareWrittenRs256TokenToTokenGeneratedOnline() throws Exception
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME);
+        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(new InputStreamReader(in));
+
+        JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
+        String json = "{\"iss\":\"joe\","
+                + "\"exp\":1410416897,"
+                + "\"iat\":1410416297}";
+
+        String jwt = jwtWriter.jsonToJwt(json);
+        String jwtGeneratedOnline = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqb2UiLCJleHAiOjE0MTA0MTY4OTcsImlhdCI6MTQxMDQxNjI5N30.u1R_9RsuKfRXd2jBUqj_Xv0reVV0brSarxCkb0uZ2nsc40oM69WWtut3zHD12KIa_fJ3-LvGzpHH2nFZ9Ft2ZvP69_prOCM2mOQUE5aXEAtFPxhODqos_7Y9E7b4EUy1ahUUbLcS4Gu5ioMObkWz5Rb5sFTKKGo7eMskPmtBhV4";
+        assertThat(jwt, is(jwtGeneratedOnline));
     }
 }
