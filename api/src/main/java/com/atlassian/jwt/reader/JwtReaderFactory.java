@@ -1,8 +1,10 @@
 package com.atlassian.jwt.reader;
 
+import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.exception.*;
 
 import javax.annotation.Nonnull;
+import java.security.interfaces.RSAPublicKey;
 
 /**
  * Factory for {@link JwtReader}.
@@ -21,4 +23,16 @@ public interface JwtReaderFactory
      */
     @Nonnull
     JwtReader getReader(@Nonnull String jwt) throws JwsUnsupportedAlgorithmException, JwtUnknownIssuerException, JwtParseException, JwtIssuerLacksSharedSecretException;
+
+
+    /**
+     *
+     * @param jwt encoded JWT message
+     * @param publicKey public key to use to verify jwt's signature
+     * @return an appropriate {@link JwtReader} for reading this JWT message
+     * @throws JwsUnsupportedAlgorithmException if the JWT message's stated algorithm is not implemented
+     * @throws JwtParseException if the JWT message appears to be mangled
+     */
+    @Nonnull
+    JwtReader getReader(@Nonnull String jwt, RSAPublicKey publicKey) throws JwsUnsupportedAlgorithmException, JwtParseException;
 }
