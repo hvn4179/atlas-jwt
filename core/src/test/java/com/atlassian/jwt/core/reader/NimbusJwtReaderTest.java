@@ -340,23 +340,47 @@ public class NimbusJwtReaderTest
     }
 
     @Test(expected=JwtExpiredException.class)
-    public void rs256VerificationFailsIfTokenHasExpired() throws Exception
+    public void expiredRs256JwtIsRejected() throws Exception
     {
-        // set timestamp expiry to one year ago
-        final long expiredTimestamp = TIMESTAMP - 24*3600*365;
-
-        String jsonClaimsBody = new JsonSmartJwtJsonBuilder().issuedAt(expiredTimestamp-600).expirationTime(
-                expiredTimestamp).issuer("joe").build();
+        String jsonClaimsBody = new JsonSmartJwtJsonBuilder().issuedAt(TEN_MINS_EARLIER).expirationTime(
+                TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS - 1).issuer("joe").build();
 
         String jwt = generateRs256SignedJwtToken(jsonClaimsBody);
 
         String payload = createNimbusRs256JwtReader().readAndVerify(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
 
         assertJsonContainsOnly(payload,
-                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
+                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS,
                 "iat", TEN_MINS_EARLIER,
                 "iss", "joe"
         );
+    }
+
+    @Test (expected = JwtParseException.class)
+    public void garbledRs256JwtIsRejected() throws Exception
+    {
+        createNimbusRs256JwtReader().readAndVerify("easy.as.abc", NO_REQUIRED_CLAIMS);
+    }
+
+    // replace the payload with a slightly different payload, leaving the header and signature untouched
+    @Test(expected = JwtSignatureMismatchException.class)
+    public void tamperedRs256JwtIsRejected() throws Exception
+    {
+        String jsonClaimsBody = new JsonSmartJwtJsonBuilder().issuedAt(TEN_MINS_EARLIER).expirationTime(
+                TIMESTAMP).issuer("joe").build();
+        String jwt = generateRs256SignedJwtToken(jsonClaimsBody);
+
+
+        String altJsonClaimsBody = new JsonSmartJwtJsonBuilder().issuedAt(TEN_MINS_EARLIER).expirationTime(
+                TIMESTAMP).issuer("adminjoe").build();
+        String altJwt = generateRs256SignedJwtToken(altJsonClaimsBody);
+
+        String[] jwtSegments = jwt.split("\\.");
+        String[] altJwtSegments = altJwt.split("\\.");
+
+        String forgedJwt = StringUtils.join(new String[]{jwtSegments[0], altJwtSegments[1], jwtSegments[2]}, ".");
+
+        createNimbusRs256JwtReader().readAndVerify(forgedJwt, NO_REQUIRED_CLAIMS);
     }
 
     private JwtReader createNimbusHmac256JwtReader()
