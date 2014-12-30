@@ -1,6 +1,5 @@
 package com.atlassian.jwt.reader;
 
-import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.exception.*;
 
 import javax.annotation.Nonnull;
