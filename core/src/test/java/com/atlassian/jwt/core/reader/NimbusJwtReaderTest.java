@@ -403,22 +403,36 @@ public class NimbusJwtReaderTest
 
     private String generateRs256SignedJwtToken(String jsonBody) throws Exception
     {
-        InputStreamReader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME));
-        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(in);
-        IOUtils.closeQuietly(in);
+        InputStreamReader reader = null;
+        try
+        {
+            reader = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME));
+            RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(reader);
 
-        JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
+            JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
 
-        return jwtWriter.jsonToJwt(jsonBody);
+            return jwtWriter.jsonToJwt(jsonBody);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
     }
 
     private JwtReader createNimbusRs256JwtReader() throws Exception
     {
-        KeyUtils keyUtils = new KeyUtils();
-        InputStreamReader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PUBLIC_KEY_FILE_NAME));
-        RSAPublicKey publicKey = keyUtils.readRsaPublicKeyFromPem(in);
-        IOUtils.closeQuietly(in);
+        InputStreamReader reader = null;
+        try
+        {
+            KeyUtils keyUtils = new KeyUtils();
+            reader= new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PUBLIC_KEY_FILE_NAME));
+            RSAPublicKey publicKey = keyUtils.readRsaPublicKeyFromPem(reader);
 
-        return new NimbusRsJwtReader(publicKey, CLOCK);
+            return new NimbusRsJwtReader(publicKey, CLOCK);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
     }
 }
