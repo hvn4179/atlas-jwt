@@ -20,6 +20,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
  */
 public class KeyUtils
 {
+    public KeyUtils()
+    {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+    }
+
     public RSAPrivateKey readRsaPrivateKeyFromPem(Reader reader) throws JwtCannotRetrieveKeyException
     {
         PEMParser pemParser = new PEMParser(reader);
@@ -52,14 +57,14 @@ public class KeyUtils
         try
         {
             Object object = pemParser.readObject();
-            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
             SubjectPublicKeyInfo pub = SubjectPublicKeyInfo.getInstance(object);
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
 
             RSAPublicKey publicKey = (RSAPublicKey) converter.getPublicKey(pub);
             return publicKey;
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             throw new JwtCannotRetrieveKeyException("Error reading public key",  e);
         }

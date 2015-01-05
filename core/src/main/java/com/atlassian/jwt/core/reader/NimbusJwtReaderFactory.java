@@ -40,7 +40,7 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
             return macVerifyingReader(jwtIssuerSharedSecretService.getSharedSecret(issuer));
         }
 
-        throw new JwsUnsupportedAlgorithmException(String.format("Expected a symmetric signing algorithms such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.HS256, algorithm.name()));
+        throw new JwsUnsupportedAlgorithmException(String.format("Expected a symmetric signing algorithm such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.HS256, algorithm.name()));
     }
 
     @Nonnull
@@ -55,7 +55,7 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
             return rsVerifyingReader(publicKey);
         }
 
-        throw new JwsUnsupportedAlgorithmException(String.format("Expected an asymmetric signing algorithms such as %s, and not %s. Try a symmetric algorithm.", SigningAlgorithm.RS256, algorithm.name()));
+        throw new JwsUnsupportedAlgorithmException(String.format("Expected an asymmetric signing algorithm such as %s, and not %s. Try an asymmetric algorithm.", SigningAlgorithm.RS256, algorithm.name()));
     }
 
     private JwtReader macVerifyingReader(String sharedSecret)
@@ -121,7 +121,6 @@ public class NimbusJwtReaderFactory implements JwtReaderFactory
         {
             JWSObject jwsObject;
 
-            // Parse back and check signature
             try
             {
                 jwsObject = JWSObject.parse(jwt);

@@ -30,7 +30,6 @@ public class SimpleJwtParser implements JwtParser
     {
         JWSObject jwsObject;
 
-        // Parse back and check signature
         try
         {
             jwsObject = JWSObject.parse(jwt);

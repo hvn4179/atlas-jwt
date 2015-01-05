@@ -16,6 +16,7 @@ import com.atlassian.jwt.writer.JwtWriter;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import net.minidev.json.parser.ParseException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -347,13 +348,7 @@ public class NimbusJwtReaderTest
 
         String jwt = generateRs256SignedJwtToken(jsonClaimsBody);
 
-        String payload = createNimbusRs256JwtReader().readAndVerify(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
-
-        assertJsonContainsOnly(payload,
-                "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS,
-                "iat", TEN_MINS_EARLIER,
-                "iss", "joe"
-        );
+        createNimbusRs256JwtReader().readAndVerify(jwt, NO_REQUIRED_CLAIMS).getJsonPayload();
     }
 
     @Test (expected = JwtParseException.class)
@@ -383,6 +378,24 @@ public class NimbusJwtReaderTest
         createNimbusRs256JwtReader().readAndVerify(forgedJwt, NO_REQUIRED_CLAIMS);
     }
 
+    // replace the header with a slightly different header, leaving the payload and signature untouched
+    @Test(expected = JwtSignatureMismatchException.class)
+    public void tamperedHeaderRs256JwtIsRejected() throws Exception
+    {
+        String jsonClaimsBody = new JsonSmartJwtJsonBuilder().issuedAt(TEN_MINS_EARLIER).expirationTime(
+                TIMESTAMP).issuer("joe").build();
+        String jwt = generateRs256SignedJwtToken(jsonClaimsBody);
+
+        String altJwt = signer.jsonToHmacSha256Jwt(jsonClaimsBody);
+
+        String[] jwtSegments = jwt.split("\\.");
+        String[] altJwtSegments = altJwt.split("\\.");
+
+        String forgedJwt = StringUtils.join(new String[]{altJwtSegments[0], jwtSegments[1], jwtSegments[2]}, ".");
+
+        createNimbusRs256JwtReader().readAndVerify(forgedJwt, NO_REQUIRED_CLAIMS);
+    }
+
     private JwtReader createNimbusHmac256JwtReader()
     {
         return new NimbusMacJwtReader(SECRET_KEY, CLOCK);
@@ -390,8 +403,9 @@ public class NimbusJwtReaderTest
 
     private String generateRs256SignedJwtToken(String jsonBody) throws Exception
     {
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME);
-        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(new InputStreamReader(in));
+        InputStreamReader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME));
+        RSAPrivateKey privateKey = (new KeyUtils()).readRsaPrivateKeyFromPem(in);
+        IOUtils.closeQuietly(in);
 
         JwtWriter jwtWriter = new NimbusJwtWriter(SigningAlgorithm.RS256, new RSASSASigner(privateKey));
 
@@ -401,8 +415,10 @@ public class NimbusJwtReaderTest
     private JwtReader createNimbusRs256JwtReader() throws Exception
     {
         KeyUtils keyUtils = new KeyUtils();
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream(PUBLIC_KEY_FILE_NAME);
-        RSAPublicKey publicKey = keyUtils.readRsaPublicKeyFromPem(new InputStreamReader(in));
+        InputStreamReader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(PUBLIC_KEY_FILE_NAME));
+        RSAPublicKey publicKey = keyUtils.readRsaPublicKeyFromPem(in);
+        IOUtils.closeQuietly(in);
+
         return new NimbusRsJwtReader(publicKey, CLOCK);
     }
 }
