@@ -2,12 +2,17 @@ package com.atlassian.jwt.core.keys;
 
 import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import java.io.Reader;
 import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 /**
@@ -15,6 +20,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
  */
 public class KeyUtils
 {
+    public KeyUtils()
+    {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+    }
+
     public RSAPrivateKey readRsaPrivateKeyFromPem(Reader reader) throws JwtCannotRetrieveKeyException
     {
         PEMParser pemParser = new PEMParser(reader);
@@ -34,6 +44,29 @@ public class KeyUtils
         } catch (Exception e)
         {
             throw new JwtCannotRetrieveKeyException("Error reading private key",  e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
+    public RSAPublicKey readRsaPublicKeyFromPem(Reader reader) throws JwtCannotRetrieveKeyException
+    {
+        PEMParser pemParser = new PEMParser(reader);
+        try
+        {
+            Object object = pemParser.readObject();
+
+            SubjectPublicKeyInfo pub = SubjectPublicKeyInfo.getInstance(object);
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+
+            RSAPublicKey publicKey = (RSAPublicKey) converter.getPublicKey(pub);
+            return publicKey;
+        }
+        catch (Exception e)
+        {
+            throw new JwtCannotRetrieveKeyException("Error reading public key",  e);
         }
         finally
         {
