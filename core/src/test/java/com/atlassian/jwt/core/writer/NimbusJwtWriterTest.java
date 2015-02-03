@@ -3,6 +3,7 @@ package com.atlassian.jwt.core.writer;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.keys.KeyUtils;
 import com.atlassian.jwt.exception.JwtSigningException;
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import net.minidev.json.JSONObject;
@@ -29,7 +30,7 @@ public class NimbusJwtWriterTest
     public void shouldSetTheTypeToJWT() throws JwtSigningException
     {
         NimbusJwtWriter writer = new NimbusJwtWriter(SigningAlgorithm.HS256, new MACSigner(SHARED_SECRET));
-        assertThat(writer.generateJwsObject(PAYLOAD).getHeader().getType().getType(), is("JWT"));
+        assertThat(writer.generateJwsObject(PAYLOAD).getHeader().getType(), is(new JOSEObjectType("JWT")));
     }
 
     @Test
