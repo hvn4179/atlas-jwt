@@ -4,6 +4,8 @@ import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.core.NimbusUtil;
 import com.atlassian.jwt.exception.JwtSigningException;
 import com.atlassian.jwt.writer.JwtWriter;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.nimbusds.jose.*;
 
 import javax.annotation.Nonnull;
@@ -34,7 +36,8 @@ public class NimbusJwtWriter implements JwtWriter
         return generateJwsObject(json).serialize();
     }
 
-    private JWSObject generateJwsObject(String payload)
+    @VisibleForTesting
+    JWSObject generateJwsObject(String payload)
     {
         JWSHeader header = new JWSHeader(algorithm);
         header.setType(new JOSEObjectType(JWT));
