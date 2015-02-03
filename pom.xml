@@ -279,7 +279,7 @@
         <atlassian.httpclient.version>0.16.0</atlassian.httpclient.version>
         <atlassian.rest.version>2.7.0</atlassian.rest.version>
         <applinks.version>4.0.2</applinks.version>
-        <atlassian.jira.version>6.3-20140402.121348</atlassian.jira.version>
+        <atlassian.jira.version>6.3.14</atlassian.jira.version>
         <atlassian.sal.version>2.10.0</atlassian.sal.version>
         <atlassian.crowd.version>2.8.0-OD-4</atlassian.crowd.version>
     </properties>
