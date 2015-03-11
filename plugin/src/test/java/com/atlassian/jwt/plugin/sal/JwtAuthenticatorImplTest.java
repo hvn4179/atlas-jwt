@@ -52,7 +52,9 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthenticatorImplTest
@@ -334,6 +336,21 @@ public class JwtAuthenticatorImplTest
     }
 
     @Test
+    public void changingTheAlgorithmToNoneResultsInError() throws IOException, NoSuchAlgorithmException
+    {
+        setUpJwtQueryParameter(createFraudulentJwtBySwitchingAlgToNone());
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR)); // alg=none means that there should be no signature
+    }
+
+    @Test
+    public void changingTheAlgorithmToNoneAndRemovingTheSignatureResultsInError() throws IOException, NoSuchAlgorithmException
+    {
+        final String badJwt = createFraudulentJwtBySwitchingAlgToNone();
+        setUpJwtQueryParameter(badJwt.substring(0, badJwt.lastIndexOf('.') + 1)); // remove the signature to make this a syntactically valid JWT
+        assertThat(authenticator.authenticate(request, response).getStatus(), is(Authenticator.Result.Status.ERROR)); // accepting an unsigned jwt would defeat the point of authentication
+    }
+
+    @Test
     public void tamperingWithTheQueryParametersResultsInFailure() throws IOException, NoSuchAlgorithmException
     {
         setUpValidJwtQueryParameter();
@@ -406,6 +423,13 @@ public class JwtAuthenticatorImplTest
         setUpJwtQueryParameter(createJwtWithEmptyStringQuerySignature());
         authenticator.authenticate(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    }
+
+    private String createFraudulentJwtBySwitchingAlgToNone() throws IOException, NoSuchAlgorithmException
+    {
+        String validJwt = createValidJwt();
+        String newHeader = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0"; // base-64-encoded {"alg":"none","typ":"JWT"}
+        return newHeader + validJwt.substring(validJwt.indexOf('.'));
     }
 
     private String createJwtWithoutQuerySignature()
