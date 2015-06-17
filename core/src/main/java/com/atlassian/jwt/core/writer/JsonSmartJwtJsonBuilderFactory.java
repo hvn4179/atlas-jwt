@@ -5,9 +5,6 @@ import com.atlassian.jwt.writer.JwtJsonBuilderFactory;
 
 import javax.annotation.Nonnull;
 
-/**
- *
- */
 public class JsonSmartJwtJsonBuilderFactory implements JwtJsonBuilderFactory
 {
     @Nonnull

@@ -9,8 +9,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 
 import java.text.ParseException;
 
+import javax.annotation.Nonnull;
+
 public class SimpleJwtParser implements JwtParser
 {
+    @Nonnull
     @Override
     public Jwt parse(String jwt) throws JwtParseException
     {

@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.sal;
+package com.atlassian.jwt.internal.sal;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;

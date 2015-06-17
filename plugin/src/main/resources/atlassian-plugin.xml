@@ -29,11 +29,11 @@
         <interface>com.atlassian.jwt.writer.JwtJsonBuilderFactory</interface>
     </component>
 
-    <component key="jwt-peer-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtPeerService" public="true">
+    <component key="jwt-peer-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtPeerService" public="true">
         <interface>com.atlassian.jwt.applinks.JwtPeerService</interface>
     </component>
 
-    <component key="jwt-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtService" public="true">
+    <component key="jwt-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtService" public="true">
         <interface>com.atlassian.jwt.applinks.JwtService</interface>
     </component>
 
@@ -43,16 +43,16 @@
 
     <!-- internal components -->
 
-    <component key="jwt-authenticator" class="com.atlassian.jwt.plugin.sal.JwtAuthenticatorImpl"/>
+    <component key="jwt-authenticator" class="com.atlassian.jwt.internal.sal.JwtAuthenticatorImpl"/>
 
-    <component key="applinks-jwt-issuer-service" class="com.atlassian.jwt.plugin.applinks.ApplinksJwtIssuerService">
+    <component key="applinks-jwt-issuer-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtIssuerService">
         <interface>com.atlassian.jwt.core.reader.JwtIssuserValidator</interface>
         <interface>com.atlassian.jwt.core.reader.JwtIssuerSharedSecretService</interface>
     </component>
 
     <!-- servlets and filters -->
 
-    <servlet-filter key="jwt-auth-filter" class="com.atlassian.jwt.plugin.servlet.JwtAuthFilter"
+    <servlet-filter key="jwt-auth-filter" class="com.atlassian.jwt.internal.servlet.JwtAuthFilter"
                     location="after-encoding">
         <url-pattern>/*</url-pattern>
     </servlet-filter>

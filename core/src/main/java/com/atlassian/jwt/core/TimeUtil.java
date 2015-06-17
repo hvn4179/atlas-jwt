@@ -1,8 +1,5 @@
 package com.atlassian.jwt.core;
 
-/**
- *
- */
 public class TimeUtil
 {
     public static long currentTimeSeconds()

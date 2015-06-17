@@ -1,11 +1,9 @@
 package com.atlassian.jwt.reader;
 
-import com.atlassian.jwt.exception.JwtInvalidClaimException;
 import com.atlassian.jwt.exception.JwtParseException;
 import com.atlassian.jwt.exception.JwtVerificationException;
 
 import javax.annotation.Nonnull;
-
 
 /**
  * Interface for asserting that a JWT claim is valid.

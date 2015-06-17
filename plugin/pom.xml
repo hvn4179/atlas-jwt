@@ -87,11 +87,13 @@
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-amps-plugin</artifactId>
                 <configuration>
+                    <extractDependencies>true</extractDependencies>
                     <skipManifestValidation>true</skipManifestValidation>
                     <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
 
                     <instructions>
                         <Export-Package>
+                            com.atlassion.jwt;version="$project.version}",
                             com.atlassian.jwt.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
@@ -123,6 +125,9 @@
                             org.slf4j,
                             sun.security.util;resolution:="optional"
                         </Import-Package>
+                        <Private-Package>
+                            com.atlassian.jwt.internal*
+                        </Private-Package>
                     </instructions>
 
                     <systemPropertyVariables>

@@ -1,4 +1,6 @@
-package com.atlassian.jwt.plugin.applinks;
+package com.atlassian.jwt.internal.applinks;
+
+import javax.annotation.Nonnull;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -7,7 +9,7 @@ import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
-import com.atlassian.jwt.plugin.security.SecretGenerator;
+import com.atlassian.jwt.internal.security.SecretGenerator;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -26,7 +28,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
     }
 
     @Override
-    public void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailedException
+    public void issueSharedSecret(@Nonnull ApplicationLink applicationLink, @Nonnull String path) throws JwtRegistrationFailedException
     {
         // generate secure shared secret
         String sharedSecret = SecretGenerator.generateUrlSafeSharedSecret(SigningAlgorithm.HS256);
@@ -77,7 +79,7 @@ public class ApplinksJwtPeerService implements JwtPeerService
     }
 
     @Override
-    public void revokeSharedSecret(ApplicationLink applicationLink)
+    public void revokeSharedSecret(@Nonnull ApplicationLink applicationLink)
     {
         applicationLink.removeProperty(SHARED_SECRET_PROPERTY_NAME);
     }

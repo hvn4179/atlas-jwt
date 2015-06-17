@@ -1,5 +1,7 @@
 package com.atlassian.jwt.core.reader;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
 import com.atlassian.jwt.exception.JwtUnknownIssuerException;
 
@@ -18,5 +20,5 @@ public interface JwtIssuerSharedSecretService
      * @throws JwtIssuerLacksSharedSecretException if the issuer is not associated with a shared secret
      * @throws JwtUnknownIssuerException if the issuer is unrecognized
      */
-    public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
+    String getSharedSecret(@Nonnull String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException;
 }

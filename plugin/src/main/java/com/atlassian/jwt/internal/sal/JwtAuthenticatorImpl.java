@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.sal;
+package com.atlassian.jwt.internal.sal;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
@@ -28,7 +28,7 @@ public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRe
 
     public JwtAuthenticatorImpl(JwtService jwtService)
     {
-        super(new JavaxJwtRequestExtractor(), new ApplinksAuthenticationResultHandler());
+        super(new JavaxJwtRequestExtractor(), new DefaultAuthenticationResultHandler());
         this.jwtService = checkNotNull(jwtService);
     }
 

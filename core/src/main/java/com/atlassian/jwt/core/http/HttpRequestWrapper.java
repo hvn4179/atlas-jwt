@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core.http;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
@@ -12,7 +13,9 @@ public interface HttpRequestWrapper
     @Nullable
     String getParameter(String parameterName);
 
+    @Nonnull
     Iterable<String> getHeaderValues(String headerName);
 
+    @Nonnull
     CanonicalHttpRequest getCanonicalHttpRequest();
 }

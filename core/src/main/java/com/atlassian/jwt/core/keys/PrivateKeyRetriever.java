@@ -4,12 +4,15 @@ import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 
 import java.security.interfaces.RSAPrivateKey;
 
+import javax.annotation.Nonnull;
+
 public interface PrivateKeyRetriever
 {
-    public enum keyLocationType
+    enum keyLocationType
     {
         FILE, CLASSPATH_RESOURCE
     }
 
-    public RSAPrivateKey getPrivateKey() throws JwtCannotRetrieveKeyException;
+    @Nonnull
+    RSAPrivateKey getPrivateKey() throws JwtCannotRetrieveKeyException;
 }

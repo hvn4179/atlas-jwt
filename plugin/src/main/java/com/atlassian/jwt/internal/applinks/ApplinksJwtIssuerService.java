@@ -1,4 +1,6 @@
-package com.atlassian.jwt.plugin.applinks;
+package com.atlassian.jwt.internal.applinks;
+
+import javax.annotation.Nonnull;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.jwt.applinks.JwtApplinkFinder;
@@ -25,8 +27,9 @@ public class ApplinksJwtIssuerService implements JwtIssuerValidator, JwtIssuerSh
     }
 
     @Override
-    public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+    public String getSharedSecret(@Nonnull String issuer) throws JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
     {
+        //noinspection ConstantConditions
         ApplicationLink applicationLink = null == issuer ? null : jwtApplinkFinder.find(issuer);
 
         if (null == applicationLink)

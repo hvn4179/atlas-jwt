@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin;
+package com.atlassian.jwt.internal;
 
 import javax.servlet.ServletOutputStream;
 import java.io.ByteArrayOutputStream;

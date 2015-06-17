@@ -4,12 +4,13 @@ package com.atlassian.jwt.core.keys;
 import com.atlassian.jwt.exception.JwtCannotRetrieveKeyException;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.interfaces.RSAPrivateKey;
+
+import javax.annotation.Nonnull;
 
 public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
 {
@@ -31,6 +32,7 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
         this.keyUtils = keyUtils;
     }
 
+    @Nonnull
     @Override
     public RSAPrivateKey getPrivateKey() throws JwtCannotRetrieveKeyException
     {
@@ -65,7 +67,6 @@ public class PrivateKeyRetrieverImpl implements PrivateKeyRetriever
         FileReader reader = null;
         try
         {
-            System.out.println(new File(".").getCanonicalPath());
             reader = new FileReader(location);
         } catch (IOException e)
         {

@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.sal;
+package com.atlassian.jwt.internal.sal;
 
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.core.http.auth.AuthenticationResultHandler;
@@ -13,11 +13,11 @@ import java.io.Serializable;
 import java.security.Principal;
 
 /**
- * Handles Authentication results for requests relating to an ApplicationLink
+ * Handles authentication results for requests relating a registered JWT issuer
  */
-public class ApplinksAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
+public class DefaultAuthenticationResultHandler implements AuthenticationResultHandler<HttpServletResponse, Result>
 {
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticatorImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultAuthenticationResultHandler.class);
 
     @Override
     public Result createAndSendInternalError(Exception e, HttpServletResponse response, String externallyVisibleMessage)

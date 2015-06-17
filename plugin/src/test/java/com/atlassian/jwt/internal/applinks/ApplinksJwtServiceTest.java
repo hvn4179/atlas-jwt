@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.applinks;
+package com.atlassian.jwt.internal.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.jwt.SigningAlgorithm;

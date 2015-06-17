@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.servlet;
+package com.atlassian.jwt.internal.servlet;
 
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.sal.api.ApplicationProperties;

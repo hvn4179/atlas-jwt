@@ -1,5 +1,8 @@
 package com.atlassian.jwt.applinks;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.atlassian.applinks.api.ApplicationLink;
 
 public interface JwtApplinkFinder
@@ -10,5 +13,6 @@ public interface JwtApplinkFinder
      * @return the first matching {@link com.atlassian.applinks.api.ApplicationLink} or null if there are no matches
      * @throws IllegalArgumentException if the id argument is null
      */
-    public ApplicationLink find(String addOnId);
+    @Nullable
+    ApplicationLink find(@Nonnull String addOnId);
 }

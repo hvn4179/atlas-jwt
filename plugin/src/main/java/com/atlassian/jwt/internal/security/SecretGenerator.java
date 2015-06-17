@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.security;
+package com.atlassian.jwt.internal.security;
 
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.security.random.DefaultSecureRandomService;

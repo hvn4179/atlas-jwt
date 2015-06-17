@@ -4,6 +4,7 @@
 
     <modules>
         <module>api</module>
+        <module>spi</module>
         <module>core</module>
         <module>applinks</module>
         <module>plugin</module>
@@ -110,6 +111,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jwt-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
