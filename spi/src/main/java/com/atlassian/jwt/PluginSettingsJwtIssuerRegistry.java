@@ -110,6 +110,4 @@ public class PluginSettingsJwtIssuerRegistry implements MutableJwtRegistry
             return secret;
         }
     }
-
-
 }
