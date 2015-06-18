@@ -30,6 +30,15 @@
             <artifactId>jwt-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jwt-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-osgi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <scope>provided</scope>
@@ -92,17 +101,23 @@
                     <jvmArgs>-Xmx1024m -XX:MaxPermSize=256m</jvmArgs>
 
                     <instructions>
+                        <Spring-Context>*</Spring-Context>
                         <Export-Package>
                             com.atlassion.jwt;version="$project.version}",
                             com.atlassian.jwt.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
+                            <!-- Import and export the packages provided by jwt-api, jwt-spi and jwt-applinks in case
+                                 the host application provides them -->
+                            com.atlassian.jwt;resolution:="optional",
+                            com.atlassian.jwt.*;resolution:="optional",
                             com.atlassian.applinks.*,
                             com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
                             com.atlassian.sal.api.message,
                             com.atlassian.sal.api.net,
                             com.atlassian.security.random,
-                            com.google.common.collect,
+                            com.google.common.base;version="[11,20)",
+                            com.google.common.collect;version="[11,20)",
                             javax.crypto,
                             javax.crypto.interfaces,
                             javax.crypto.spec,
@@ -122,6 +137,7 @@
                             org.apache.log;resolution:="optional",
                             org.apache.log4j;resolution:="optional",
                             org.ietf.jgss,
+                            org.osgi.*,
                             org.slf4j,
                             sun.security.util;resolution:="optional"
                         </Import-Package>

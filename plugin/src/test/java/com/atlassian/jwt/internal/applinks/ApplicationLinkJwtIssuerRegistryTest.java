@@ -17,13 +17,15 @@ import java.util.UUID;
 import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplinksJwtIssuerServiceTest
+public class ApplicationLinkJwtIssuerRegistryTest
 {
-    private ApplinksJwtIssuerService applinksJwtIssuerService;
+    private ApplinksJwtIssuerRegistry registry;
     @Mock private ApplicationLinkService applicationLinkService;
     @Mock private ApplicationLink applicationLink;
     @Mock private ApplicationLink unrelatedNoAuthApplicationLink;
@@ -38,63 +40,40 @@ public class ApplinksJwtIssuerServiceTest
     @Test
     public void validAddOnKeyIsValidIssuerId()
     {
-        assertThat(applinksJwtIssuerService.isValid(ADD_ON_KEY), is(true));
+        assertThat(registry.getIssuer(ADD_ON_KEY), notNullValue());
     }
 
     @Test
     public void validApplinkIdIsInvalidIssuerId()
     {
-        assertThat(applinksJwtIssuerService.isValid(APP_LINK_ID), is(false));
+        assertThat(registry.getIssuer(APP_LINK_ID), nullValue());
     }
 
     @Test
     public void nullIsInvalidIssuerId()
     {
-        assertThat(applinksJwtIssuerService.isValid(null), is(false));
+        assertThat(registry.getIssuer(null), nullValue());
     }
 
     @Test
     public void addOnWithNonJwtAuthenticationIsInvalidIssuer()
     {
-        assertThat(applinksJwtIssuerService.isValid(OAUTH_ADD_ON_KEY), is(false));
+        assertThat(registry.getIssuer(OAUTH_ADD_ON_KEY), nullValue());
     }
 
     @Test
     public void addOnWithNullAuthenticationPropertyIsInvalidIssuer()
     {
-        assertThat(applinksJwtIssuerService.isValid(NO_AUTH_ADD_ON_KEY), is(false));
+        assertThat(registry.getIssuer(NO_AUTH_ADD_ON_KEY), nullValue());
     }
 
     @Test
     public void validAddOnKeyHasSharedSecret() throws JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
     {
-        assertThat(applinksJwtIssuerService.getSharedSecret(ADD_ON_KEY), is(SHARED_SECRET));
+        ApplicationLinkJwtIssuer issuer = registry.getIssuer(ADD_ON_KEY);
+        assertThat(issuer, notNullValue());
+        assertThat(issuer.getSharedSecret(), is(SHARED_SECRET));
     }
-
-    @Test(expected = JwtUnknownIssuerException.class)
-    public void gettingSharedSecretUsingApplinkIdResultsInException() throws JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
-    {
-        applinksJwtIssuerService.getSharedSecret(APP_LINK_ID);
-    }
-
-    @Test(expected = JwtUnknownIssuerException.class)
-    public void gettingSharedSecretUsingNullIssuerIdResultsInException() throws JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
-    {
-        applinksJwtIssuerService.getSharedSecret(null);
-    }
-
-    @Test(expected = JwtUnknownIssuerException.class)
-    public void gettingSharedSecretUsingNoAuthAddOnIdResultsInException() throws JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
-    {
-        applinksJwtIssuerService.getSharedSecret(NO_AUTH_ADD_ON_KEY);
-    }
-
-    @Test(expected = JwtUnknownIssuerException.class)
-    public void gettingSharedSecretUsingOAuthAddOnIdResultsInException() throws JwtUnknownIssuerException, JwtIssuerLacksSharedSecretException
-    {
-        applinksJwtIssuerService.getSharedSecret(OAUTH_ADD_ON_KEY);
-    }
-
     @Before
     public void beforeEachTest()
     {
@@ -109,6 +88,6 @@ public class ApplinksJwtIssuerServiceTest
 
         when(applicationLinkService.getApplicationLinks()).thenReturn(asList(applicationLink, unrelatedNoAuthApplicationLink, unrelatedOAuthApplicationLink));
 
-        applinksJwtIssuerService = new ApplinksJwtIssuerService(new JwtApplinkFinderImpl(applicationLinkService));
+        registry = new ApplinksJwtIssuerRegistry(new JwtApplinkFinderImpl(applicationLinkService));
     }
 }

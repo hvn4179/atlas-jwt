@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
+ * @since 1.3
  */
 public interface JwtIssuerRegistry
 {

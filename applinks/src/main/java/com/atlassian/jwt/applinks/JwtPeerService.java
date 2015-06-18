@@ -26,7 +26,7 @@ public interface JwtPeerService
      * </li>
      * <li><strong>secret</strong> - a shared secret which should be used to generate HMAC SHA-256 signatures for JWTs</li>
      * </ul>
-     * <p/>
+     * <p>
      * If the linked application returns an HTTP code outside of the 2xx range the registration process is terminated.
      *
      * @param applicationLink the {@link ApplicationLink linked application} to register an JWT relationship with.

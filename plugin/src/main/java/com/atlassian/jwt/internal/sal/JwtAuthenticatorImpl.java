@@ -2,7 +2,7 @@ package com.atlassian.jwt.internal.sal;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
-import com.atlassian.jwt.applinks.JwtService;
+import com.atlassian.jwt.JwtService;
 import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
 import com.atlassian.jwt.core.http.auth.AbstractJwtAuthenticator;
 import com.atlassian.jwt.exception.*;
@@ -29,6 +29,7 @@ public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRe
     public JwtAuthenticatorImpl(JwtService jwtService)
     {
         super(new JavaxJwtRequestExtractor(), new DefaultAuthenticationResultHandler());
+
         this.jwtService = checkNotNull(jwtService);
     }
 
@@ -42,14 +43,6 @@ public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRe
     @Override
     protected Jwt verifyJwt(String jwt, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException, IOException, NoSuchAlgorithmException
     {
-        try
-        {
-            return jwtService.verifyJwt(jwt, claimVerifiers).getJwt();
-        }
-        catch (TypeNotInstalledException e)
-        {
-            // TypeNotInstalledException is in applinks which the base class can't depend on.
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        return jwtService.verifyJwt(jwt, claimVerifiers);
     }
 }

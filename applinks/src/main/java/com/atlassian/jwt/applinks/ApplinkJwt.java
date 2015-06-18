@@ -7,7 +7,9 @@ import com.atlassian.jwt.Jwt;
  * A {@link Jwt verified JWT} and the {@link ApplicationLink} that issued it.
  *
  * @since 1.0
+ * @deprecated in 1.3
  */
+@Deprecated
 public interface ApplinkJwt
 {
     /**

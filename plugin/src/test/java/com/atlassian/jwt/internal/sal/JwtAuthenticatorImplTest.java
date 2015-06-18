@@ -1,16 +1,11 @@
 package com.atlassian.jwt.internal.sal;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.crowd.embedded.api.CrowdService;
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.applinks.ApplinkJwt;
-import com.atlassian.jwt.applinks.JwtApplinkFinder;
-import com.atlassian.jwt.applinks.JwtService;
-import com.atlassian.jwt.applinks.exception.NotAJwtPeerException;
+import com.atlassian.jwt.JwtService;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.core.reader.NimbusMacJwtReader;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
@@ -34,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -104,20 +100,14 @@ public class JwtAuthenticatorImplTest
     private JwtAuthenticatorImpl authenticator;
 
     private @Mock CrowdService crowdService;
-    private @Mock JwtApplinkFinder jwtApplinkFinder;
-    private @Mock ApplicationLink applicationLink;
     private @Mock User addOnUser;
 
     private final static JwtService jwtService = new JwtService()
     {
+        @Nonnull
         @Override
-        public boolean isJwtPeer(ApplicationLink applicationLink)
-        {
-            throw new NotImplementedException();
-        }
-
-        @Override
-        public ApplinkJwt verifyJwt(final String jwtString, Map<String, ? extends JwtClaimVerifier> claimVerifiers) throws NotAJwtPeerException, JwtParseException, JwtVerificationException, TypeNotInstalledException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
+        public Jwt verifyJwt(@Nonnull final String jwtString, @Nonnull Map<String, ? extends JwtClaimVerifier> claimVerifiers)
+                throws JwtParseException, JwtVerificationException, JwtIssuerLacksSharedSecretException, JwtUnknownIssuerException
         {
             final Jwt jwt = new NimbusMacJwtReader(SHARED_SECRET).readAndVerify(jwtString, claimVerifiers);
 
@@ -126,30 +116,12 @@ public class JwtAuthenticatorImplTest
                 throw new JwtUnknownIssuerException(jwt.getIssuer());
             }
 
-            return new ApplinkJwt()
-            {
-                @Override
-                public Jwt getJwt()
-                {
-                    return jwt;
-                }
-
-                @Override
-                public ApplicationLink getPeer()
-                {
-                    throw new NotImplementedException();
-                }
-            };
+            return jwt;
         }
 
+        @Nonnull
         @Override
-        public String issueJwt(String jsonPayload, ApplicationLink applicationLink) throws NotAJwtPeerException, JwtSigningException
-        {
-            throw new NotImplementedException();
-        }
-
-        @Override
-        public String issueJwt(String jsonPayload, String secret) throws NotAJwtPeerException, JwtSigningException
+        public String issueJwt(@Nonnull String jsonPayload, @Nonnull String secret) throws JwtSigningException
         {
             throw new NotImplementedException();
         }
@@ -169,8 +141,6 @@ public class JwtAuthenticatorImplTest
         when(request.getMethod()).thenReturn(METHOD);
         when(request.getHeaders(AUTHORIZATION_HEADER)).thenReturn(new StringTokenizer(""));
         when(request.getParameterMap()).thenReturn(PARAMETERS_WITHOUT_JWT);
-        when(jwtApplinkFinder.find(JWT_ISSUER)).thenReturn(applicationLink);
-        when(applicationLink.getProperty(JwtConstants.AppLinks.ADD_ON_USER_KEY_PROPERTY_NAME)).thenReturn(ADD_ON_USER_KEY);
         when(crowdService.getUser(ADD_ON_PRINCIPAL.getName())).thenReturn(addOnUser);
         when(addOnUser.isActive()).thenReturn(true);
     }
@@ -515,11 +485,6 @@ public class JwtAuthenticatorImplTest
     private String createValidJwtWithIssuer(String issuer) throws IOException, NoSuchAlgorithmException
     {
         return createValidJwt(issuer, END_USER_ACCOUNT_NAME);
-    }
-
-    private String createValidJwtWithSubject(String subject) throws IOException, NoSuchAlgorithmException
-    {
-        return createValidJwt(JWT_ISSUER, subject);
     }
 
     private String createValidJwt(String issuer, String subject) throws UnsupportedEncodingException, NoSuchAlgorithmException

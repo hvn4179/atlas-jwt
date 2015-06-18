@@ -19,7 +19,9 @@ import java.util.Map;
  * {@link Jwt JWTs} for use in outbound requests targeting {@link ApplicationLink linked applications}.
  *
  * @since 1.0
+ * @deprecated in 1.3. Use {@link com.atlassian.jwt.JwtService} instead
  */
+@Deprecated
 public interface JwtService
 {
     /**

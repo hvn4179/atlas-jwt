@@ -5,54 +5,10 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
     </plugin-info>
 
-    <!-- imported components -->
-
-    <component-import key="application-link-service" interface="com.atlassian.applinks.api.ApplicationLinkService"/>
-    <component-import key="authentication-controller" interface="com.atlassian.sal.api.auth.AuthenticationController"/>
-    <component-import key="authentication-listener" interface="com.atlassian.sal.api.auth.AuthenticationListener"/>
-    <component-import key="internal-host-application" interface="com.atlassian.applinks.host.spi.InternalHostApplication"/>
-    <component-import key="oauth-consumer-store" interface="com.atlassian.oauth.serviceprovider.ServiceProviderConsumerStore"/>
-    <component-import key="oauth-token-store" interface="com.atlassian.oauth.serviceprovider.ServiceProviderTokenStore"/>
-
-    <!-- exported components -->
-
-    <component key="jwt-reader-factory" class="com.atlassian.jwt.core.reader.NimbusJwtReaderFactory" public="true">
-        <interface>com.atlassian.jwt.reader.JwtReaderFactory</interface>
-    </component>
-
-    <component key="jwt-writer-factory" class="com.atlassian.jwt.core.writer.NimbusJwtWriterFactory" public="true">
-        <interface>com.atlassian.jwt.writer.JwtWriterFactory</interface>
-    </component>
-
-    <component key="jwt-json-builder-factory" class="com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory"
-    public="true">
-        <interface>com.atlassian.jwt.writer.JwtJsonBuilderFactory</interface>
-    </component>
-
-    <component key="jwt-peer-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtPeerService" public="true">
-        <interface>com.atlassian.jwt.applinks.JwtPeerService</interface>
-    </component>
-
-    <component key="jwt-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtService" public="true">
-        <interface>com.atlassian.jwt.applinks.JwtService</interface>
-    </component>
-
-    <component key="jwt-applink-finder" class="com.atlassian.jwt.applinks.JwtApplinkFinderImpl" public="true">
-        <interface>com.atlassian.jwt.applinks.JwtApplinkFinder</interface>
-    </component>
-
-    <!-- internal components -->
-
-    <component key="jwt-authenticator" class="com.atlassian.jwt.internal.sal.JwtAuthenticatorImpl"/>
-
-    <component key="applinks-jwt-issuer-service" class="com.atlassian.jwt.internal.applinks.ApplinksJwtIssuerService">
-        <interface>com.atlassian.jwt.core.reader.JwtIssuserValidator</interface>
-        <interface>com.atlassian.jwt.core.reader.JwtIssuerSharedSecretService</interface>
-    </component>
+    <!-- All components and imports are defined in META-INF/spring -->
 
     <!-- servlets and filters -->
-
-    <servlet-filter key="jwt-auth-filter" class="com.atlassian.jwt.internal.servlet.JwtAuthFilter"
+    <servlet-filter key="jwtAuthFilter" class="com.atlassian.jwt.internal.servlet.JwtAuthFilter"
                     location="after-encoding">
         <url-pattern>/*</url-pattern>
     </servlet-filter>
