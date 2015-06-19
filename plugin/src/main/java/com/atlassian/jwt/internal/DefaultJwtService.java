@@ -14,6 +14,8 @@ import com.atlassian.jwt.writer.JwtWriterFactory;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class DefaultJwtService implements JwtService
 {
     private final JwtReaderFactory jwtReaderFactory;
@@ -29,8 +31,15 @@ public class DefaultJwtService implements JwtService
     @Override
     public String issueJwt(@Nonnull String jsonPayload, @Nonnull String sharedSecret)
     {
-        return jwtWriterFactory.macSigningWriter(SigningAlgorithm.HS256, sharedSecret)
-                .jsonToJwt(jsonPayload);
+        return issueJwt(jsonPayload, sharedSecret, SigningAlgorithm.HS256);
+    }
+
+    @Nonnull
+    @Override
+    public String issueJwt(@Nonnull String jsonPayload, @Nonnull String sharedSecret, @Nonnull SigningAlgorithm algorithm)
+    {
+        return jwtWriterFactory.macSigningWriter(checkNotNull(algorithm, "algorithm"), checkNotNull(sharedSecret, "sharedSecret"))
+                .jsonToJwt(checkNotNull(jsonPayload, "jsonPayload"));
     }
 
     @Nonnull

@@ -18,7 +18,9 @@ import java.util.Map;
  */
 public interface JwtService {
     /**
-     * Generate a JWT for the supplied payload, suitable for authenticating with the specified {@code secret}.
+     * Generate a JWT for the supplied payload, suitable for authenticating with the specified {@code secret}. This
+     * uses {@link SigningAlgorithm#HS256} as the default signing algorithm. Use
+     * {@link #issueJwt(String, String, SigningAlgorithm)} to create a JWT with a different algorithm
      *
      * @param jsonPayload     a JSON payload
      * @param secret the shared-secret or private-key used to sign
@@ -27,6 +29,18 @@ public interface JwtService {
      */
     @Nonnull
     String issueJwt(@Nonnull String jsonPayload, @Nonnull String secret);
+
+    /**
+     * Generate a JWT for the supplied payload, suitable for authenticating with the specified {@code secret}.
+     *
+     * @param jsonPayload     a JSON payload
+     * @param secret the shared-secret or private-key used to sign
+     * @param algorithm the algorithm used to sign the JWT
+     * @return the JWT string
+     * @throws com.atlassian.jwt.exception.JwtSigningException  if a problem was encountered while generating the JWT
+     */
+    @Nonnull
+    String issueJwt(@Nonnull String jsonPayload, @Nonnull String secret, SigningAlgorithm algorithm);
 
     /**
      * Verify an incoming JWT.

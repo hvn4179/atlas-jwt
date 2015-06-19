@@ -125,6 +125,13 @@ public class JwtAuthenticatorImplTest
         {
             throw new NotImplementedException();
         }
+
+        @Nonnull
+        @Override
+        public String issueJwt(@Nonnull String jsonPayload, @Nonnull String secret, SigningAlgorithm algorithm)
+        {
+            throw new NotImplementedException();
+        }
     };
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
