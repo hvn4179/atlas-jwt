@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
-import com.atlassian.applinks.host.spi.InternalHostApplication;
+import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.jwt.SigningAlgorithm;
 import com.atlassian.jwt.applinks.JwtPeerService;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
@@ -20,9 +20,9 @@ import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAM
 
 public class ApplinksJwtPeerService implements JwtPeerService
 {
-    private final InternalHostApplication hostApplication;
+    private final HostApplication hostApplication;
 
-    public ApplinksJwtPeerService(InternalHostApplication hostApplication)
+    public ApplinksJwtPeerService(HostApplication hostApplication)
     {
         this.hostApplication = hostApplication;
     }

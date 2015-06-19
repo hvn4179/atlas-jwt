@@ -3,6 +3,9 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <permissions>
+            <permission>execute_java</permission>
+        </permissions>
     </plugin-info>
 
     <!-- All components and imports are defined in META-INF/spring -->
