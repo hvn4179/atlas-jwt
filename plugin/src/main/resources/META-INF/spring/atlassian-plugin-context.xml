@@ -5,11 +5,6 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
              default-autowire="autodetect">
 
-    <beans:bean id="jwtService" class="com.atlassian.jwt.internal.DefaultJwtService">
-        <beans:constructor-arg ref="jwtReaderFactory"/>
-        <beans:constructor-arg ref="jwtWriterFactory"/>
-    </beans:bean>
-
     <beans:bean id="jwtAuthenticator" class="com.atlassian.jwt.internal.sal.JwtAuthenticatorImpl">
         <beans:constructor-arg ref="jwtService"/>
     </beans:bean>
