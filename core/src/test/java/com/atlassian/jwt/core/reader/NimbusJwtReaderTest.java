@@ -7,7 +7,6 @@ import com.atlassian.jwt.core.HmacJwtSigner;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.core.keys.KeyUtils;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
-import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
@@ -22,9 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
@@ -32,13 +29,12 @@ import java.util.Map;
 
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest
 {
-    private static final String SECRET_KEY = StringUtils.repeat("secret", 10);
+    private static final String SECRET_KEY = "secret which is at least 256 bits long";
+    private static final String WRONG_SECRET_KEY = "wrong " + SECRET_KEY;
     private static final int TIMESTAMP = 1300819380;
     private static final int TEN_MINS_EARLIER = TIMESTAMP - 60 * 10;
 
@@ -79,7 +75,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        final String payload = new NimbusMacJwtReader("wrong secret", CLOCK).readUnverified(jwt).getJsonPayload();
+        final String payload = new NimbusMacJwtReader(WRONG_SECRET_KEY, CLOCK).readUnverified(jwt).getJsonPayload();
         assertJsonContainsOnly(payload,
                 "exp", TIMESTAMP - JwtConstants.TIME_CLAIM_LEEWAY_SECONDS + 1,
                 "iat", TEN_MINS_EARLIER,
@@ -120,7 +116,7 @@ public class NimbusJwtReaderTest
                 "\"http:\\/\\/example.com\\/is_root\"", true,
                 "iss", "joe"
         );
-        new NimbusMacJwtReader("wrong secret", CLOCK).readAndVerify(jwt, NO_REQUIRED_CLAIMS);
+        new NimbusMacJwtReader(WRONG_SECRET_KEY, CLOCK).readAndVerify(jwt, NO_REQUIRED_CLAIMS);
     }
 
     @Test(expected = JwtExpiredException.class)

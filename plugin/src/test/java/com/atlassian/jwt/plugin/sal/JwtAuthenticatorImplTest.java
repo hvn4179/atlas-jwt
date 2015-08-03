@@ -81,7 +81,7 @@ public class JwtAuthenticatorImplTest
             return false;
         }
     };
-    private static final String SHARED_SECRET = "secret";
+    private static final String SHARED_SECRET = "secret which is at least 256 bits long";
     private static final JWSSigner JWT_SIGNER = new MACSigner(SHARED_SECRET);
     private static final SigningAlgorithm SIGNING_ALGORITHM = SigningAlgorithm.HS256;
     private static final JwtWriter JWT_WRITER = new NimbusJwtWriter(SIGNING_ALGORITHM, JWT_SIGNER);
