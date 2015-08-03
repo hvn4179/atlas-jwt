@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NimbusJwtWriterTest
 {
-    private static final String SHARED_SECRET = "secret";
+    private static final String SHARED_SECRET = "secret which is at least 256 bits long";
 
     private static final String PRIVATE_KEY_FILE_NAME = "private.pem";
 
