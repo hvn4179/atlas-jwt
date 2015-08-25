@@ -9,7 +9,6 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import java.io.Reader;
 import java.security.KeyFactory;
-import java.security.PublicKey;
 import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -38,9 +37,7 @@ public class KeyUtils
             // Now convert to Java objects
             KeyFactory keyFactory = KeyFactory.getInstance( "RSA");
             PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
-            RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
-
-            return privateKey;
+            return (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
         } catch (Exception e)
         {
             throw new JwtCannotRetrieveKeyException("Error reading private key",  e);
@@ -61,8 +58,7 @@ public class KeyUtils
             SubjectPublicKeyInfo pub = SubjectPublicKeyInfo.getInstance(object);
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
 
-            RSAPublicKey publicKey = (RSAPublicKey) converter.getPublicKey(pub);
-            return publicKey;
+            return (RSAPublicKey) converter.getPublicKey(pub);
         }
         catch (Exception e)
         {

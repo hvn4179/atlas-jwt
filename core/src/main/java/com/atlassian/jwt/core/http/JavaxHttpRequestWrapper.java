@@ -1,5 +1,6 @@
 package com.atlassian.jwt.core.http;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -26,6 +27,7 @@ public class JavaxHttpRequestWrapper implements HttpRequestWrapper
         return request.getParameter(parameterName);
     }
 
+    @Nonnull
     @Override
     @SuppressWarnings(value = "unchecked")
     public Iterable<String> getHeaderValues(String headerName)
@@ -37,6 +39,7 @@ public class JavaxHttpRequestWrapper implements HttpRequestWrapper
         return headers != null ? Collections.list(headers) : Collections.emptyList();
     }
 
+    @Nonnull
     @Override
     public CanonicalHttpRequest getCanonicalHttpRequest()
     {

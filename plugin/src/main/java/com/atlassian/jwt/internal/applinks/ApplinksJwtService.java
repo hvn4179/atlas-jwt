@@ -1,4 +1,4 @@
-package com.atlassian.jwt.plugin.applinks;
+package com.atlassian.jwt.internal.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -22,6 +22,8 @@ import java.util.Map;
 
 import static com.atlassian.jwt.JwtConstants.AppLinks.SHARED_SECRET_PROPERTY_NAME;
 
+@SuppressWarnings("deprecation")
+@Deprecated
 public class ApplinksJwtService implements JwtService
 {
     private final JwtReaderFactory jwtReaderFactory;

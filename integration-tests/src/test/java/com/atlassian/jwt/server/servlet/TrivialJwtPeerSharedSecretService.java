@@ -1,5 +1,7 @@
 package com.atlassian.jwt.server.servlet;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.jwt.core.reader.JwtIssuerSharedSecretService;
 import com.atlassian.jwt.core.reader.JwtIssuerValidator;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
@@ -22,7 +24,7 @@ public class TrivialJwtPeerSharedSecretService implements JwtIssuerValidator, Jw
     }
 
     @Override
-    public String getSharedSecret(String issuer) throws JwtIssuerLacksSharedSecretException
+    public String getSharedSecret(@Nonnull String issuer) throws JwtIssuerLacksSharedSecretException
     {
         if (!isValid(issuer))
         {

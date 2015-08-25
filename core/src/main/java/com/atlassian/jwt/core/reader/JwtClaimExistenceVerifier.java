@@ -1,6 +1,5 @@
 package com.atlassian.jwt.core.reader;
 
-import com.atlassian.jwt.exception.JwtInvalidClaimException;
 import com.atlassian.jwt.exception.JwtMissingClaimException;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
 
@@ -18,6 +17,7 @@ public class JwtClaimExistenceVerifier implements JwtClaimVerifier
     @Override
     public void verify(@Nonnull Object claim) throws JwtMissingClaimException
     {
+        //noinspection ConstantConditions
         if (null == claim)
         {
             throw new JwtMissingClaimException(String.format("Claim '%s' is missing.", claimName));

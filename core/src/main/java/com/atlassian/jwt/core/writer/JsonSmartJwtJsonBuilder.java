@@ -6,9 +6,6 @@ import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
 
-/**
- *
- */
 public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
 {
     private final JSONObject json = new JSONObject();

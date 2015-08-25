@@ -1,5 +1,7 @@
 package com.atlassian.jwt.applinks;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 
@@ -15,8 +17,9 @@ public class JwtApplinkFinderImpl implements JwtApplinkFinder
     }
 
     @Override
-    public ApplicationLink find(String addOnId)
+    public ApplicationLink find(@Nonnull String addOnId)
     {
+        //noinspection ConstantConditions
         if (null == addOnId)
         {
             throw new NullPointerException("Add-on id cannot be null");

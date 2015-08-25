@@ -19,7 +19,9 @@ import java.util.Map;
  * {@link Jwt JWTs} for use in outbound requests targeting {@link ApplicationLink linked applications}.
  *
  * @since 1.0
+ * @deprecated in 1.3. Use {@link com.atlassian.jwt.JwtService} instead
  */
+@Deprecated
 public interface JwtService
 {
     /**
@@ -50,7 +52,7 @@ public interface JwtService
     /**
      * Generate a JWT for the supplied payload, suitable for authenticating with the specified
      * {@link ApplicationLink linked application}. Use {@link #isJwtPeer(ApplicationLink)} to check whether the
-     * {@link ApplicationLink linked application} is a bone fide JWT peer before calling this method.
+     * {@link ApplicationLink linked application} is a bona fide JWT peer before calling this method.
      *
      * @param jsonPayload     a JSON payload
      * @param applicationLink the {@link ApplicationLink} the JWT will be sent to

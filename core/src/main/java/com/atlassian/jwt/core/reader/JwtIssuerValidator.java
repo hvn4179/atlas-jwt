@@ -15,5 +15,5 @@ public interface JwtIssuerValidator
      * @param issuer the issuer as specified in the JWT "iss" claim
      * @return true if the issuer is "valid", false otherwise
      */
-    public boolean isValid(String issuer);
+    boolean isValid(String issuer);
 }

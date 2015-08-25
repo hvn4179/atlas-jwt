@@ -1,5 +1,7 @@
 package com.atlassian.jwt;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.jwt.exception.JwtParseException;
 
 /**
@@ -16,5 +18,6 @@ public interface JwtParser
      * @return a Jwt object representing the decoded claims body
      * @throws JwtParseException if there is a problem parsing the token
      */
+    @Nonnull
     Jwt parse(String jwt) throws JwtParseException;
 }

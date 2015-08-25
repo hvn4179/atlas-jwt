@@ -1,12 +1,9 @@
-package com.atlassian.jwt.plugin.applinks;
+package com.atlassian.jwt.internal.applinks;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.applinks.ApplinkJwt;
 
-/**
- *
- */
 public class SimpleApplinkJwt implements ApplinkJwt
 {
     private final Jwt jwt;

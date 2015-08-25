@@ -1,5 +1,7 @@
 package com.atlassian.jwt.applinks;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException;
 
@@ -24,7 +26,7 @@ public interface JwtPeerService
      * </li>
      * <li><strong>secret</strong> - a shared secret which should be used to generate HMAC SHA-256 signatures for JWTs</li>
      * </ul>
-     * <p/>
+     * <p>
      * If the linked application returns an HTTP code outside of the 2xx range the registration process is terminated.
      *
      * @param applicationLink the {@link ApplicationLink linked application} to register an JWT relationship with.
@@ -32,7 +34,7 @@ public interface JwtPeerService
      * @throws com.atlassian.jwt.applinks.exception.JwtRegistrationFailedException if there was a problem executing the request, or the linked application responded
      *                               with an HTTP code not in the 2xx range.
      */
-    void issueSharedSecret(ApplicationLink applicationLink, String path) throws JwtRegistrationFailedException;
+    void issueSharedSecret(@Nonnull ApplicationLink applicationLink, @Nonnull String path) throws JwtRegistrationFailedException;
 
     /**
      * Delete the JWT credentials associated with the {@link ApplicationLink linked application}. The linked application
@@ -42,5 +44,5 @@ public interface JwtPeerService
      *
      * @param applicationLink the {@link ApplicationLink linked application} to delete the JWT credentials for.
      */
-    void revokeSharedSecret(ApplicationLink applicationLink);
+    void revokeSharedSecret(@Nonnull ApplicationLink applicationLink);
 }

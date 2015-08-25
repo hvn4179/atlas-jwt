@@ -2,7 +2,6 @@ package com.atlassian.jwt.writer;
 
 import com.atlassian.jwt.AsymmetricSigningInfo;
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.SigningInfo;
 import com.atlassian.jwt.SymmetricSigningInfo;
 
 import javax.annotation.Nonnull;

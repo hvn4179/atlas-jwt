@@ -19,13 +19,14 @@ public class JwtClaimVerifiersBuilder
 
     /**
      * Encapsulate the building of requirements that we place upon JWTs in incoming requests.
-     * @param request Incoming request
+     * @param request incoming request
      * @return {@link Map} of claim name to verifier for claims upon which we place requirements
      * @throws UnsupportedEncodingException if {@link java.net.URLEncoder} cannot encode the request's characters
      * @throws NoSuchAlgorithmException if the hashing algorithm does not exist at runtime
      */
     public static Map<String, ? extends JwtClaimVerifier> build(CanonicalHttpRequest request) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        return Collections.singletonMap(JwtConstants.Claims.QUERY_HASH, new JwtClaimEqualityVerifier(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(request)));
+        return Collections.singletonMap(JwtConstants.Claims.QUERY_HASH,
+                new JwtClaimEqualityVerifier(JwtConstants.Claims.QUERY_HASH, HttpRequestCanonicalizer.computeCanonicalRequestHash(request)));
     }
 }

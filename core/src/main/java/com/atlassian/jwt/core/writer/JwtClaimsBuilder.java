@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
-import com.atlassian.jwt.JwtConstants;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
 

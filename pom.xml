@@ -4,6 +4,7 @@
 
     <modules>
         <module>api</module>
+        <module>spi</module>
         <module>core</module>
         <module>applinks</module>
         <module>plugin</module>
@@ -114,6 +115,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>jwt-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>jwt-applinks</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -166,6 +172,11 @@
                 <groupId>com.atlassian.httpclient</groupId>
                 <artifactId>atlassian-httpclient-apache-httpcomponents</artifactId>
                 <version>${atlassian.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.plugins</groupId>
+                <artifactId>atlassian-plugins-osgi</artifactId>
+                <version>${atlassian.plugins.osgi.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.plugins.rest</groupId>
@@ -278,6 +289,7 @@
         <jetty.version>8.1.7.v20120910</jetty.version>
         <atlassian.httpclient.version>0.16.0</atlassian.httpclient.version>
         <atlassian.rest.version>2.7.0</atlassian.rest.version>
+        <atlassian.plugins.osgi.version>3.2.14</atlassian.plugins.osgi.version>
         <applinks.version>4.0.2</applinks.version>
         <atlassian.jira.version>6.3.14</atlassian.jira.version>
         <atlassian.sal.version>2.10.0</atlassian.sal.version>

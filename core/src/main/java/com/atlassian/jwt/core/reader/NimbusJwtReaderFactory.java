@@ -1,7 +1,6 @@
 package com.atlassian.jwt.core.reader;
 
 import com.atlassian.jwt.SigningAlgorithm;
-import com.atlassian.jwt.SigningInfo;
 import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.exception.JwsUnsupportedAlgorithmException;
 import com.atlassian.jwt.exception.JwtIssuerLacksSharedSecretException;
