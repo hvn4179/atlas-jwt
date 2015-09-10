@@ -22,6 +22,15 @@ public class JwtUtilTest
     }
 
     @Test
+    public void percentEncodedSpecialCharacters() throws UnsupportedEncodingException
+    {
+        assertThat(JwtUtil.percentEncode(" "), is("%20"));
+        assertThat(JwtUtil.percentEncode("+"), is("%2B"));
+        assertThat(JwtUtil.percentEncode("*"), is("%2A"));
+        assertThat(JwtUtil.percentEncode("~"), is("~"));
+    }
+
+    @Test
     public void computeSha256Hash() throws NoSuchAlgorithmException
     {
         // tested against:

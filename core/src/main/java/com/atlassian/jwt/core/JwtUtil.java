@@ -47,7 +47,7 @@ public class JwtUtil
         }
 
         return URLEncoder.encode(str, ENCODING)
-                .replace("+", "%20")
+                .replace("+", "%2B")
                 .replace("*", "%2A")
                 .replace("%7E", "~");
     }
