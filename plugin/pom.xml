@@ -113,6 +113,7 @@
                             com.atlassian.jwt.*;resolution:="optional",
                             com.atlassian.applinks.*,
                             com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
+                            com.atlassian.sal.api.lifecycle,
                             com.atlassian.sal.api.message,
                             com.atlassian.sal.api.net,
                             com.atlassian.security.random,

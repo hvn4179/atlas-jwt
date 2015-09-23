@@ -5,6 +5,10 @@ import com.atlassian.jwt.writer.JwtJsonBuilder;
 import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
 {
@@ -89,11 +93,29 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     }
 
 
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
     public JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj)
     {
-        json.put(name, obj);
+        Object current = json.get(name);
+        if (current instanceof List && obj instanceof List)
+        {
+            List merged = new ArrayList((List) current);
+            merged.addAll((List) obj);
+            json.put(name, merged);
+        }
+        else if (current instanceof Map && obj instanceof Map)
+        {
+            Map merged = new HashMap((Map) current);
+            merged.putAll((Map) obj);
+            json.put(name, merged);
+        }
+        else
+        {
+            // not mergeable, just overwrite
+            json.put(name, obj);
+        }
         return this;
     }
 
