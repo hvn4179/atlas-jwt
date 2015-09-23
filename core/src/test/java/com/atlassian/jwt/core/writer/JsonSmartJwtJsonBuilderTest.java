@@ -1,6 +1,9 @@
 package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.core.JsonUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import net.minidev.json.parser.ParseException;
 import org.junit.Test;
 
 /**
@@ -48,4 +51,40 @@ public class JsonSmartJwtJsonBuilderTest
         );
     }
 
+    @Test
+    public void mapClaimsAreMerged() throws ParseException
+    {
+        String json = new JsonSmartJwtJsonBuilderFactory().jsonBuilder()
+                .expirationTime(EXP)
+                .issuedAt(IAT)
+                .type(TYP)
+                .claim(CUSTOM_KEY, ImmutableMap.of("key-1", "value-1", "key-2", "value-2"))
+                .claim(CUSTOM_KEY, ImmutableMap.of("key-1", "1-value", "key-3", "value-3"))
+                .build();
+
+        JsonUtils.assertJsonContainsOnly(json,
+                "exp", EXP,
+                "iat", IAT,
+                CUSTOM_KEY, ImmutableMap.of("key-1", "1-value", "key-2", "value-2", "key-3", "value-3"),
+                "typ", TYP);
+
+    }
+
+    @Test
+    public void listClaimsAreMergedButNotDeduped() throws ParseException
+    {
+        String json = new JsonSmartJwtJsonBuilderFactory().jsonBuilder()
+                .expirationTime(EXP)
+                .issuedAt(IAT)
+                .type(TYP)
+                .claim(CUSTOM_KEY, ImmutableList.of("value-1", "value-2", "value-3"))
+                .claim(CUSTOM_KEY, ImmutableList.of("value-1", "value-4", "value-5"))
+                .build();
+
+        JsonUtils.assertJsonContainsOnly(json,
+                "exp", EXP,
+                "iat", IAT,
+                CUSTOM_KEY, ImmutableList.of("value-1", "value-2", "value-3", "value-1", "value-4", "value-5"),
+                "typ", TYP);
+    }
 }
