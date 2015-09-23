@@ -1,6 +1,5 @@
 package com.atlassian.jwt.internal.sal;
 
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.jwt.Jwt;
 import com.atlassian.jwt.JwtService;
 import com.atlassian.jwt.core.http.JavaxJwtRequestExtractor;
@@ -16,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import static com.atlassian.jwt.JwtConstants.HttpRequests.ADD_ON_ID_ATTRIBUTE_NAME;
+import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_ATTRIBUTE_NAME;
 import static com.atlassian.jwt.JwtConstants.HttpRequests.JWT_SUBJECT_ATTRIBUTE_NAME;
 
 /**
@@ -36,6 +36,7 @@ public class JwtAuthenticatorImpl extends AbstractJwtAuthenticator<HttpServletRe
     @Override
     protected void tagRequest(HttpServletRequest request, Jwt jwt) throws JwtUserRejectedException
     {
+        request.setAttribute(JWT_ATTRIBUTE_NAME, jwt);
         request.setAttribute(ADD_ON_ID_ATTRIBUTE_NAME, jwt.getIssuer());
         request.setAttribute(JWT_SUBJECT_ATTRIBUTE_NAME, jwt.getSubject());
     }
