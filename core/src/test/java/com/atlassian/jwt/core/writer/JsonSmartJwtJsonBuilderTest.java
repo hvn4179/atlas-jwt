@@ -52,20 +52,30 @@ public class JsonSmartJwtJsonBuilderTest
     }
 
     @Test
-    public void mapClaimsAreMerged() throws ParseException
+    public void mapClaimsAreMergedRecursively() throws ParseException
     {
         String json = new JsonSmartJwtJsonBuilderFactory().jsonBuilder()
                 .expirationTime(EXP)
                 .issuedAt(IAT)
                 .type(TYP)
-                .claim(CUSTOM_KEY, ImmutableMap.of("key-1", "value-1", "key-2", "value-2"))
-                .claim(CUSTOM_KEY, ImmutableMap.of("key-1", "1-value", "key-3", "value-3"))
+                .claim(CUSTOM_KEY, ImmutableMap.of(
+                        "key-1", "value-1",
+                        "key-2", "value-2",
+                        "context", ImmutableMap.of("user", ImmutableMap.of("name", "username", "key", "userKey"))))
+                .claim(CUSTOM_KEY, ImmutableMap.of(
+                        "key-1", "1-value",
+                        "key-3", "value-3",
+                        "context", ImmutableMap.of("user", ImmutableMap.of("name", "other", "id", "aabbcc"))))
                 .build();
 
         JsonUtils.assertJsonContainsOnly(json,
                 "exp", EXP,
                 "iat", IAT,
-                CUSTOM_KEY, ImmutableMap.of("key-1", "1-value", "key-2", "value-2", "key-3", "value-3"),
+                CUSTOM_KEY, ImmutableMap.of(
+                        "key-1", "1-value",
+                        "key-2", "value-2",
+                        "key-3", "value-3",
+                        "context", ImmutableMap.of("user", ImmutableMap.of("name", "other", "key", "userKey", "id", "aabbcc"))),
                 "typ", TYP);
 
     }

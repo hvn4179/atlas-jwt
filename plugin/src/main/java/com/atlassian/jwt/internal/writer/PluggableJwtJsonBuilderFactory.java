@@ -63,7 +63,9 @@ public class PluggableJwtJsonBuilderFactory implements LifecycleAware, JwtJsonBu
                             // apply the OSGI provided JwtClaimWriters just before building the token
                             writeClaims(builder);
                         }
-                        return method.invoke(builder, args);
+                        Object result = method.invoke(builder, args);
+                        // if the builder tries to return itself, return the decorator instead
+                        return result == builder ? proxy : result;
                     }
                 });
     }

@@ -285,7 +285,7 @@
     </distributionManagement>
 
     <properties>
-        <amps.version>4.2.20</amps.version>
+        <amps.version>6.1.0</amps.version>
         <jetty.version>8.1.7.v20120910</jetty.version>
         <atlassian.httpclient.version>0.16.0</atlassian.httpclient.version>
         <atlassian.rest.version>2.7.0</atlassian.rest.version>

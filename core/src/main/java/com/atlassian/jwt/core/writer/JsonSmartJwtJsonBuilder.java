@@ -5,10 +5,7 @@ import com.atlassian.jwt.writer.JwtJsonBuilder;
 import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
 {
@@ -99,23 +96,7 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     public JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj)
     {
         Object current = json.get(name);
-        if (current instanceof List && obj instanceof List)
-        {
-            List merged = new ArrayList((List) current);
-            merged.addAll((List) obj);
-            json.put(name, merged);
-        }
-        else if (current instanceof Map && obj instanceof Map)
-        {
-            Map merged = new HashMap((Map) current);
-            merged.putAll((Map) obj);
-            json.put(name, merged);
-        }
-        else
-        {
-            // not mergeable, just overwrite
-            json.put(name, obj);
-        }
+        json.put(name, merge(current, obj));
         return this;
     }
 
@@ -130,5 +111,29 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     public String toString()
     {
         return json.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object merge(Object first, Object second)
+    {
+        if (first instanceof List && second instanceof List)
+        {
+            List merged = new ArrayList((List) first);
+            merged.addAll((List) second);
+            return merged;
+        }
+        else if (first instanceof Map && second instanceof Map)
+        {
+            Map merged = new HashMap((Map) first);
+            // merge each of the entries in second recursively
+            Set<Map.Entry> entries = ((Map) second).entrySet();
+            for (Map.Entry entry : entries)
+            {
+                merged.put(entry.getKey(), merge(merged.get(entry.getKey()), entry.getValue()));
+            }
+            return merged;
+        }
+
+        return second == null ? first : second;
     }
 }
