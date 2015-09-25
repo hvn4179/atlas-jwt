@@ -99,9 +99,9 @@ public class JwtConstants
          */
         public static final String ADD_ON_ID_ATTRIBUTE_NAME = "Plugin-Key";
         /**
-         * Attribute name of where the verified token is stored on incoming requests by the authentication filters
+         * Attribute name of where the JSON payload from the verified token is stored on incoming requests by the authentication filters
          */
-        public static final String JWT_ATTRIBUTE_NAME = "jwt";
+        public static final String JWT_JSON_PAYLOAD_ATTRIBUTE_NAME = "jwt.payload";
         public static final String JWT_SUBJECT_ATTRIBUTE_NAME = "jwt.subject";
 
         public static final String AUTHORIZATION_HEADER = "Authorization";
