@@ -2,6 +2,7 @@ package com.atlassian.jwt.core.writer;
 
 import com.atlassian.jwt.core.TimeUtil;
 import com.atlassian.jwt.writer.JwtJsonBuilder;
+import com.google.common.base.*;
 import net.minidev.json.JSONObject;
 
 import javax.annotation.Nonnull;
@@ -96,7 +97,7 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     public JwtJsonBuilder claim(@Nonnull String name, @Nonnull Object obj)
     {
         Object current = json.get(name);
-        json.put(name, merge(current, obj));
+        json.put(name, merge(name, current, obj));
         return this;
     }
 
@@ -114,7 +115,7 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
     }
 
     @SuppressWarnings("unchecked")
-    private Object merge(Object first, Object second)
+    private Object merge(String name, Object first, Object second)
     {
         if (first instanceof List && second instanceof List)
         {
@@ -129,9 +130,15 @@ public class JsonSmartJwtJsonBuilder implements JwtJsonBuilder
             Set<Map.Entry> entries = ((Map) second).entrySet();
             for (Map.Entry entry : entries)
             {
-                merged.put(entry.getKey(), merge(merged.get(entry.getKey()), entry.getValue()));
+                merged.put(entry.getKey(), merge(name + "." + entry.getKey(), merged.get(entry.getKey()), entry.getValue()));
             }
             return merged;
+        }
+
+        if (first != null && second != null && !com.google.common.base.Objects.equal(first, second))
+        {
+            throw new IllegalStateException("Cannot set claim '" + name + "' to '" + second +
+                    "'; it's already set as '" + first + "'");
         }
 
         return second == null ? first : second;
