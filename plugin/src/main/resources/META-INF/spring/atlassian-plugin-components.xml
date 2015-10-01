@@ -15,9 +15,18 @@
     <osgi:service id="jwtWriterFactory_osgiService" ref="jwtWriterFactory"
             interface="com.atlassian.jwt.writer.JwtWriterFactory"/>
 
-    <beans:bean id="jwtJsonBuilderFactory" class="com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory" autowire="constructor"/>
-    <osgi:service id="jwtJsonBuilderFactory_osgiService" ref="jwtJsonBuilderFactory"
-            interface="com.atlassian.jwt.writer.JwtJsonBuilderFactory"/>
+    <beans:bean id="jwtJsonBuilderFactory" class="com.atlassian.jwt.internal.writer.PluggableJwtJsonBuilderFactory"
+                autowire="constructor" destroy-method="destroy">
+        <beans:property name="delegate">
+            <beans:bean class="com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory"/>
+        </beans:property>
+    </beans:bean>
+    <osgi:service id="jwtJsonBuilderFactory_osgiService" ref="jwtJsonBuilderFactory">
+        <osgi:interfaces>
+            <beans:value>com.atlassian.jwt.writer.JwtJsonBuilderFactory</beans:value>
+            <beans:value>com.atlassian.sal.api.lifecycle.LifecycleAware</beans:value>
+        </osgi:interfaces>
+    </osgi:service>
 
     <beans:bean id="jwtPeerService" class="com.atlassian.jwt.internal.applinks.ApplinksJwtPeerService" autowire="constructor"/>
     <osgi:service id="jwtPeerService_osgiService" ref="jwtPeerService"

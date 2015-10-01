@@ -103,8 +103,8 @@
                     <instructions>
                         <Spring-Context>*</Spring-Context>
                         <Export-Package>
-                            com.atlassion.jwt;version="$project.version}",
-                            com.atlassian.jwt.*;version="${project.version}"
+                            com.atlassion.jwt,
+                            com.atlassian.jwt.*
                         </Export-Package>
                         <Import-Package>
                             <!-- Import and export the packages provided by jwt-api, jwt-spi and jwt-applinks in case
@@ -113,6 +113,7 @@
                             com.atlassian.jwt.*;resolution:="optional",
                             com.atlassian.applinks.*,
                             com.atlassian.sal.api.auth;version="${atlassian.sal.version}",
+                            com.atlassian.sal.api.lifecycle,
                             com.atlassian.sal.api.message,
                             com.atlassian.sal.api.net,
                             com.atlassian.security.random,
