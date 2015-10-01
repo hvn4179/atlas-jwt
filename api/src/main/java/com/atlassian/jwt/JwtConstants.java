@@ -98,7 +98,10 @@ public class JwtConstants
          * The name of an attribute set on incoming requests by authentication filters so that later filters can discover the id of the authenticated add-on (if any).
          */
         public static final String ADD_ON_ID_ATTRIBUTE_NAME = "Plugin-Key";
-
+        /**
+         * Attribute name of where the JSON payload from the verified token is stored on incoming requests by the authentication filters
+         */
+        public static final String JWT_JSON_PAYLOAD_ATTRIBUTE_NAME = "jwt.payload";
         public static final String JWT_SUBJECT_ATTRIBUTE_NAME = "jwt.subject";
 
         public static final String AUTHORIZATION_HEADER = "Authorization";
