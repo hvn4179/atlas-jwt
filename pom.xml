@@ -14,7 +14,7 @@
 
     <groupId>com.atlassian.jwt</groupId>
     <artifactId>jwt-parent</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1-SNAPSHOT</version>
     <name>Atlassian JWT Parent</name>
     <description>Library that provides support for JWT authentication.</description>
     <packaging>pom</packaging>
