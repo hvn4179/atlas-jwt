@@ -7,8 +7,8 @@ import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtReaderFactory;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.ReadOnlyJWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.security.Provider;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +36,7 @@ public class NimbusJwtReaderFactoryTest
     private static final String VALID_ISSUER = "valid";
     private static final String ISSUER_WITHOUT_SECRET = "setup in progress?";
     private static final String SUBJECT = "subject";
-    private static final String SHARED_SECRET = "secret which is at least 256 bits long";
+    private static final String SHARED_SECRET = "secret";
     private static final JWSSigner SIGNER = new MACSigner(SHARED_SECRET);
 
     @Mock JwtIssuerValidator jwtIssuerValidator;
@@ -127,7 +126,7 @@ public class NimbusJwtReaderFactoryTest
             JWSSigner fakeSigner = new JWSSigner()
             {
                 @Override
-                public Base64URL sign(JWSHeader header, byte[] signingInput) throws JOSEException
+                public Base64URL sign(ReadOnlyJWSHeader header, byte[] signingInput) throws JOSEException
                 {
                     return Base64URL.encode("fake signature");
                 }
@@ -138,10 +137,6 @@ public class NimbusJwtReaderFactoryTest
                     HashSet<JWSAlgorithm> jwsAlgorithms = new HashSet<JWSAlgorithm>();
                     jwsAlgorithms.add(algorithm);
                     return jwsAlgorithms;
-                }
-                @Override
-                public void setProvider(Provider provider) {
-                    throw new UnsupportedOperationException();
                 }
             };
             return new AnyAlgorithmNimbusJwtWriter(algorithm, fakeSigner).jsonToJwt(payload);

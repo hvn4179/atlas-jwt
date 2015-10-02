@@ -39,9 +39,8 @@ public class NimbusJwtWriter implements JwtWriter
     @VisibleForTesting
     JWSObject generateJwsObject(String payload)
     {
-        JWSHeader header = new JWSHeader.Builder(algorithm)
-            .type(new JOSEObjectType(JWT))
-            .build();
+        JWSHeader header = new JWSHeader(algorithm);
+        header.setType(new JOSEObjectType(JWT));
 
         // Create JWS object
         JWSObject jwsObject = new JWSObject(header, new Payload(payload));

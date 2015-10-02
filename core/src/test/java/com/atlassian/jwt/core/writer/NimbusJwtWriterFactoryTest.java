@@ -50,7 +50,7 @@ public class NimbusJwtWriterFactoryTest
     public void verifyCorrectCreationOfMacJwtWriter()
     {
         when(symmetricSigningInfo.getSigningAlgorithm()).thenReturn(SigningAlgorithm.HS256);
-        when(symmetricSigningInfo.getSharedSecret()).thenReturn("shared secret which is at least 256 bits long");
+        when(symmetricSigningInfo.getSharedSecret()).thenReturn("shared secret");
 
 
         NimbusJwtWriterFactory factory = new NimbusJwtWriterFactory(mockFactoryHelper);
