@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -23,7 +25,6 @@ public class PluggableJwtJsonBuilderFactoryTest
 {
     @Mock
     private BundleContext bundleContext;
-    @Mock
     private JwtJsonBuilder delegateBuilder;
     @Mock
     private JwtJsonBuilderFactory delegateFactory;
@@ -36,6 +37,16 @@ public class PluggableJwtJsonBuilderFactoryTest
     @Before
     public void setUp() throws InvalidSyntaxException
     {
+        delegateBuilder = mock(JwtJsonBuilder.class, new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getMethod().getReturnType().equals(JwtJsonBuilder.class))
+                {
+                    return invocation.getMock();
+                }
+                return null;
+            }
+        });
         when(delegateFactory.jsonBuilder()).thenReturn(delegateBuilder);
 
         // mock an OSGI context with two registered writers
@@ -48,13 +59,13 @@ public class PluggableJwtJsonBuilderFactoryTest
 
         factory = new PluggableJwtJsonBuilderFactory(bundleContext);
         factory.setDelegate(delegateFactory);
-        factory.onStart();
-
     }
 
     @Test
     public void testClaimWritersInvokedJustBeforeBuild()
     {
+        factory.onStart();
+
         JwtJsonBuilder builder = factory.jsonBuilder();
 
         assertNotNull(builder);
@@ -76,8 +87,24 @@ public class PluggableJwtJsonBuilderFactoryTest
     }
 
     @Test
+    public void testNoErrorsIfFactoryNotInitialized()
+    {
+        // factory.onStart has not been called, so the factory won't be using the OSGI services yet
+        JwtJsonBuilder builder = factory.jsonBuilder();
+        builder.issuer("issuer-id")
+                .build();
+
+        verify(delegateBuilder).issuer("issuer-id");
+        verify(delegateBuilder).build();
+
+        verifyZeroInteractions(writer1, writer2);
+
+    }
+
+    @Test
     public void testDestroyClosesTracker()
     {
+        factory.onStart();
         factory.destroy();
 
         verify(bundleContext, times(2)).ungetService(any(ServiceReference.class));

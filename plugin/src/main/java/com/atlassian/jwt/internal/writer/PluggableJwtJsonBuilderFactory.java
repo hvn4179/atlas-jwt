@@ -72,10 +72,14 @@ public class PluggableJwtJsonBuilderFactory implements LifecycleAware, JwtJsonBu
 
     private void writeClaims(JwtJsonBuilder builder)
     {
-        for (Object service : tracker.getServices())
+        Object[] services = tracker.getServices();
+        if (services != null)
         {
-            if (JwtClaimWriter.class.isAssignableFrom(service.getClass())) {
-                JwtClaimWriter.class.cast(service).write(builder);
+            for (Object service : services)
+            {
+                if (JwtClaimWriter.class.isAssignableFrom(service.getClass())) {
+                    JwtClaimWriter.class.cast(service).write(builder);
+                }
             }
         }
     }
