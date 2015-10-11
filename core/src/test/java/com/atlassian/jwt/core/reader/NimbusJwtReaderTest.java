@@ -7,7 +7,6 @@ import com.atlassian.jwt.core.HmacJwtSigner;
 import com.atlassian.jwt.core.StaticClock;
 import com.atlassian.jwt.core.keys.KeyUtils;
 import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilder;
-import com.atlassian.jwt.core.writer.JsonSmartJwtJsonBuilderFactory;
 import com.atlassian.jwt.core.writer.NimbusJwtWriter;
 import com.atlassian.jwt.exception.*;
 import com.atlassian.jwt.reader.JwtClaimVerifier;
@@ -22,9 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
@@ -32,8 +29,6 @@ import java.util.Map;
 
 import static com.atlassian.jwt.core.JsonUtils.assertJsonContainsOnly;
 import static com.atlassian.jwt.core.reader.JwtClaimVerifiersBuilder.NO_REQUIRED_CLAIMS;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NimbusJwtReaderTest

@@ -64,8 +64,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -122,6 +132,7 @@
                             javax.crypto,
                             javax.crypto.interfaces,
                             javax.crypto.spec,
+                            javax.mail.internet,
                             javax.naming,
                             javax.naming.directory,
                             javax.net,
@@ -133,6 +144,7 @@
                             javax.xml.transform,
                             javax.xml.transform.stream,
                             org.apache.avalon.framework.logger;resolution:="optional",
+                            org.apache.commons.codec.binary;version="${commons.codec.version}",
                             org.apache.commons.lang,
                             org.apache.commons.lang.builder,
                             org.apache.log;resolution:="optional",
