@@ -311,7 +311,7 @@
         <atlassian.jira.version>6.3.14</atlassian.jira.version>
         <atlassian.sal.version>2.10.0</atlassian.sal.version>
         <atlassian.crowd.version>2.8.0-OD-4</atlassian.crowd.version>
-        <commons.codec.version>1.7</commons.codec.version>
+        <commons.codec.version>1.4</commons.codec.version>
     </properties>
 
 </project>
