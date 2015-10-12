@@ -308,7 +308,7 @@
         <atlassian.rest.version>2.7.0</atlassian.rest.version>
         <atlassian.plugins.osgi.version>3.2.14</atlassian.plugins.osgi.version>
         <applinks.version>4.0.2</applinks.version>
-        <atlassian.jira.version>6.3.14</atlassian.jira.version>
+        <atlassian.jira.version>7.0.0</atlassian.jira.version>
         <atlassian.sal.version>2.10.0</atlassian.sal.version>
         <atlassian.crowd.version>2.8.0-OD-4</atlassian.crowd.version>
         <commons.codec.version>1.4</commons.codec.version>
